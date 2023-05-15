@@ -1,5 +1,5 @@
 Librarie:
-	int		id
+	int		id (PK) (FK)
 	string 	name
 	(string?)	map_adress
 	boolean	Full
@@ -8,13 +8,13 @@ Librarie:
 	image		photo
 	ArrayList<Book.id>(many to many*)	books
 
-Book:
-	int 	id
-	string Title
+Book: 
+	int 	id (PK)(FK) // NOTE: É key comoposta porque podem haver varios do mesmo livro 
+	string Title (PK)(FK)
 	image	photo
 	ArrayList<Librarie.id>(many to many*)	libraries
 
 User:
-	int 	id
+	int 	id (PK) (FK)
 	ArrayList<Librarie.id>(one to many)	addresses
 	ArrayList<book.id>(one to many)	activeNotifs
