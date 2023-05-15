@@ -1,0 +1,18 @@
+Librarie:
+	int		id
+	string 	name
+	(string?)	map_adress
+	boolean	Full
+	int 		max_slots
+	image		photo
+	ArrayList<Book.id>(one to many)	books
+
+Book:
+	int 	id
+	string Title
+	image	photo
+
+User:
+	int 	id
+	ArrayList<Librarie.id>(one to many)	addresses
+	ArrayList<book.id>(one to many)	activeNotifs
