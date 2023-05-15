@@ -4,13 +4,15 @@ Librarie:
 	(string?)	map_adress
 	boolean	Full
 	int 		max_slots
+	int 		current_occupied_slots
 	image		photo
-	ArrayList<Book.id>(one to many)	books
+	ArrayList<Book.id>(many to many*)	books
 
 Book:
 	int 	id
 	string Title
 	image	photo
+	ArrayList<Librarie.id>(many to many*)	libraries
 
 User:
 	int 	id
