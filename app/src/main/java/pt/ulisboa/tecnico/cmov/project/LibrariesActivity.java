@@ -27,7 +27,7 @@ public class LibrariesActivity extends FragmentActivity implements OnMapReadyCal
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+                .findFragmentById(R.id.libraries_map);
         mapFragment.getMapAsync(this);
     }
 
