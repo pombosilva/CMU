@@ -29,10 +29,6 @@ import java.util.List;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
-    public MapFragment() {
-        // Required empty public constructor
-    }
-
     private GoogleMap mMap;
 
     @Override
@@ -41,21 +37,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_map, container, false);
-        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.libraries_map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().
+                findFragmentById(R.id.libraries_map);
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
         Button searchButton = rootView.findViewById(R.id.searchButton);
-        searchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                searchLocation(v);
-            }
-        });
+        searchButton.setOnClickListener(this::searchLocation);
 
         return rootView;
     }
@@ -63,7 +54,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void searchLocation(View view) {
         // Remove previous search
         mMap.clear();
-        EditText searchText = getView().findViewById(R.id.searchText);
+        EditText searchText = requireView().findViewById(R.id.searchText);
         Geocoder geocoder = new Geocoder(getActivity());
         try {
             List<Address> addresses = geocoder.getFromLocationName(searchText.getText().toString(), 1);
@@ -80,7 +71,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void closeKeyboard(View view) {
-        InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         if (inputMethodManager != null) {
             inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
@@ -89,14 +80,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
-
         mMap.getUiSettings().setZoomControlsEnabled(true);
-        mMap.getUiSettings().setZoomGesturesEnabled(true);
 
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(),
+        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(requireActivity(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(getActivity(),
+            ActivityCompat.requestPermissions(requireActivity(),
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     1001);
         } else {
