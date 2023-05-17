@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/map"
+        android:icon="@drawable/baseline_location_on_24"
+        android:title="@string/map" />
+
+    <item
+        android:id="@+id/books"
+        android:icon="@drawable/baseline_book_24"
+        android:title="@string/books" />
+
+    <item
+        android:id="@+id/user"
+        android:icon="@drawable/baseline_person_24"
+        android:title="@string/user" />
+</menu>

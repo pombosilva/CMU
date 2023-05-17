@@ -4,4 +4,7 @@
     <string name="title_activity_libraries">LibrariesActivity</string>
     <string name="search_for_a_library">Search for a library</string>
     <string name="search">Search</string>
+    <string name="books">Books</string>
+    <string name="map">Map</string>
+    <string name="user">User</string>
 </resources>
