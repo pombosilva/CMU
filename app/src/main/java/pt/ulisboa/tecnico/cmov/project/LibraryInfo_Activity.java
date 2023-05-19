@@ -29,8 +29,8 @@ import com.journeyapps.barcodescanner.ScanOptions;
 
 public class LibraryInfo_Activity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private final int CHECKIN = 0;
-    private final int CHECKOUT = 1;
+    private static final int CHECKIN = 0;
+    private static final int CHECKOUT = 1;
     private GoogleMap mMap;
 
     @Override
