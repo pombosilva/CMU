@@ -7,8 +7,11 @@ import androidx.fragment.app.FragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,6 +35,8 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         mapFragment.getMapAsync(this);
 
         loadLibraryInfo(getIntent());
+
+        configureButtons();
     }
 
     @Override
@@ -75,8 +80,36 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
 
             Log.d("MensagensDebug","LatLng" + coordinates);
 
-//            mMap.moveCamera(CameraUpdateFactory.newLatLng(coordinates));
-
         }
+    }
+
+    private void configureButtons()
+    {
+        Button checkInButton = (Button) findViewById(R.id.checkin_btn);
+        checkInButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText( getApplicationContext(), "Clicked check in", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+
+        Button checkoutButton = (Button) findViewById(R.id.checkout_btn);
+        checkoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText( getApplicationContext(), "Clicked check out", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+        Button favouriteButton = (Button) findViewById(R.id.library_favourite_button);
+        favouriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText( getApplicationContext(), "Clicked favourite button", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
