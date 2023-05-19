@@ -29,6 +29,8 @@ import com.journeyapps.barcodescanner.ScanOptions;
 
 public class LibraryInfo_Activity extends AppCompatActivity implements OnMapReadyCallback {
 
+    private final int CHECKIN = 0;
+    private final int CHECKOUT = 1;
     private GoogleMap mMap;
 
     @Override
@@ -96,9 +98,8 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
             @Override
             public void onClick(View v) {
                 Toast.makeText( getApplicationContext(), "Clicked check in", Toast.LENGTH_SHORT).show();
-                scanBarcode();
+                scanBarcode(CHECKIN);
 
-                // TODO: Reagir ao id retornado
             }
         });
 
@@ -108,7 +109,7 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         checkoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                scanBarcode();
+                scanBarcode(CHECKOUT);
 
                 // TODO: Reagir ao id retornado
 
@@ -128,27 +129,53 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         });
     }
 
-    private void scanBarcode()
+    private void scanBarcode(int mode)
     {
         ScanOptions options = new ScanOptions();
         options.setPrompt("------------------Volume up to flash on-----------------");
         options.setBeepEnabled(true);
         options.setOrientationLocked(true);
         options.setCaptureActivity(Capture_Activity.class);
-        barLauncher.launch(options);
+        switch (mode)
+        {
+            case CHECKIN:
+                checkInScanner.launch(options);
+            case CHECKOUT:
+                checkOutScanner.launch(options);
+            default:
+                Toast.makeText(this, "NAO FOI NADA",Toast.LENGTH_LONG).show();
+        }
     }
 
-    ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(new ScanContract(), result ->
+    ActivityResultLauncher<ScanOptions> checkInScanner = registerForActivityResult(new ScanContract(), result ->
     {
         if (result.getContents() != null)
         {
+            // TODO: Faltar implementar a reacao ao input (Database needed)
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Result");
+            builder.setTitle("CheckIn Result");
             builder.setMessage(result.getContents());
             builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                      dialog.dismiss();
+                }
+            }).show();
+        }
+    });
+
+    ActivityResultLauncher<ScanOptions> checkOutScanner = registerForActivityResult(new ScanContract(), result ->
+    {
+        if (result.getContents() != null)
+        {
+            // TODO: Faltar implementar a reacao ao input (Database needed)
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Checkout Result");
+            builder.setMessage(result.getContents());
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
                 }
             }).show();
         }
