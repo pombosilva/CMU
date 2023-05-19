@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmov.project;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -21,7 +22,9 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
@@ -92,5 +95,56 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
         }
+
+        loadLibrariesMarkers();
+
+        mMap.setInfoWindowAdapter(new CustomWindowInfoAdapter(getActivity()));
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(@NonNull Marker marker) {
+                Intent intent = new Intent(getActivity(), LibraryInfo_Activity.class);
+                intent.putExtra("libraryName",marker.getTitle());
+                // Need Database
+                intent.putExtra("libraryImage", R.drawable.img);
+                intent.putExtra("libraryLat", marker.getPosition().latitude);
+                intent.putExtra("libraryLng", marker.getPosition().longitude);
+
+
+                marker.hideInfoWindow();
+
+                startActivity(intent);
+            }
+        });
+    }
+
+
+    private void loadLibrariesMarkers()
+    {
+        loadNormalMarkers();
+        loadFavouriteMarkers();
+    }
+
+    private void loadNormalMarkers()
+    {
+        // Lookup on database
+
+        // add them to the map
+
+        LatLng sydney = new LatLng(-33.857143, 151.215147);
+        mMap.addMarker(new MarkerOptions().position(sydney).title("Sydney"));
+        LatLng lisbon = new LatLng(38.713912, -9.133397);
+        mMap.addMarker(new MarkerOptions().position(lisbon).title("Lisbon"));
+        LatLng madrid = new LatLng(40.416891, -3.703739);
+        mMap.addMarker(new MarkerOptions().position(madrid).title("Madrid"));
+    }
+
+    private void loadFavouriteMarkers()
+    {
+        // Lookup on database
+
+        // add them to the map
+        LatLng zaragoza = new LatLng(41.657059, -0.875448);
+        MarkerOptions mkOpt = new MarkerOptions().position(zaragoza).title("Zaragoza").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+        mMap.addMarker(mkOpt);
     }
 }
