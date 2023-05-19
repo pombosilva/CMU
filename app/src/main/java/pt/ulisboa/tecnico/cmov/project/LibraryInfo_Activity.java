@@ -11,8 +11,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,10 +28,20 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class LibraryInfo_Activity extends AppCompatActivity implements OnMapReadyCallback {
 
     private static final int CHECKIN = 0;
     private static final int CHECKOUT = 1;
+
+    private List<Book> bookList = new ArrayList<Book>();
+    private ListView bookListView;
+
+    private ArrayAdapter<Book> arrayAdapter;
+
+
     private GoogleMap mMap;
 
     @Override
@@ -40,8 +53,9 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
                 .findFragmentById(R.id.library_map);
         mapFragment.getMapAsync(this);
 
-        loadLibraryInfo(getIntent());
 
+        configureBookListView();
+        loadLibraryInfo(getIntent());
         configureButtons();
     }
 
@@ -91,6 +105,33 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         {
             Toast.makeText( getApplicationContext(), "Wasn't able to load library contents", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void configureBookListView()
+    {
+
+        bookList.add(new Book(1,"Biblia", "palavra de deus", null, 1234567));
+        bookList.add(new Book(2,"Harry poter", "feiticos", null, 1234));
+        bookList.add(new Book(3,"Game of thrones", "porrada", null, 6544));
+        bookList.add(new Book(4,"Ben 10", "bue fixe", null, 98));
+        bookList.add(new Book(5,"Geronimo Stilton", "Rolemodel", null, 43292));
+        bookList.add(new Book(6,"Manuel de portugues 8ano", "Camoes glorioso", null, 1234567));
+
+
+        bookListView = (ListView) findViewById(R.id.library_bookListView);
+        arrayAdapter = new ArrayAdapter<Book>(this, R.layout.activity_book_list_view, R.id.listView_book_name, bookList);
+        bookListView.setAdapter(arrayAdapter);
+        bookListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                // TODO: Complete reaction code
+                Intent intent = new Intent(LibraryInfo_Activity.this, BookInfo_Activity.class);
+//                intent.putExtra("noteTitle", noteslist.get(position).getTitle());
+//                intent.putExtra("noteText", noteslist.get(position).getText());
+                startActivity(intent);
+            }
+        });
     }
 
     private void configureButtons()
