@@ -1,9 +1,12 @@
 package pt.ulisboa.tecnico.cmov.project;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +23,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 
 public class LibraryInfo_Activity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -90,6 +96,9 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
             @Override
             public void onClick(View v) {
                 Toast.makeText( getApplicationContext(), "Clicked check in", Toast.LENGTH_SHORT).show();
+                scanBarcode();
+
+                // TODO: Reagir ao id retornado
             }
         });
 
@@ -99,7 +108,12 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         checkoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                scanBarcode();
+
+                // TODO: Reagir ao id retornado
+
                 Toast.makeText( getApplicationContext(), "Clicked check out", Toast.LENGTH_SHORT).show();
+
             }
         });
 
@@ -109,7 +123,34 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
             @Override
             public void onClick(View v) {
                 Toast.makeText( getApplicationContext(), "Clicked favourite button", Toast.LENGTH_SHORT).show();
+                // TODO: Adicionar/Remover das user preferences
             }
         });
     }
+
+    private void scanBarcode()
+    {
+        ScanOptions options = new ScanOptions();
+        options.setPrompt("------------------Volume up to flash on-----------------");
+        options.setBeepEnabled(true);
+        options.setOrientationLocked(true);
+        options.setCaptureActivity(Capture_Activity.class);
+        barLauncher.launch(options);
+    }
+
+    ActivityResultLauncher<ScanOptions> barLauncher = registerForActivityResult(new ScanContract(), result ->
+    {
+        if (result.getContents() != null)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Result");
+            builder.setMessage(result.getContents());
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                     dialog.dismiss();
+                }
+            }).show();
+        }
+    });
 }
