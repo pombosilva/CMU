@@ -6,11 +6,11 @@ public class Book {
     private final int id;
     private String title;
     private String description;
-    private Image cover;
+    private int cover;
 
     private final int barcode;
 
-    public Book(int id, String title, String description, Image cover, int barcode) {
+    public Book(int id, String title, String description, int cover, int barcode) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -40,11 +40,11 @@ public class Book {
         this.description = description;
     }
 
-    public Image getCover() {
+    public int getCover() {
         return cover;
     }
 
-    public void setCover(Image cover) {
+    public void setCover(int cover) {
         this.cover = cover;
     }
 

@@ -86,6 +86,10 @@
         android:layout_below="@+id/library_buttonsLayout"
         android:clickable="true"
         android:focusable="true"
+        android:dividerHeight="3dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="8dp"
         />
 
     <fragment

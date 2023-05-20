@@ -36,11 +36,8 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
     private static final int CHECKIN = 0;
     private static final int CHECKOUT = 1;
 
-    private List<Book> bookList = new ArrayList<Book>();
+    private ArrayList<Book> bookList = new ArrayList<Book>();
     private ListView bookListView;
-
-    private ArrayAdapter<Book> arrayAdapter;
-
 
     private GoogleMap mMap;
 
@@ -110,17 +107,17 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
     private void configureBookListView()
     {
 
-        bookList.add(new Book(1,"Biblia", "palavra de deus", null, 1234567));
-        bookList.add(new Book(2,"Harry poter", "feiticos", null, 1234));
-        bookList.add(new Book(3,"Game of thrones", "porrada", null, 6544));
-        bookList.add(new Book(4,"Ben 10", "bue fixe", null, 98));
-        bookList.add(new Book(5,"Geronimo Stilton", "Rolemodel", null, 43292));
-        bookList.add(new Book(6,"Manuel de portugues 8ano", "Camoes glorioso", null, 1234567));
+        bookList.add(new Book(1,"Biblia", "palavra de deus", R.drawable.bible_, 1234567));
+        bookList.add(new Book(2,"Harry poter", "feiticos", R.drawable.harry, 1234));
+        bookList.add(new Book(3,"Game of thrones", "porrada", R.drawable.gow, 6544));
+        bookList.add(new Book(4,"Ben 10", "bue fixe", R.drawable.ben, 98));
+        bookList.add(new Book(5,"Geronimo Stilton", "Rolemodel", R.drawable.g_ronimo, 43292));
+        bookList.add(new Book(6,"Manual de portugues 8ano", "Camoes glorioso", R.drawable.manual, 1234567));
 
 
         bookListView = (ListView) findViewById(R.id.library_bookListView);
-        arrayAdapter = new ArrayAdapter<Book>(this, R.layout.activity_book_list_view, R.id.listView_book_name, bookList);
-        bookListView.setAdapter(arrayAdapter);
+        CustomBaseAdapter customBaseAdapter = new CustomBaseAdapter(getApplicationContext(), bookList);
+        bookListView.setAdapter(customBaseAdapter);
         bookListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
