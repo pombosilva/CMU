@@ -1,11 +1,9 @@
-package pt.ulisboa.tecnico.cmov.project;
+package pt.ulisboa.tecnico.cmov.project.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -15,10 +13,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import pt.ulisboa.tecnico.cmov.project.objects.Library;
+import pt.ulisboa.tecnico.cmov.project.R;
 
 public class BookInfo_Activity extends AppCompatActivity {
 
@@ -41,8 +40,8 @@ public class BookInfo_Activity extends AppCompatActivity {
     private void configureListView()
     {
         ListView listView = (ListView) findViewById(R.id.bookAvailableLibraries);
-        arrayAdapter = new ArrayAdapter<Library>(this, R.layout.activity_library_list_view, R.id.listView_library_name, librariesList);
-        listView.setAdapter(arrayAdapter);
+//        arrayAdapter = new ArrayAdapter<Library>(this, R.layout.activity_library_list_view, R.id.listView_library_name, librariesList);
+//        listView.setAdapter(arrayAdapter);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

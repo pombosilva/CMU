@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.project;
+package pt.ulisboa.tecnico.cmov.project.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -8,6 +8,10 @@ import androidx.fragment.app.FragmentTransaction;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 
+import pt.ulisboa.tecnico.cmov.project.R;
+import pt.ulisboa.tecnico.cmov.project.fragments.BooksFragment;
+import pt.ulisboa.tecnico.cmov.project.fragments.MapFragment;
+import pt.ulisboa.tecnico.cmov.project.fragments.UserFragment;
 import pt.ulisboa.tecnico.cmov.project.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {

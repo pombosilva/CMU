@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.project;
+package pt.ulisboa.tecnico.cmov.project.fragments;
 
 import android.Manifest;
 import android.content.Context;
@@ -29,6 +29,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 import java.util.List;
+
+import pt.ulisboa.tecnico.cmov.project.adapters.CustomWindowInfoAdapter;
+import pt.ulisboa.tecnico.cmov.project.activities.LibraryInfo_Activity;
+import pt.ulisboa.tecnico.cmov.project.R;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 

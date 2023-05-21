@@ -1,6 +1,4 @@
-package pt.ulisboa.tecnico.cmov.project;
-
-import android.media.Image;
+package pt.ulisboa.tecnico.cmov.project.objects;
 
 public class Book {
     private final int id;
