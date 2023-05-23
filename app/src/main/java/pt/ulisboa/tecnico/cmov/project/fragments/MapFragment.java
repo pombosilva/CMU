@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,15 +30,24 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomWindowInfoAdapter;
 import pt.ulisboa.tecnico.cmov.project.activities.LibraryInfo_Activity;
 import pt.ulisboa.tecnico.cmov.project.R;
+import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private WebConnector webConnector;
+
+    public MapFragment(WebConnector webConnector)
+    {
+        this.webConnector = webConnector;
+    }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -124,31 +135,44 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private void loadLibrariesMarkers()
     {
-        loadNormalMarkers();
-        loadFavouriteMarkers();
+
+        new Thread(() -> {
+            try {
+                ArrayList<pt.ulisboa.tecnico.cmov.project.objects.Marker> markers = webConnector.getMarkers();
+
+                for (pt.ulisboa.tecnico.cmov.project.objects.Marker m : markers) {
+                    loadNormalMarker(m);
+                }
+            } catch(IOException e){
+                throw new RuntimeException(e);
+            }
+        }).start();
     }
 
-    private void loadNormalMarkers()
+    private void loadNormalMarker(pt.ulisboa.tecnico.cmov.project.objects.Marker marker)
     {
-        // Lookup on database
+        LatLng zaragoza = new LatLng(marker.getLat(), marker.getLng());
+        MarkerOptions mkOpt = new MarkerOptions().position(zaragoza).title(marker.getName());
+        if ( marker.isFav() )
+            mkOpt.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+//        mMap.addMarker(mkOpt);
 
-        // add them to the map
-
-        LatLng sydney = new LatLng(-33.857143, 151.215147);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Sydney"));
-        LatLng lisbon = new LatLng(38.713912, -9.133397);
-        mMap.addMarker(new MarkerOptions().position(lisbon).title("Lisbon"));
-        LatLng madrid = new LatLng(40.416891, -3.703739);
-        mMap.addMarker(new MarkerOptions().position(madrid).title("Madrid"));
+        Message msg = new Message();
+        msg.obj = mkOpt;
+        msg.what = MARKER_MSG;
+        handler.sendMessage(msg);
     }
 
-    private void loadFavouriteMarkers()
-    {
-        // Lookup on database
 
-        // add them to the map
-        LatLng zaragoza = new LatLng(41.657059, -0.875448);
-        MarkerOptions mkOpt = new MarkerOptions().position(zaragoza).title("Zaragoza").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-        mMap.addMarker(mkOpt);
-    }
+
+    private static final int MARKER_MSG = 0;
+    private final Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            if ( msg.what == MARKER_MSG)
+            {
+                mMap.addMarker((MarkerOptions)msg.obj);
+            }
+        }
+    };
 }

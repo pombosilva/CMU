@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -107,28 +108,29 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
     private void configureBookListView()
     {
 
-        bookList.add(new Book(1,"Biblia", "palavra de deus", R.drawable.bible_, 1234567));
-        bookList.add(new Book(2,"Harry poter", "feiticos", R.drawable.harry, 1234));
-        bookList.add(new Book(3,"Game of thrones", "porrada", R.drawable.gow, 6544));
-        bookList.add(new Book(4,"Ben 10", "bue fixe", R.drawable.ben, 98));
-        bookList.add(new Book(5,"Geronimo Stilton", "Rolemodel", R.drawable.g_ronimo, 43292));
-        bookList.add(new Book(6,"Manual de portugues 8ano", "Camoes glorioso", R.drawable.manual, 1234567));
+//        new Thread (() -> {
+            bookList.add(new Book(1,"Biblia", "palavra de deus", R.drawable.bible_, 1234567));
+            bookList.add(new Book(2,"Harry poter", "feiticos", R.drawable.harry, 1234));
+            bookList.add(new Book(3,"Game of thrones", "porrada", R.drawable.gow, 6544));
+            bookList.add(new Book(4,"Ben 10", "bue fixe", R.drawable.ben, 98));
+            bookList.add(new Book(5,"Geronimo Stilton", "Rolemodel", R.drawable.g_ronimo, 43292));
+            bookList.add(new Book(6, "Manual de portugues 8ano", "Camoes glorioso", R.drawable.manual, 1234567));
 
+            bookListView = (ListView) findViewById(R.id.library_bookListView);
+            CustomBaseAdapter customBaseAdapter = new CustomBaseAdapter(getApplicationContext(), bookList);
+            bookListView.setAdapter(customBaseAdapter);
+            bookListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-        bookListView = (ListView) findViewById(R.id.library_bookListView);
-        CustomBaseAdapter customBaseAdapter = new CustomBaseAdapter(getApplicationContext(), bookList);
-        bookListView.setAdapter(customBaseAdapter);
-        bookListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // TODO: Complete reaction code
-                Intent intent = new Intent(LibraryInfo_Activity.this, BookInfo_Activity.class);
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    // TODO: Complete reaction code
+                    Intent intent = new Intent(LibraryInfo_Activity.this, BookInfo_Activity.class);
 //                intent.putExtra("noteTitle", noteslist.get(position).getTitle());
 //                intent.putExtra("noteText", noteslist.get(position).getText());
-                startActivity(intent);
-            }
-        });
+                    startActivity(intent);
+                }
+            });
+//        }).start();
     }
 
     private void configureButtons()
