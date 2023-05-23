@@ -9,12 +9,14 @@ import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -52,6 +54,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        this.webConnector.setHandler(this.handler);
     }
 
     @Override
@@ -157,21 +161,36 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             mkOpt.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
 //        mMap.addMarker(mkOpt);
 
+        sendMessageToHandler(mkOpt, MARKER_MSG);
+    }
+
+    private void sendMessageToHandler(Object obj, int msgWhat)
+    {
         Message msg = new Message();
-        msg.obj = mkOpt;
-        msg.what = MARKER_MSG;
+        msg.obj = obj;
+        msg.what = msgWhat;
         handler.sendMessage(msg);
     }
 
 
-
     private static final int MARKER_MSG = 0;
+    private static final int TOAST_MSG = 1;
     private final Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             if ( msg.what == MARKER_MSG)
             {
                 mMap.addMarker((MarkerOptions)msg.obj);
+            }
+            switch (msg.what)
+            {
+                case MARKER_MSG:
+                    mMap.addMarker((MarkerOptions)msg.obj);
+                    return;
+                case TOAST_MSG:
+                    // TODO: Entender porque e q O toast nao esta a ser displayed
+                    Toast.makeText(getActivity().getApplicationContext(), (String) msg.obj, Toast.LENGTH_LONG);
+                    return;
             }
         }
     };

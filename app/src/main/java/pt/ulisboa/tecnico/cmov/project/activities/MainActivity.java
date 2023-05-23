@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        webConnector = new WebConnector();
+        webConnector = new WebConnector(this.getApplicationContext());
         webConnector.startWebSocket();
 
         replaceFragment(new MapFragment(webConnector));
@@ -55,5 +55,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.frame_layout, fragment);
         fragmentTransaction.commit();
     }
+
+
 
 }

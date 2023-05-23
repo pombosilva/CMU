@@ -1,8 +1,13 @@
 package pt.ulisboa.tecnico.cmov.project.objects;
 
+import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.JsonReader;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -20,12 +25,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import pt.ulisboa.tecnico.cmov.project.activities.MainActivity;
+
 public class WebConnector {
 
     private static final String endpoint = "http://192.92.147.96:5000";
     private static final String wsEndpoint = "ws://192.92.147.96:5000/ws";
-    WebSocketClient webSocketClient = null;
+    private WebSocketClient webSocketClient = null;
 
+    private Context context;
+
+    public WebConnector(Context context)
+    {
+        this.context = context;
+    }
     private JsonReader getData(String path) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + path).openConnection();
         int respCode = connection.getResponseCode();
@@ -92,14 +105,30 @@ public class WebConnector {
 
     public ArrayList<Marker> getMarkers() throws IOException
     {
-        JsonReader data = getData("/markers");
         ArrayList<Marker> markers = new ArrayList<Marker>();
-        data.beginArray();
-        while ( data.hasNext() )
+        try {
+            JsonReader data = getData("/markers");
+            data.beginArray();
+            while ( data.hasNext() )
+            {
+                markers.add(extractMarkers(data));
+            }
+            data.close();
+        } catch ( IOException e )
         {
-            markers.add(extractMarkers(data));
+            Message msg = new Message();
+            msg.obj = "No Internet Connection";
+            msg.what = 1;
+            handler.sendMessage(msg);
+//            Looper.prepare();
+//            Handler mHandler = new Handler() {
+//                public void handleMessage(Message msg) {
+//                    Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show();
+//                }
+//            };
+//            Looper.loop();
+
         }
-        data.close();
         return markers;
     }
 
@@ -196,4 +225,11 @@ public class WebConnector {
         }
     }
 
+
+
+    Handler handler;
+    public void setHandler(Handler handler)
+    {
+        this.handler = handler;
+    }
 }
