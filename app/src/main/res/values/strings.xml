@@ -8,4 +8,8 @@
     <string name="map">Map</string>
     <string name="user">User</string>
     <string name="search_for_a_book">Search for a book</string>
+    <string name="todo">TODO</string>
+    <string name="my_text">My text</string>
+    <string name="library_name">Library Name</string>
+    <string name="library_description">Library description</string>
 </resources>

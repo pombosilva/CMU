@@ -35,15 +35,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import pt.ulisboa.tecnico.cmov.project.adapters.CustomWindowInfoAdapter;
-import pt.ulisboa.tecnico.cmov.project.activities.LibraryInfo_Activity;
 import pt.ulisboa.tecnico.cmov.project.R;
+import pt.ulisboa.tecnico.cmov.project.activities.LibraryInfo_Activity;
+import pt.ulisboa.tecnico.cmov.project.adapters.CustomWindowInfoAdapter;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private WebConnector webConnector;
+    private final WebConnector webConnector;
 
     private Marker searchMarker;
     public MapFragment(WebConnector webConnector)
@@ -119,27 +119,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         loadLibrariesMarkers();
 
         mMap.setInfoWindowAdapter(new CustomWindowInfoAdapter(getActivity()));
-        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-            @Override
-            public void onInfoWindowClick(@NonNull Marker marker) {
-                Intent intent = new Intent(getActivity(), LibraryInfo_Activity.class);
+        mMap.setOnInfoWindowClickListener(marker -> {
+            Intent intent = new Intent(getActivity(), LibraryInfo_Activity.class);
 
-                String markerSnippet = marker.getSnippet();
-                int markerId = Integer.parseInt(markerSnippet.split(":")[0]);
+            String markerSnippet = marker.getSnippet();
+            assert markerSnippet != null;
+            int markerId = Integer.parseInt(markerSnippet.split(":")[0]);
 //                String markerEncondedImage = markerSnippet.split(":")[1]; TODO: NS para que esta linha serve
-                intent.putExtra("libraryId", markerId);
-                intent.putExtra("libraryName",marker.getTitle());
+            intent.putExtra("libraryId", markerId);
+            intent.putExtra("libraryName",marker.getTitle());
 
-                // Need Database
-                intent.putExtra("libraryImage", R.drawable.img);
-                intent.putExtra("libraryLat", marker.getPosition().latitude);
-                intent.putExtra("libraryLng", marker.getPosition().longitude);
+            // Need Database
+            intent.putExtra("libraryImage", R.drawable.img);
+            intent.putExtra("libraryLat", marker.getPosition().latitude);
+            intent.putExtra("libraryLng", marker.getPosition().longitude);
 
 
-                marker.hideInfoWindow();
+            marker.hideInfoWindow();
 
-                startActivity(intent);
-            }
+            startActivity(intent);
         });
     }
 
@@ -168,14 +166,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if ( marker.isFav() )
             mkOpt.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
         
-        sendMessageToHandler(mkOpt, MARKER_MSG);
+        sendMessageToHandler(mkOpt);
     }
 
-    private void sendMessageToHandler(Object obj, int msgWhat)
+    private void sendMessageToHandler(Object obj)
     {
         Message msg = new Message();
         msg.obj = obj;
-        msg.what = msgWhat;
+        msg.what = MapFragment.MARKER_MSG;
         handler.sendMessage(msg);
     }
 
@@ -195,8 +193,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     mMap.addMarker((MarkerOptions)msg.obj);
                     return;
                 case TOAST_MSG:
-                    // TODO: Entender porque e q O toast nao esta a ser displayed
-                    Toast.makeText(getActivity().getApplicationContext(), (String) msg.obj, Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireActivity().getApplicationContext(), (String) msg.obj, Toast.LENGTH_LONG).show();
             }
         }
     };
