@@ -62,6 +62,8 @@ public class BooksFragment extends Fragment {
         // when you click on an item it displays its information
         bookListView.setOnItemClickListener((parent, view, position, id) -> {
             Intent intent = new Intent(getActivity(), BookInfo_Activity.class);
+            intent.putExtra("bookTitle", bookList.get(position).getTitle());
+            intent.putExtra("bookCover", bookList.get(position).getCover());
             startActivity(intent);
         });
 

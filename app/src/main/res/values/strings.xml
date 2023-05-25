@@ -12,4 +12,5 @@
     <string name="my_text">My text</string>
     <string name="library_name">Library Name</string>
     <string name="library_description">Library description</string>
+    <string name="add_to_favourites">Add to favourites</string>
 </resources>
