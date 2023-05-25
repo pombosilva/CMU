@@ -12,5 +12,7 @@
     <string name="my_text">My text</string>
     <string name="library_name">Library Name</string>
     <string name="library_description">Library description</string>
-    <string name="add_to_favourites">Add to favourites</string>
+    <string name="add_to_favourites">Favourite</string>
+    <string name="check_out_book">Check-out</string>
+    <string name="check_in_book">Check-in</string>
 </resources>

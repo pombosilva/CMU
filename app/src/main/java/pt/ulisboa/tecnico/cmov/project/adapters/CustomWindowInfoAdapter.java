@@ -26,7 +26,7 @@ public class CustomWindowInfoAdapter implements GoogleMap.InfoWindowAdapter{
     public CustomWindowInfoAdapter(Context context)
     {
         mContext = context;
-        mWindow = LayoutInflater.from(context).inflate(R.layout.activity_library_info_marker, null);
+        mWindow = LayoutInflater.from(context).inflate(R.layout.info_marker, null);
     }
 
     private void rendowWindowText(Marker marker, View view)

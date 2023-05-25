@@ -65,23 +65,20 @@ public class WebConnector {
         }
     }
 
-    public void setHandler(Handler handler)
-    {
+    public void setHandler(Handler handler) {
         this.handler = handler;
     }
 
-    public ArrayList<Marker> getMarkers() throws IOException
-    {
+    public ArrayList<Marker> getMarkers() throws IOException {
         ArrayList<Marker> markers = new ArrayList<>();
         try {
             JsonReader data = getData();
             data.beginArray();
-            while ( data.hasNext() )
-            {
+            while (data.hasNext()) {
                 markers.add(extractMarkers(data));
             }
             data.close();
-        } catch ( IOException e )
+        } catch (IOException e)
         {
             Message msg = new Message();
             msg.obj = "No Internet Connection";
@@ -91,8 +88,7 @@ public class WebConnector {
         return markers;
     }
 
-    public void setLibraryFav(int libraryId)
-    {
+    public void setLibraryFav(int libraryId) {
         try {
             putData(libraryId);
         } catch (IOException e) {
@@ -101,10 +97,8 @@ public class WebConnector {
         }
     }
 
-    private Marker extractMarkers(JsonReader jReader) throws IOException
-    {
+    private Marker extractMarkers(JsonReader jReader) throws IOException {
         jReader.beginObject();
-
 
         jReader.nextName();
         String libraryImage = jReader.nextString();
@@ -123,7 +117,6 @@ public class WebConnector {
 
         jReader.nextName();
         String markerName = jReader.nextString();
-
 
         jReader.endObject();
 

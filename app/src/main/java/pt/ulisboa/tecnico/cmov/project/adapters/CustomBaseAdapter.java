@@ -47,7 +47,7 @@ public class CustomBaseAdapter extends BaseAdapter {
     @SuppressLint({"ViewHolder", "InflateParams"})
     @Override
     public View getView(int i, View convertView, ViewGroup viewGroup) {
-        convertView = inflater.inflate(R.layout.libraryactivity_custom_book_list_view, null);
+        convertView = inflater.inflate(R.layout.info_book_list_view, null);
         TextView textView = convertView.findViewById(R.id.textView);
         ImageView fruitImg = convertView.findViewById(R.id.imageIcon);
         textView.setText(bookList.get(i).getTitle());

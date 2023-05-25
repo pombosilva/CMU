@@ -20,7 +20,7 @@ public class BookInfo_Activity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_book_info);
+        setContentView(R.layout.info_book);
 
         //configureListView();
         loadBookInfo(getIntent());

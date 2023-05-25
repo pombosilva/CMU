@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal"
+    tools:context=".activities.LibraryInfo_Activity"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/library_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10sp"
+        android:gravity="center"
+        android:text="@string/my_text"
+        android:textSize="32sp"/>
+
+    <ImageView
+        android:id="@+id/library_image"
+        android:layout_height="200dp"
+        android:layout_width="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:scaleType="centerCrop"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="@string/todo" />
+
+    <LinearLayout
+        android:id="@+id/library_buttonsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_marginHorizontal="20sp"
+        android:layout_marginVertical="13sp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/library_favourite_button"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="2sp"
+            android:lines="1"
+            android:text="@string/add_to_favourites"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:textColor="#8D6E63" />
+
+        <Button
+            android:id="@+id/checkin_btn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="2sp"
+            android:lines="1"
+            android:text="@string/check_in_book"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:textColor="#8D6E63" />
+
+        <Button
+            android:id="@+id/checkout_btn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:lines="1"
+            android:text="@string/check_out_book"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:textColor="#8D6E63" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/library_bookListView"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:dividerHeight="3dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="8dp"
+        />
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/library_map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".activities.LibraryInfo_Activity"
+        android:layout_margin="20dp"/>
+
+</LinearLayout>
