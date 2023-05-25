@@ -1,22 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.LibraryInfo_Activity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".fragments.BooksFragment">
+
+    <EditText
+        android:id="@+id/searchBookText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autofillHints=""
+        android:hint="@string/search_for_a_book"
+        android:inputType="text"
+        android:padding="20dp"
+        android:textColorHint="#8D6E63"
+        android:textSize="17sp" />
+
+    <Button
+        android:id="@+id/searchBookButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/search"/>
 
     <ListView
         android:id="@+id/bookListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clickable="true"
-        android:focusable="true"
-        android:dividerHeight="3dp"
         android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
         android:layout_marginTop="8dp"
-        />
+        android:layout_marginRight="20dp"
+        android:clickable="true"
+        android:dividerHeight="3dp"
+        android:focusable="true" />
 
-</RelativeLayout>
+</LinearLayout>
