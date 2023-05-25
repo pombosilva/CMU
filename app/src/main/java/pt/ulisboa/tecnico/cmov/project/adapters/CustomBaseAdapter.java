@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmov.project.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,11 +44,12 @@ public class CustomBaseAdapter extends BaseAdapter {
         return 0;
     }
 
+    @SuppressLint({"ViewHolder", "InflateParams"})
     @Override
     public View getView(int i, View convertView, ViewGroup viewGroup) {
         convertView = inflater.inflate(R.layout.libraryactivity_custom_book_list_view, null);
-        TextView textView = (TextView) convertView.findViewById(R.id.textView);
-        ImageView fruitImg = (ImageView) convertView.findViewById(R.id.imageIcon);
+        TextView textView = convertView.findViewById(R.id.textView);
+        ImageView fruitImg = convertView.findViewById(R.id.imageIcon);
         textView.setText(bookList.get(i).getTitle());
         fruitImg.setImageResource(bookList.get(i).getCover());
 
