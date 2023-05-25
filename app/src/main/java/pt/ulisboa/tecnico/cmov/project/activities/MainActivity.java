@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
 
-    WebConnector webConnector;
+    private WebConnector webConnector;
 
     @SuppressLint("NonConstantResourceId")
     @Override

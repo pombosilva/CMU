@@ -5,12 +5,17 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.JsonReader;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
+import org.json.JSONObject;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -83,26 +88,6 @@ public class WebConnector {
         }
     }
 
-    public JsonReader extractNoteContent(JsonReader jReader) throws IOException
-    {
-        jReader.beginObject();
-        jReader.nextName();
-        String noteTitle = jReader.nextString();
-//        Log.d("MensagensDebugNotes", "Notes super : " + noteTitle);
-        jReader.nextName();
-        String noteText =  jReader.nextString();
-//        Log.d("MensagensDebugNotes", "Notes : " + noteText);
-
-        jReader.nextName();
-        String encodedImage = jReader.nextString();
-//        Log.d("MensagensDebugNotes", "Notes : " + encodedImage);
-
-        jReader.endObject();
-
-//        handler.sendEmptyMessage(0);
-        return jReader;
-    }
-
     public ArrayList<Marker> getMarkers() throws IOException
     {
         ArrayList<Marker> markers = new ArrayList<Marker>();
@@ -132,39 +117,45 @@ public class WebConnector {
         return markers;
     }
 
+    public void setLibraryFav(int libraryId)
+    {
+        try {
+            putData("/favMarker", libraryId);
+        } catch (IOException e) {
+            System.err.println("Error sending favourite value");
+            throw new RuntimeException(e);
+        }
+    }
+
     private Marker extractMarkers(JsonReader jReader) throws IOException
     {
         jReader.beginObject();
+
+
         jReader.nextName();
-         boolean markerFav = jReader.nextBoolean();
-//        Log.d("MensagensDebugNotes", "Notes super : " + noteTitle);
+        String libraryImage = jReader.nextString();
+
+        jReader.nextName();
+        boolean markerFav = jReader.nextBoolean();
+
+        jReader.nextName();
+        int markerId = jReader.nextInt();
+
         jReader.nextName();
         double markerLat =  jReader.nextDouble();
-//        Log.d("MensagensDebugNotes", "Notes : " + noteText);
+
         jReader.nextName();
         double markerLng =  jReader.nextDouble();
-//        Log.d("MensagensDebugNotes", "Notes : " + noteText);
 
         jReader.nextName();
         String markerName = jReader.nextString();
-//        Log.d("MensagensDebugNotes", "Notes : " + encodedImage);
+
 
         jReader.endObject();
 
-        return new Marker(markerName, markerLat, markerLng, markerFav);
+        return new Marker(markerId,markerName, markerLat, markerLng, markerFav,libraryImage);
     }
 
-    public String getNotes() throws IOException {
-        String notes = "";
-        JsonReader data = getData("/notes");
-        data.beginArray();
-        while ( data.hasNext() )
-        {
-            extractNoteContent(data);
-        }
-        data.close();
-        return notes;
-    }
 
 //    public void setNotes(ArrayList<Note> notes) throws IOException {
 //        putData("/notes", notes);
