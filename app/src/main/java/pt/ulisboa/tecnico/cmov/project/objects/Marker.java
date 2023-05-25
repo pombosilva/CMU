@@ -2,12 +2,12 @@ package pt.ulisboa.tecnico.cmov.project.objects;
 
 public class Marker {
 
-    private int id;
-    private String name;
-    private double lat;
-    private double lng;
-    private boolean fav;
-    private String encodedImage;
+    private final int id;
+    private final String name;
+    private final double lat;
+    private final double lng;
+    private final boolean fav;
+    private final String encodedImage;
 
     public Marker(int id, String name, double lat, double lng, boolean fav, String encodedImage ) {
         this.id = id;

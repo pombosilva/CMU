@@ -1,21 +1,13 @@
 package pt.ulisboa.tecnico.cmov.project.objects;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.JsonReader;
 import android.util.Log;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
-import org.json.JSONObject;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -30,69 +22,59 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import pt.ulisboa.tecnico.cmov.project.activities.MainActivity;
-
 public class WebConnector {
 
     private static final String endpoint = "http://192.92.147.96:5000";
     private static final String wsEndpoint = "ws://192.92.147.96:5000/ws";
     private WebSocketClient webSocketClient = null;
 
-    private Context context;
+    Handler handler;
 
-    public WebConnector(Context context)
-    {
-        this.context = context;
+    public WebConnector(Context applicationContext) {
+        // empty constructor
     }
-    private JsonReader getData(String path) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + path).openConnection();
+
+
+    private JsonReader getData() throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + "/markers").openConnection();
         int respCode = connection.getResponseCode();
 
-        switch (respCode) {
-            case 200: {
-                JsonReader jsonReader = new JsonReader(new InputStreamReader(connection.getInputStream()));
-                jsonReader.setLenient(true);
-                Log.d("MensagensDebug","DDDDDDDDDDDDDDDDDDDDDDDDDDDD");
-                return jsonReader;
-            }
-            default: {
-                throw new RuntimeException("Unexpected response: " + connection.getResponseMessage());
-            }
+        if (respCode == 200) {
+            JsonReader jsonReader = new JsonReader(new InputStreamReader(connection.getInputStream()));
+            jsonReader.setLenient(true);
+            return jsonReader;
         }
+        throw new RuntimeException("Unexpected response: " + connection.getResponseMessage());
     }
 
-    private void putData(String path, Object data) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + path).openConnection();
+    private void putData(Object data) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + "/favMarker").openConnection();
         connection.setRequestMethod("PUT");
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setDoOutput(true);
         if (data instanceof Boolean || data instanceof Integer) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                new DataOutputStream(connection.getOutputStream())
-                        .write((data.toString()).getBytes(StandardCharsets.UTF_8));
-            }
+            new DataOutputStream(connection.getOutputStream())
+                    .write((data.toString()).getBytes(StandardCharsets.UTF_8));
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                new DataOutputStream(connection.getOutputStream())
-                        .write(("\"" + data.toString() + "\"").getBytes(StandardCharsets.UTF_8));
-            }
+            new DataOutputStream(connection.getOutputStream())
+                    .write(("\"" + data.toString() + "\"").getBytes(StandardCharsets.UTF_8));
         }
 
-        switch (connection.getResponseCode()) {
-            case 200: {
-            }
-            break;
-            default: {
-                throw new RuntimeException("Unexpected response: " + connection.getResponseMessage());
-            }
+        if (connection.getResponseCode() != 200) {
+            throw new RuntimeException("Unexpected response: " + connection.getResponseMessage());
         }
+    }
+
+    public void setHandler(Handler handler)
+    {
+        this.handler = handler;
     }
 
     public ArrayList<Marker> getMarkers() throws IOException
     {
-        ArrayList<Marker> markers = new ArrayList<Marker>();
+        ArrayList<Marker> markers = new ArrayList<>();
         try {
-            JsonReader data = getData("/markers");
+            JsonReader data = getData();
             data.beginArray();
             while ( data.hasNext() )
             {
@@ -105,14 +87,6 @@ public class WebConnector {
             msg.obj = "No Internet Connection";
             msg.what = 1;
             handler.sendMessage(msg);
-//            Looper.prepare();
-//            Handler mHandler = new Handler() {
-//                public void handleMessage(Message msg) {
-//                    Toast.makeText(context, "No internet connection", Toast.LENGTH_LONG).show();
-//                }
-//            };
-//            Looper.loop();
-
         }
         return markers;
     }
@@ -120,7 +94,7 @@ public class WebConnector {
     public void setLibraryFav(int libraryId)
     {
         try {
-            putData("/favMarker", libraryId);
+            putData(libraryId);
         } catch (IOException e) {
             System.err.println("Error sending favourite value");
             throw new RuntimeException(e);
@@ -156,18 +130,13 @@ public class WebConnector {
         return new Marker(markerId,markerName, markerLat, markerLng, markerFav,libraryImage);
     }
 
-
-//    public void setNotes(ArrayList<Note> notes) throws IOException {
-//        putData("/notes", notes);
-//    }
-
     public void startWebSocket() {
         if (webSocketClient != null) {
             webSocketClient.close();
         }
 
         try {
-            webSocketClient = new WSClient(new URI(wsEndpoint), new HashMap<String,String>());
+            webSocketClient = new WSClient(new URI(wsEndpoint), new HashMap<>());
             webSocketClient.connect();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -180,47 +149,30 @@ public class WebConnector {
         }
 
         @Override
-        public void onOpen(ServerHandshake handshakedata) {
-            Log.i("MensagensDebug", "Opened");
+        public void onOpen(ServerHandshake handshake) {
+            Log.i("MessageDebug", "Opened");
         }
 
         @Override
         public void onMessage(String message) {
-            Log.i("MensagensDebug", "Message: " + message);
+            Log.i("MessageDebug", "Message: " + message);
 
             if (message != null) {
-//                try {
                 JsonReader jsonReader = new JsonReader(new StringReader(message));
                 jsonReader.setLenient(true);
-                Log.i("MensagensDebug", "aljherkwbhcrkwsehncrlkekl ");
-//                    boolean state = jsonReader.nextBoolean();
-//                    runOnUiThread(() -> {
-//                        ((Switch) findViewById(R.id.state_switch)).setChecked(state);
-//                    });
-//                } catch (IOException e) {
-//                    throw new RuntimeException("Malformed message on websocket", e);
-//                }
             }
         }
 
         @Override
         public void onClose(int code, String reason, boolean remote) {
             if (this != webSocketClient) return;
-            Log.i("MensagensDebug", (remote ? "Remotely " : "Locally ") + "Closed " + reason);
+            Log.i("MessageDebug", (remote ? "Remotely " : "Locally ") + "Closed " + reason);
         }
 
         @Override
         public void onError(Exception ex) {
             if (this != webSocketClient) return;
-            Log.i("MensagensDebug", "Error " + ex.getMessage());
+            Log.i("MessageDebug", "Error " + ex.getMessage());
         }
-    }
-
-
-
-    Handler handler;
-    public void setHandler(Handler handler)
-    {
-        this.handler = handler;
     }
 }
