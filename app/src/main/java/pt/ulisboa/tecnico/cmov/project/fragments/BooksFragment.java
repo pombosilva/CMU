@@ -13,7 +13,10 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import pt.ulisboa.tecnico.cmov.project.adapters.CustomBookAdapter;
 import pt.ulisboa.tecnico.cmov.project.R;
+import pt.ulisboa.tecnico.cmov.project.objects.Book;
 
 public class BooksFragment extends Fragment {
 
@@ -44,9 +47,9 @@ public class BooksFragment extends Fragment {
 
             List<Book> list = new ArrayList<>();
             for (int i = 1; i <= 25; i++) {
-                list.add(new Book(i, "Os marretas", "morreram todos", null, i));
+                list.add(new Book(i, "Os marretas", "morreram todos", i, i));
 
-                recyclerView.setAdapter(new ItemRecyclerForBooksFragment(list));
+                recyclerView.setAdapter(new CustomBookAdapter(list));
             }
         }
         return view;

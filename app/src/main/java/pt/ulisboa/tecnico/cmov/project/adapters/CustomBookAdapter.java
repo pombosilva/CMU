@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.project;
+package pt.ulisboa.tecnico.cmov.project.adapters;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -7,15 +7,16 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import pt.ulisboa.tecnico.cmov.project.databinding.FragmentBooksBinding;
-
 import java.util.List;
 
-public class ItemRecyclerForBooksFragment extends RecyclerView.Adapter<ItemRecyclerForBooksFragment.ViewItem> {
+import pt.ulisboa.tecnico.cmov.project.databinding.FragmentBooksBinding;
+import pt.ulisboa.tecnico.cmov.project.objects.Book;
+
+public class CustomBookAdapter extends RecyclerView.Adapter<CustomBookAdapter.ViewItem> {
 
     private final List<Book> books;
 
-    public ItemRecyclerForBooksFragment(List<Book> books) {
+    public CustomBookAdapter(List<Book> books) {
         this.books = books;
     }
 
