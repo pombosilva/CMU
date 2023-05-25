@@ -10,11 +10,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import pt.ulisboa.tecnico.cmov.project.adapters.CustomBookAdapter;
+import pt.ulisboa.tecnico.cmov.project.adapters.CustomBaseAdapter;
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
 
@@ -37,21 +37,20 @@ public class BooksFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_book_item, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_books, container, false);
+        Context context = rootView.getContext();
 
-        // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+        ArrayList<Book> bookList = new ArrayList<>();
+        bookList.add(new Book(1,"Biblia", "palavra de deus", R.drawable.bible_, 1234567));
+        bookList.add(new Book(2,"Harry poter", "feiticos", R.drawable.harry, 1234));
+        bookList.add(new Book(3,"Game of thrones", "porrada", R.drawable.gow, 6544));
+        bookList.add(new Book(4,"Ben 10", "bue fixe", R.drawable.ben, 98));
+        bookList.add(new Book(5,"Geronimo Stilton", "Rolemodel", R.drawable.g_ronimo, 43292));
+        bookList.add(new Book(6, "Manual de portugues 8ano", "Camoes glorioso", R.drawable.manual, 1234567));
 
-            List<Book> list = new ArrayList<>();
-            for (int i = 1; i <= 25; i++) {
-                list.add(new Book(i, "Os marretas", "morreram todos", i, i));
+        ListView bookListView = rootView.findViewById(R.id.bookListView);
+        bookListView.setAdapter(new CustomBaseAdapter(context, bookList));
 
-                recyclerView.setAdapter(new CustomBookAdapter(list));
-            }
-        }
-        return view;
+        return rootView;
     }
 }
