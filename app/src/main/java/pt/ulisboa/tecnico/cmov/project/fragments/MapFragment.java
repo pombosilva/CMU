@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.cmov.project.fragments;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,7 +10,6 @@ import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +44,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private WebConnector webConnector;
-
     public MapFragment(WebConnector webConnector)
     {
         this.webConnector = webConnector;
@@ -178,9 +177,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         handler.sendMessage(msg);
     }
 
-
     private static final int MARKER_MSG = 0;
     private static final int TOAST_MSG = 1;
+    @SuppressLint("HandlerLeak")
     private final Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -196,7 +195,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 case TOAST_MSG:
                     // TODO: Entender porque e q O toast nao esta a ser displayed
                     Toast.makeText(getActivity().getApplicationContext(), (String) msg.obj, Toast.LENGTH_LONG).show();
-                    return;
             }
         }
     };
