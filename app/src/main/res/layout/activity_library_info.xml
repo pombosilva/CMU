@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LibraryInfo_Activity"
+    tools:context=".activities.LibraryInfo_Activity"
     android:orientation="vertical">
 
     <LinearLayout
@@ -31,7 +31,6 @@
             android:layout_height="match_parent"
             android:text="Fav"
             android:maxLines="1"
-
             />
     </LinearLayout>
 
@@ -49,7 +48,7 @@
         android:padding="20dp" />
 
     <LinearLayout
-        android:id="@+id/buttonsLayout"
+        android:id="@+id/library_buttonsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
@@ -80,14 +79,27 @@
             tools:ignore="HardcodedText" />
     </LinearLayout>
 
+    <ListView
+        android:id="@+id/library_bookListView"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        android:layout_below="@+id/library_buttonsLayout"
+        android:clickable="true"
+        android:focusable="true"
+        android:dividerHeight="3dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="8dp"
+        />
+
     <fragment
         android:id="@+id/library_map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
-        android:layout_below="@+id/buttonsLayout"
-        tools:context=".LibraryInfo_Activity"
+        android:layout_below="@+id/library_bookListView"
+        tools:context=".activities.LibraryInfo_Activity"
         android:layout_margin="20dp"/>
 
 </RelativeLayout>

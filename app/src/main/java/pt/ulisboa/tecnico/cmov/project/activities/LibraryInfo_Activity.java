@@ -1,18 +1,18 @@
-package pt.ulisboa.tecnico.cmov.project;
+package pt.ulisboa.tecnico.cmov.project.activities;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,11 +24,22 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
+import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+
+import pt.ulisboa.tecnico.cmov.project.adapters.CustomBaseAdapter;
+import pt.ulisboa.tecnico.cmov.project.objects.Book;
+import pt.ulisboa.tecnico.cmov.project.R;
 
 public class LibraryInfo_Activity extends AppCompatActivity implements OnMapReadyCallback {
 
     private static final int CHECKIN = 0;
     private static final int CHECKOUT = 1;
+
+    private ArrayList<Book> bookList = new ArrayList<Book>();
+    private ListView bookListView;
+
     private GoogleMap mMap;
 
     @Override
@@ -40,8 +51,9 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
                 .findFragmentById(R.id.library_map);
         mapFragment.getMapAsync(this);
 
-        loadLibraryInfo(getIntent());
 
+        configureBookListView();
+        loadLibraryInfo(getIntent());
         configureButtons();
     }
 
@@ -91,6 +103,34 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         {
             Toast.makeText( getApplicationContext(), "Wasn't able to load library contents", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void configureBookListView()
+    {
+
+//        new Thread (() -> {
+            bookList.add(new Book(1,"Biblia", "palavra de deus", R.drawable.bible_, 1234567));
+            bookList.add(new Book(2,"Harry poter", "feiticos", R.drawable.harry, 1234));
+            bookList.add(new Book(3,"Game of thrones", "porrada", R.drawable.gow, 6544));
+            bookList.add(new Book(4,"Ben 10", "bue fixe", R.drawable.ben, 98));
+            bookList.add(new Book(5,"Geronimo Stilton", "Rolemodel", R.drawable.g_ronimo, 43292));
+            bookList.add(new Book(6, "Manual de portugues 8ano", "Camoes glorioso", R.drawable.manual, 1234567));
+
+            bookListView = (ListView) findViewById(R.id.library_bookListView);
+            CustomBaseAdapter customBaseAdapter = new CustomBaseAdapter(getApplicationContext(), bookList);
+            bookListView.setAdapter(customBaseAdapter);
+            bookListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    // TODO: Complete reaction code
+                    Intent intent = new Intent(LibraryInfo_Activity.this, BookInfo_Activity.class);
+//                intent.putExtra("noteTitle", noteslist.get(position).getTitle());
+//                intent.putExtra("noteText", noteslist.get(position).getText());
+                    startActivity(intent);
+                }
+            });
+//        }).start();
     }
 
     private void configureButtons()

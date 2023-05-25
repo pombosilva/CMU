@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.project;
+package pt.ulisboa.tecnico.cmov.project.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.List;
+import pt.ulisboa.tecnico.cmov.project.R;
 
 public class BooksFragment extends Fragment {
 

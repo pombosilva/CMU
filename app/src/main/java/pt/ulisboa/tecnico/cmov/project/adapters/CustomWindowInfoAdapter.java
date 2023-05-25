@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.project;
+package pt.ulisboa.tecnico.cmov.project.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,6 +11,8 @@ import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
+
+import pt.ulisboa.tecnico.cmov.project.R;
 
 public class CustomWindowInfoAdapter implements GoogleMap.InfoWindowAdapter{
 

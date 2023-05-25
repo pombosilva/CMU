@@ -1,4 +1,4 @@
-package pt.ulisboa.tecnico.cmov.project;
+package pt.ulisboa.tecnico.cmov.project.activities;
 
 import com.journeyapps.barcodescanner.CaptureActivity;
 
