@@ -44,6 +44,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private WebConnector webConnector;
+
+    private Marker searchMarker;
     public MapFragment(WebConnector webConnector)
     {
         this.webConnector = webConnector;
@@ -73,8 +75,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void searchLocation(View view) {
-        // Remove previous search
-        mMap.clear();
+        if (searchMarker != null)
+            searchMarker.remove();
         EditText searchText = requireView().findViewById(R.id.searchText);
         Geocoder geocoder = new Geocoder(getActivity());
         try {
@@ -84,7 +86,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 Address address = addresses.get(0);
                 LatLng searchedLatLng = new LatLng(address.getLatitude(), address.getLongitude());
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(searchedLatLng, 20));
-                mMap.addMarker(new MarkerOptions().position(searchedLatLng).title("Add new Library"));
+                searchMarker = mMap.addMarker(new MarkerOptions().position(searchedLatLng).title("Add new Library"));
             }
         } catch (IOException e) {
             e.printStackTrace();
