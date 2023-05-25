@@ -31,9 +31,11 @@ import java.util.ArrayList;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomBaseAdapter;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.R;
+import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 
 public class LibraryInfo_Activity extends AppCompatActivity implements OnMapReadyCallback {
 
+    private int libraryId;
     private static final int CHECKIN = 0;
     private static final int CHECKOUT = 1;
 
@@ -41,6 +43,14 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
     private ListView bookListView;
 
     private GoogleMap mMap;
+
+    private WebConnector webConnector;
+    public LibraryInfo_Activity()
+    {
+        /* TODO: Perguntar ao professor sobre a melhor implementacao. Criar novas instancias de web connector ou conseguir passar de alguma forma entre elas
+        *   Talvez Webconnector ser singleton*/
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +61,8 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
                 .findFragmentById(R.id.library_map);
         mapFragment.getMapAsync(this);
 
+        webConnector = new WebConnector(this.getApplicationContext());
+        webConnector.startWebSocket();
 
         configureBookListView();
         loadLibraryInfo(getIntent());
@@ -85,6 +97,8 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
             String libraryName = intentContents.getString("libraryName");
             TextView libraryNameTv = (TextView) findViewById(R.id.library_name);
             libraryNameTv.setText(libraryName);
+
+            libraryId = intentContents.getInt("libraryId");
 
             ImageView libraryImageIm = (ImageView) findViewById(R.id.library_image);
             int libraryImage = intentContents.getInt("libraryImage");
@@ -167,6 +181,7 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
             public void onClick(View v) {
                 Toast.makeText( getApplicationContext(), "Clicked favourite button", Toast.LENGTH_SHORT).show();
                 // TODO: Adicionar/Remover das user preferences
+                webConnector.setLibraryFav(libraryId);
             }
         });
     }

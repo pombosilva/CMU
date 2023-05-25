@@ -5,39 +5,30 @@ from mimetypes import init
 from flask import Flask, render_template, jsonify, json, request
 from flask_sock import Sock
 from simple_websocket.ws import ConnectionClosed
-
-
-def getEncodedImage(image_file):
-  with open(image_file, 'r') as file:
-    return file.read()
-
-
-class Library:
-    def __init__(self, name, lat, lng, fav, image_file):
-        self.name = name
-        self.lat = lat
-        self.lng = lng
-        self.fav = fav
-        self.image_file = image_file
-
-    def getMarker(self):
-      return {'name': self.name, 'lat': self.lat, 'lnt': self.lng, 'fav' : self.fav}
-    
-    def getLibraryInfo(self):
-      return {'name': self.name, 'lat': self.lat, 'lnt': self.lng, 'fav' : self.fav, 'encodedImage' : getEncodedImage(self.image_file)}
+import library as LB
+import book as BK
     
 libraries = []
-libraries.append( Library("Lisbon", 38.713912, -9.133397, False, 'espanha.txt').getMarker() )
-libraries.append( Library("Madrid", 40.416891, -3.703739, False,'espanha.txt').getMarker() )
-libraries.append( Library("Zaragoza", 41.657059,-0.875448, True,'espanha.txt').getMarker() )
-libraries.append( Library("Lagos", 6.476754, 3.368539, True, 'espanha.txt').getMarker() )
+libraries.append( LB.Library(1,"Lisbon", 38.713912, -9.133397, False, 'espanha.txt') )
+libraries.append( LB.Library(2,"Madrid", 40.416891, -3.703739, False,'espanha.txt') )
+libraries.append( LB.Library(3,"Zaragoza", 41.657059,-0.875448, True,'espanha.txt') )
+libraries.append( LB.Library(4,"Lagos", 6.476754, 3.368539, True, 'espanha.txt') )
 
-markers = []
-markers.append( Library("Lisbon", 38.713912, -9.133397, False, 'espanha.txt').getLibraryInfo() )
-markers.append( Library("Madrid", 40.416891, -3.703739, False,'espanha.txt').getLibraryInfo() )
-markers.append( Library("Zaragoza", 41.657059,-0.875448, True,'espanha.txt').getLibraryInfo() )
-markers.append( Library("Lagos", 6.476754, 3.368539, True, 'espanha.txt').getLibraryInfo() )
+libraries[0].addBook( BK.Book(45632, "Marco Polo", "Aventura para descobrir o amanha", 'espanha.txt') )
+libraries[0].addBook( BK.Book(5346, "martim Manha", "Hoje tenho uma erecao", 'espanha.txt') )
 
+# markers = []
+# markers.append( lb.Library("Lisbon", 38.713912, -9.133397, False, 'espanha.txt').getLibraryInfo() )
+# markers.append( lb.Library("Madrid", 40.416891, -3.703739, False,'espanha.txt').getLibraryInfo() )
+# markers.append( lb.Library("Zaragoza", 41.657059,-0.875448, True,'espanha.txt').getLibraryInfo() )
+# markers.append( lb.Library("Lagos", 6.476754, 3.368539, True, 'espanha.txt').getLibraryInfo() )
+
+
+# def getLibraryMarkerInfo():
+#   global libraries
+#   result =[]
+#   for library in libraries:
+#     result.append
 
 
 websocket_connections = []
@@ -54,6 +45,19 @@ def websocket_broadcast(message):
       websocket_connections.remove(ws)
 
 
+def get_library(library_id):
+  global libraries
+  for lib in libraries:
+    if lib.id == library_id:
+      return lib
+
+def updateFavLibrary(library_id):
+  global libraries
+  for lib in libraries:
+    if lib.id == library_id:
+      lib.fav = not lib.fav
+
+
 app = Flask(__name__)
 sockets = Sock(app)
 
@@ -65,29 +69,36 @@ def index():
 
 @app.route('/markers', methods=['GET'])
 def get_state():
-  # print("Recebi pedido de markers")
-  global markers
-  # m = jsonify(libraries)
-  # print("Vou enviar -> " + str(m))
-  return jsonify(markers)
+  global libraries
+  return jsonify([library.getLibraryInfo() for library in libraries])
+  # return jsonify(markers)
 
+@app.route('/libraryExtras', methods=['GET'])
+def getLibrayExtras():
+  library_id = int(request.args.get("libraryId"))
+  # print(library_id)
+  lib = get_library(library_id)
+  # print(lib)
+  return jsonify(lib.getLibraryBooks())
 
+@app.route('/favMarker', methods=['PUT'])
+def put_state():
+  global libraries
+  data = json.loads(request.data)
+  library_id = data["libraryId"]
+  updateFavLibrary(library_id)
 
-
-# @app.route('/state', methods=['PUT'])
-# def put_state():
-#   global state
-#   change_state(json.loads(request.data))
-#   return jsonify(state)
+  # TODO: Nao sei o que dar return
+  return "True"
 
 
 @sockets.route('/ws')
 def ws(ws):
-  global websocket_connections
+  global websocket_connections, libraries
   websocket_connections.append(ws)
 
   while True:
-    ws.send(json.dumps(markers))
+    ws.send(json.dumps([library.getLibraryInfo() for library in libraries]))
     ws.receive()
 
 

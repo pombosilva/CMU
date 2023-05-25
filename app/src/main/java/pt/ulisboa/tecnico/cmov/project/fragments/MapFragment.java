@@ -121,7 +121,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onInfoWindowClick(@NonNull Marker marker) {
                 Intent intent = new Intent(getActivity(), LibraryInfo_Activity.class);
+
+                String markerSnippet = marker.getSnippet();
+                int markerId = Integer.parseInt(markerSnippet.split(":")[0]);
+//                String markerEncondedImage = markerSnippet.split(":")[1]; TODO: NS para que esta linha serve
+                intent.putExtra("libraryId", markerId);
                 intent.putExtra("libraryName",marker.getTitle());
+
                 // Need Database
                 intent.putExtra("libraryImage", R.drawable.img);
                 intent.putExtra("libraryLat", marker.getPosition().latitude);
@@ -155,11 +161,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void loadNormalMarker(pt.ulisboa.tecnico.cmov.project.objects.Marker marker)
     {
         LatLng zaragoza = new LatLng(marker.getLat(), marker.getLng());
-        MarkerOptions mkOpt = new MarkerOptions().position(zaragoza).title(marker.getName());
+        MarkerOptions mkOpt = new MarkerOptions().position(zaragoza).title(marker.getName()).snippet(marker.getId()+ ":" +marker.getEncodedImage());
+        // TODO: Guardar mkOpts para depois quando tivermos o startActivityForResult, se o fav tiver sido alterado, darmos clean e por mos os markers de novo
         if ( marker.isFav() )
             mkOpt.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-//        mMap.addMarker(mkOpt);
-
+        
         sendMessageToHandler(mkOpt, MARKER_MSG);
     }
 
@@ -188,7 +194,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     return;
                 case TOAST_MSG:
                     // TODO: Entender porque e q O toast nao esta a ser displayed
-                    Toast.makeText(requireActivity().getApplicationContext(), (String) msg.obj, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity().getApplicationContext(), (String) msg.obj, Toast.LENGTH_LONG).show();
             }
         }
     };

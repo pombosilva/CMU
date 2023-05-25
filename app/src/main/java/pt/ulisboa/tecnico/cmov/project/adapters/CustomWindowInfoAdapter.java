@@ -1,6 +1,8 @@
 package pt.ulisboa.tecnico.cmov.project.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -11,6 +13,8 @@ import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
+
+import android.util.Base64;
 
 import pt.ulisboa.tecnico.cmov.project.R;
 
@@ -35,19 +39,27 @@ public class CustomWindowInfoAdapter implements GoogleMap.InfoWindowAdapter{
             tvTitle.setText(title);
         }
 
-        String snippet = marker.getSnippet();
-        TextView tvSnipppet = (TextView) view.findViewById(R.id.library_description);
+        String snippet = marker.getSnippet().split(":")[1];
+        ImageView libraryImageView = (ImageView) view.findViewById(R.id.library_image);
+//        TextView tvSnipppet = (TextView) view.findViewById(R.id.library_description);
 
         if ( snippet != null && !snippet.equals(""))
         {
-            tvSnipppet.setText(snippet);
+            byte[] decodedString = Base64.decode(snippet,Base64.DEFAULT);
+            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+            libraryImageView.setImageBitmap(decodedByte);
+//            tvSnipppet.setText(snippet);
         }
 
 
-        ImageView libraryImageView = (ImageView) view.findViewById(R.id.library_image);
+//        ImageView libraryImageView = (ImageView) view.findViewById(R.id.library_image);
+//
+//        if ( libraryImageView != null )
+//            libraryImageView.setImageResource(R.drawable.img);
 
-        if ( libraryImageView != null )
-            libraryImageView.setImageResource(R.drawable.img);
+
+//        if ( libraryImageView != null )
+//            libraryImageView.setImageResource(R.drawable.img);
 
     }
 
