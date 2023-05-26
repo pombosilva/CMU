@@ -29,3 +29,7 @@ class Library:
 
     def addBook(self, book):
       self.registered_books.append(book)
+
+    def __str__(self):
+        return f"Library(id={self.id}, name={self.name}, " \
+               f"latitude={self.lat}, longitude={self.lng}, favorite={self.fav}, file={self.image_file})"

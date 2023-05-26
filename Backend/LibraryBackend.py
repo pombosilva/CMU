@@ -64,7 +64,10 @@ sockets = Sock(app)
 
 @app.route('/', methods=['GET'])
 def index():
-  return "Welcome to our project"
+  library_strings = []
+  for library in libraries:
+    library_strings.append(str(library))
+  return library_strings
 
 
 @app.route('/markers', methods=['GET'])
@@ -85,10 +88,7 @@ def getLibrayExtras():
 def put_state():
   global libraries
   data = json.loads(request.data)
-  library_id = data["libraryId"]
-  updateFavLibrary(library_id)
-
-  # TODO: Nao sei o que dar return
+  updateFavLibrary(data)
   return "True"
 
 

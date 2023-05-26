@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.cmov.project.objects;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.util.JsonReader;
@@ -19,8 +20,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class WebConnector {
 
@@ -47,8 +51,8 @@ public class WebConnector {
         throw new RuntimeException("Unexpected response: " + connection.getResponseMessage());
     }
 
-    private void putData(Object data) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + "/favMarker").openConnection();
+    private void putData(String path, Object data) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + path).openConnection();
         connection.setRequestMethod("PUT");
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setDoOutput(true);
@@ -60,8 +64,13 @@ public class WebConnector {
                     .write(("\"" + data.toString() + "\"").getBytes(StandardCharsets.UTF_8));
         }
 
-        if (connection.getResponseCode() != 200) {
-            throw new RuntimeException("Unexpected response: " + connection.getResponseMessage());
+        switch (connection.getResponseCode()) {
+            case 200: {
+            }
+            break;
+            default: {
+                throw new RuntimeException("Unexpected response: " + connection.getResponseMessage());
+            }
         }
     }
 
@@ -89,12 +98,14 @@ public class WebConnector {
     }
 
     public void setLibraryFav(int libraryId) {
-        try {
-            putData(libraryId);
-        } catch (IOException e) {
-            System.err.println("Error sending favourite value");
-            throw new RuntimeException(e);
-        }
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            try {
+                putData("/favMarker",libraryId);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private Marker extractMarkers(JsonReader jReader) throws IOException {
