@@ -4,11 +4,13 @@ public class Book {
     private final int id;
     private String title;
     private String description;
-    private int cover;
+    private String cover;
+
+    private int cover2;
 
     private final int barcode;
 
-    public Book(int id, String title, String description, int cover, int barcode) {
+    public Book(int id, String title, String description, String cover, int barcode) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -16,6 +18,13 @@ public class Book {
         this.barcode = barcode;
     }
 
+    public Book(int id, String title, String description, int cover, int barcode) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.cover2 = cover;
+        this.barcode = barcode;
+    }
 
 
     public int getId() {
@@ -39,11 +48,11 @@ public class Book {
     }
 
     public int getCover() {
-        return cover;
+        return cover2;
     }
 
     public void setCover(int cover) {
-        this.cover = cover;
+        this.cover2 = cover;
     }
 
     public int getBarcode() {

@@ -13,22 +13,31 @@ import android.widget.ListView;
 
 import androidx.fragment.app.Fragment;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.activities.BookInfo_Activity;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomBaseAdapter;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
+import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 
 public class BooksFragment extends Fragment {
 
     private ArrayList<Book> bookList;
 
     private ListView bookListView;
+    private final WebConnector webConnector;
+
+    public BooksFragment(WebConnector webConnector) {
+        this.webConnector = webConnector;
+    }
 
     @SuppressWarnings("unused")
-    public static BooksFragment newInstance(int columnCount) {
-        BooksFragment fragment = new BooksFragment();
+    public static BooksFragment newInstance(WebConnector webConnector, int columnCount) {
+        BooksFragment fragment = new BooksFragment(webConnector);
         Bundle args = new Bundle();
         args.putInt("column-count", columnCount);
         fragment.setArguments(args);
@@ -46,15 +55,15 @@ public class BooksFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_books, container, false);
         Context context = rootView.getContext();
 
-        // manually add new books
-        // TODO: replace with database content
         bookList = new ArrayList<>();
-        bookList.add(new Book(1,"Biblia", "palavra de deus", R.drawable.bible_, 1234567));
-        bookList.add(new Book(2,"Harry poter", "feiticos", R.drawable.harry, 1234));
-        bookList.add(new Book(3,"Game of thrones", "porrada", R.drawable.gow, 6544));
-        bookList.add(new Book(4,"Ben 10", "bue fixe", R.drawable.ben, 98));
-        bookList.add(new Book(5,"Geronimo Stilton", "Rolemodel", R.drawable.g_ronimo, 43292));
-        bookList.add(new Book(6, "Manual de portugues 8ano", "Camoes glorioso", R.drawable.manual, 1234567));
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            try {
+                bookList.addAll(webConnector.getBooks(-1));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         bookListView = rootView.findViewById(R.id.bookListView);
         bookListView.setAdapter(new CustomBaseAdapter(context, bookList));

@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -34,11 +35,13 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.activities.LibraryInfo_Activity;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomWindowInfoAdapter;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
+import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
@@ -80,13 +83,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         EditText searchText = requireView().findViewById(R.id.searchText);
         Geocoder geocoder = new Geocoder(getActivity());
         try {
-            List<Address> addresses = geocoder.getFromLocationName(searchText.getText().toString(), 1);
+            List<Address> addresses = geocoder.getFromLocationName(searchText.getText().
+                    toString(), 1);
             if (addresses != null && !addresses.isEmpty()) {
                 closeKeyboard(view);
                 Address address = addresses.get(0);
                 LatLng searchedLatLng = new LatLng(address.getLatitude(), address.getLongitude());
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(searchedLatLng, 20));
-                searchMarker = mMap.addMarker(new MarkerOptions().position(searchedLatLng).title("Add new Library"));
+                searchMarker = mMap.addMarker(new MarkerOptions().position(searchedLatLng).
+                        title("Add new Library"));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -94,7 +99,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void closeKeyboard(View view) {
-        InputMethodManager inputMethodManager = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager) requireActivity().
+                getSystemService(Context.INPUT_METHOD_SERVICE);
         if (inputMethodManager != null) {
             inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
@@ -125,29 +131,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             String markerSnippet = marker.getSnippet();
             assert markerSnippet != null;
             int markerId = Integer.parseInt(markerSnippet.split(":")[0]);
-//                String markerEncondedImage = markerSnippet.split(":")[1]; TODO: NS para que esta linha serve
+
+            Bitmap image = ImageUtils.decodeBase64ToBitmap(markerSnippet.split(":")[1]);
+            ImageUtils.saveBitmap(image, markerId, requireView());
+
             intent.putExtra("libraryId", markerId);
             intent.putExtra("libraryName",marker.getTitle());
-
-            // Need Database
-            intent.putExtra("libraryImage", R.drawable.img);
             intent.putExtra("libraryLat", marker.getPosition().latitude);
             intent.putExtra("libraryLng", marker.getPosition().longitude);
 
-
             marker.hideInfoWindow();
-
             startActivity(intent);
         });
     }
 
 
-    private void loadLibrariesMarkers()
-    {
-
+    private void loadLibrariesMarkers() {
         new Thread(() -> {
             try {
-                ArrayList<pt.ulisboa.tecnico.cmov.project.objects.Marker> markers = webConnector.getMarkers();
+                ArrayList<pt.ulisboa.tecnico.cmov.project.objects.Marker>
+                        markers = webConnector.getMarkers();
 
                 for (pt.ulisboa.tecnico.cmov.project.objects.Marker m : markers) {
                     loadNormalMarker(m);
@@ -158,19 +161,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }).start();
     }
 
-    private void loadNormalMarker(pt.ulisboa.tecnico.cmov.project.objects.Marker marker)
-    {
-        LatLng zaragoza = new LatLng(marker.getLat(), marker.getLng());
-        MarkerOptions mkOpt = new MarkerOptions().position(zaragoza).title(marker.getName()).snippet(marker.getId()+ ":" +marker.getEncodedImage());
-        // TODO: Guardar mkOpts para depois quando tivermos o startActivityForResult, se o fav tiver sido alterado, darmos clean e por mos os markers de novo
-        if ( marker.isFav() )
+    private void loadNormalMarker(pt.ulisboa.tecnico.cmov.project.objects.Marker marker) {
+        LatLng markerLocation = new LatLng(marker.getLat(), marker.getLng());
+        MarkerOptions mkOpt = new MarkerOptions().position(markerLocation).
+                title(marker.getName()).snippet(marker.getId() + ":" + marker.getEncodedImage());
+
+        // TODO: Guardar mkOpts para depois quando tivermos o startActivityForResult,
+        //  se o fav tiver sido alterado, darmos clean e por mos os markers de novo
+
+        // set favourite markers blue
+        if (marker.isFav())
             mkOpt.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
         
         sendMessageToHandler(mkOpt);
     }
 
-    private void sendMessageToHandler(Object obj)
-    {
+    private void sendMessageToHandler(Object obj) {
         Message msg = new Message();
         msg.obj = obj;
         msg.what = MapFragment.MARKER_MSG;
@@ -183,17 +189,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private final Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            if ( msg.what == MARKER_MSG)
-            {
+            if ( msg.what == MARKER_MSG) {
                 mMap.addMarker((MarkerOptions)msg.obj);
             }
-            switch (msg.what)
-            {
+            switch (msg.what) {
                 case MARKER_MSG:
                     mMap.addMarker((MarkerOptions)msg.obj);
                     return;
                 case TOAST_MSG:
-                    Toast.makeText(requireActivity().getApplicationContext(), (String) msg.obj, Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireActivity().getApplicationContext(),
+                            (String) msg.obj, Toast.LENGTH_LONG).show();
             }
         }
     };

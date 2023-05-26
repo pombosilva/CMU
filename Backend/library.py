@@ -1,8 +1,9 @@
 import book as BK
 
+
 def getEncodedImage(image_file):
-  with open(image_file, 'r') as file:
-    return file.read()
+    with open(image_file, 'r') as file:
+        return file.read()
 
 
 class Library:
@@ -13,22 +14,23 @@ class Library:
         self.lng = lng
         self.fav = fav
         self.image_file = image_file
-        self.registered_books=[]
+        self.registered_books = []
 
     def getMarker(self):
-      return {'id':self.id, 'name': self.name, 'lat': self.lat, 'lnt': self.lng, 'fav' : self.fav}
-    
+        return {'id': self.id, 'name': self.name, 'lat': self.lat, 'lnt': self.lng, 'fav': self.fav}
+
     def getLibraryInfo(self):
-      return {'id': self.id, 'name': self.name, 'lat': self.lat, 'lnt': self.lng, 'fav' : self.fav, 'encodedImage' : getEncodedImage(self.image_file)}
-    
+        return {'id': self.id, 'name': self.name, 'lat': self.lat, 'lnt': self.lng, 'fav': self.fav,
+                'encodedImage': getEncodedImage(self.image_file)}
+
     def getLibraryBooks(self):
-      result = []  
-      for book in self.registered_books:
-         result.append(book.getBookInfo())
-      return result
+        result = []
+        for book in self.registered_books:
+            result.append(book.getBookInfo())
+        return result
 
     def addBook(self, book):
-      self.registered_books.append(book)
+        self.registered_books.append(book)
 
     def __str__(self):
         return f"Library(id={self.id}, name={self.name}, " \

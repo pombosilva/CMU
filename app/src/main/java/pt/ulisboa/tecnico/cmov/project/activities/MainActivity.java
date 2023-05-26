@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
             if (item.getItemId() == R.id.map) {
                 replaceFragment(new MapFragment(webConnector));
             } else if (item.getItemId() == R.id.books) {
-                replaceFragment(new BooksFragment());
+                replaceFragment(new BooksFragment(webConnector));
             } else if (item.getItemId() == R.id.user) {
                 replaceFragment(new UserFragment());
             }

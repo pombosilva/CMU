@@ -1,7 +1,13 @@
 package pt.ulisboa.tecnico.cmov.project.activities;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -22,7 +28,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomBaseAdapter;
@@ -57,8 +67,14 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         webConnector = new WebConnector(this.getApplicationContext());
         webConnector.startWebSocket();
 
-        configureBookListView();
         loadLibraryInfo(getIntent());
+
+        try {
+            configureBookListView();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         configureButtons();
     }
 
@@ -79,38 +95,55 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         Bundle intentContents = intent.getExtras();
 
         if (intentContents != null) {
+            libraryId = intentContents.getInt("libraryId");
+
             String libraryName = intentContents.getString("libraryName");
             TextView libraryNameTv = findViewById(R.id.library_name);
             libraryNameTv.setText(libraryName);
 
-            libraryId = intentContents.getInt("libraryId");
+            ImageView libraryImage = findViewById(R.id.library_image);
+            String[] projection = {MediaStore.Images.Media.DATA};
+            String selection = MediaStore.Images.Media.DISPLAY_NAME + " = ?";
+            String[] selectionArgs = {"library"+libraryId+".jpg"};
+            Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                String imagePath = cursor.getString(columnIndex);
+                cursor.close();
 
-            ImageView libraryImageIm = findViewById(R.id.library_image);
-            int libraryImage = intentContents.getInt("libraryImage");
-            libraryImageIm.setImageResource(libraryImage);
+                File imageFile = new File(imagePath);
+                if (imageFile.exists()) {
+                    Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+                    libraryImage.setImageBitmap(bitmap);
+                }
+            }
         }
         else {
-            Toast.makeText( getApplicationContext(), "Wasn't able to load library contents", Toast.LENGTH_SHORT).show();
+            Toast.makeText( getApplicationContext(), "Wasn't able to load library contents",
+                    Toast.LENGTH_SHORT).show();
         }
     }
 
-    private void configureBookListView() {
-            bookList.add(new Book(1,"Biblia", "palavra de deus", R.drawable.bible_, 1234567));
-            bookList.add(new Book(2,"Harry poter", "feiticos", R.drawable.harry, 1234));
-            bookList.add(new Book(3,"Game of thrones", "porrada", R.drawable.gow, 6544));
-            bookList.add(new Book(4,"Ben 10", "bue fixe", R.drawable.ben, 98));
-            bookList.add(new Book(5,"Geronimo Stilton", "Rolemodel", R.drawable.g_ronimo, 43292));
-            bookList.add(new Book(6, "Manual de portugues 8ano", "Camoes glorioso", R.drawable.manual, 1234567));
+    private void configureBookListView() throws IOException {
+        bookList.clear();
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            try {
+                bookList.addAll(webConnector.getBooks(libraryId));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         ListView bookListView = findViewById(R.id.library_bookListView);
-            CustomBaseAdapter customBaseAdapter = new CustomBaseAdapter(getApplicationContext(), bookList);
-            bookListView.setAdapter(customBaseAdapter);
-            bookListView.setOnItemClickListener((parent, view, position, id) -> {
-                Intent intent = new Intent(LibraryInfo_Activity.this, BookInfo_Activity.class);
-                intent.putExtra("bookTitle", bookList.get(position).getTitle());
-                intent.putExtra("bookCover", bookList.get(position).getCover());
-                startActivity(intent);
-            });
+        CustomBaseAdapter customBaseAdapter = new CustomBaseAdapter(getApplicationContext(), bookList);
+        bookListView.setAdapter(customBaseAdapter);
+        bookListView.setOnItemClickListener((parent, view, position, id) -> {
+            Intent intent = new Intent(LibraryInfo_Activity.this, BookInfo_Activity.class);
+            intent.putExtra("bookTitle", bookList.get(position).getTitle());
+            intent.putExtra("bookCover", bookList.get(position).getCover());
+            startActivity(intent);
+        });
     }
 
     private void configureButtons() {
