@@ -31,6 +31,8 @@ import java.util.concurrent.Executors;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import pt.ulisboa.tecnico.cmov.project.adapters.CustomBaseAdapter;
+
 public class WebConnector {
 
     private static final String endpoint = "http://192.92.147.96:5000";
@@ -93,6 +95,7 @@ public class WebConnector {
         }
     }
 
+    //TODO: isto tem de aceitar uma string para conectar a bd
     private JsonReader getData() throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + "/markers").openConnection();
         int respCode = connection.getResponseCode();
@@ -147,6 +150,7 @@ public class WebConnector {
         return markers;
     }
 
+    // TODO: Mudar isto para o class GSON
     private Marker extractMarkers(JsonReader jReader) throws IOException {
         jReader.beginObject();
 
@@ -173,7 +177,8 @@ public class WebConnector {
         return new Marker(markerId,markerName, markerLat, markerLng, markerFav,libraryImage);
     }
 
-    public ArrayList<Book> getBooks(int libraryId) throws IOException{
+    // TODO: Isto ta so nojento. Usar uma funcao pa conectar(getData) e esta so aplica os resultados
+    public ArrayList<Book> getBooks(int libraryId/*, CustomBaseAdapter customBaseAdapter*/) throws IOException{
         ArrayList<Book> books = new ArrayList<>();
         URL url = new URL("http://192.92.147.96:5000/libraryBooks/" + libraryId);
 
@@ -190,6 +195,7 @@ public class WebConnector {
             StringBuilder response = new StringBuilder();
             String line;
             while ((line = bufferedReader.readLine()) != null) {
+                //TODO: Fazer disto uma thread para meter na UI
                 response.append(line);
             }
             bufferedReader.close();

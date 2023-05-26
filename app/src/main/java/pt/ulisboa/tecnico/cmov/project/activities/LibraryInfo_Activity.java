@@ -1,12 +1,13 @@
 package pt.ulisboa.tecnico.cmov.project.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -36,6 +37,7 @@ import java.util.concurrent.Executors;
 
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomBaseAdapter;
+import pt.ulisboa.tecnico.cmov.project.fragments.MapFragment;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 
@@ -46,6 +48,8 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
     private static final int CHECKOUT = 1;
 
     private final ArrayList<Book> bookList = new ArrayList<>();
+
+    private CustomBaseAdapter bookListCustomBaseAdapter;
 
     private WebConnector webConnector;
     public LibraryInfo_Activity() {
@@ -126,18 +130,20 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
 
     private void configureBookListView() throws IOException {
         bookList.clear();
+        ListView bookListView = findViewById(R.id.library_bookListView);
+        bookListCustomBaseAdapter = new CustomBaseAdapter(getApplicationContext(), bookList);
+        bookListView.setAdapter(bookListCustomBaseAdapter);
+
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
                 bookList.addAll(webConnector.getBooks(libraryId));
+                sendMessageToHandler(null);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
 
-        ListView bookListView = findViewById(R.id.library_bookListView);
-        CustomBaseAdapter customBaseAdapter = new CustomBaseAdapter(getApplicationContext(), bookList);
-        bookListView.setAdapter(customBaseAdapter);
         bookListView.setOnItemClickListener((parent, view, position, id) -> {
             Intent intent = new Intent(LibraryInfo_Activity.this, BookInfo_Activity.class);
             intent.putExtra("bookTitle", bookList.get(position).getTitle());
@@ -164,7 +170,6 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
 
         Button favouriteButton = findViewById(R.id.library_favourite_button);
         favouriteButton.setOnClickListener(v -> {
-            // TODO: Adicionar/Remover das user preferences
             webConnector.setLibraryFav(libraryId);
             Toast.makeText(getApplicationContext(), "Clicked favourite button", Toast.LENGTH_SHORT).show();
         });
@@ -207,4 +212,29 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
             builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss()).show();
         }
     });
+
+    private void sendMessageToHandler(Object obj) {
+        Message msg = new Message();
+        msg.obj = obj;
+        msg.what = UPDATE_UI_MSG;
+        handler.sendMessage(msg);
+    }
+
+    private static final int  UPDATE_UI_MSG= 0;
+    private static final int TOAST_MSG = 1;
+
+    @SuppressLint("HandlerLeak")
+    private final Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case UPDATE_UI_MSG:
+                    bookListCustomBaseAdapter.notifyDataSetChanged();
+                    return;
+                case TOAST_MSG:
+                    Toast.makeText(getApplicationContext(),
+                            (String) msg.obj, Toast.LENGTH_LONG).show();
+            }
+        }
+    };
 }

@@ -6,7 +6,6 @@ public class Book {
     private String description;
     private String cover;
 
-    private int cover2;
 
     private final int barcode;
 
@@ -17,15 +16,6 @@ public class Book {
         this.cover = cover;
         this.barcode = barcode;
     }
-
-    public Book(int id, String title, String description, int cover, int barcode) {
-        this.id = id;
-        this.title = title;
-        this.description = description;
-        this.cover2 = cover;
-        this.barcode = barcode;
-    }
-
 
     public int getId() {
         return id;
@@ -47,12 +37,12 @@ public class Book {
         this.description = description;
     }
 
-    public int getCover() {
-        return cover2;
+    public String getCover() {
+        return cover;
     }
 
-    public void setCover(int cover) {
-        this.cover2 = cover;
+    public void setCover(String cover) {
+        this.cover = cover;
     }
 
     public int getBarcode() {

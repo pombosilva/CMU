@@ -2,6 +2,9 @@ package pt.ulisboa.tecnico.cmov.project.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +16,7 @@ import java.util.ArrayList;
 
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
+import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
 
 
 public class CustomBaseAdapter extends BaseAdapter {
@@ -51,7 +55,9 @@ public class CustomBaseAdapter extends BaseAdapter {
         TextView textView = convertView.findViewById(R.id.textView);
         ImageView fruitImg = convertView.findViewById(R.id.imageIcon);
         textView.setText(bookList.get(i).getTitle());
-        fruitImg.setImageResource(bookList.get(i).getCover());
+
+        String encodedCover =  bookList.get(i).getCover();
+        fruitImg.setImageBitmap(ImageUtils.decodeBase64ToBitmap(encodedCover));
 
         return convertView;
     }

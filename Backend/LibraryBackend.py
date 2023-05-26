@@ -15,8 +15,9 @@ libraries = [LB.Library(1, "Lisbon", 38.713912, -9.133397, False, 'madrid.txt'),
              LB.Library(3, "Zaragoza", 41.657059, -0.875448, True, 'zaragoza.txt'),
              LB.Library(4, "Lagos", 6.476754, 3.368539, True, 'lagos.txt')]
 
-libraries[0].addBook(BK.Book(45632, "Marco Polo", "Aventura para descobrir o amanha", 'espanha.txt', 123))
-libraries[0].addBook(BK.Book(5346, "martim Manha", "Hoje tenho uma erecao", 'espanha.txt', 123))
+libraries[0].addBook(BK.Book(45632, "Marco Polo", "Aventura para descobrir o amanha", 'lagos.txt', 123))
+libraries[0].addBook(BK.Book(5346, "martim Manha", "Hoje tenho uma erecao", 'lagos.txt', 123))
+libraries[1].addBook(BK.Book(5346, "martim Manha", "Hoje tenho uma erecao", 'zaragoza.txt', 123))
 
 
 # def getLibraryMarkerInfo():
@@ -74,6 +75,8 @@ def showAllBooks():
         l = library.getLibraryBooks()
         for book in l:
             list.append(book)
+    
+    print(list)
     return jsonify(list)
 
 
