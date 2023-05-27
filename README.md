@@ -5,7 +5,7 @@
   
 ## Launch Webserver
 
-  ```cd && cd Project && python3 LibraryBackend.py ```
+  ```cd && cd Backend && python3 LibraryBackend.py ```
   
   
   ### Transfer Files over SCP
