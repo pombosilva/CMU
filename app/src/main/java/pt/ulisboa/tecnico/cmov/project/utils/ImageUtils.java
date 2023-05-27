@@ -19,23 +19,23 @@ public class ImageUtils {
         return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
     }
 
-    public static void saveBitmap(Bitmap bitmap, int id, View view) {
-        String fileName = "library" + id + ".jpg";
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
-        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/images");
-
-        Uri imageUri = view.getContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-        if (imageUri != null) {
-            try {
-                OutputStream outputStream = view.getContext().getContentResolver().openOutputStream(imageUri);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 25, outputStream);
-                outputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    public static void saveBitmap(Bitmap bitmap, int id, View view) {
+//        String fileName = "library" + id + ".jpg";
+//        ContentValues values = new ContentValues();
+//        values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName);
+//        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+//        values.put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/images");
+//
+//        Uri imageUri = view.getContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+//        if (imageUri != null) {
+//            try {
+//                OutputStream outputStream = view.getContext().getContentResolver().openOutputStream(imageUri);
+//                bitmap.compress(Bitmap.CompressFormat.JPEG, 25, outputStream);
+//                outputStream.close();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 }
 

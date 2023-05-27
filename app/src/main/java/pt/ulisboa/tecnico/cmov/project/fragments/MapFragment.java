@@ -132,13 +132,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             assert markerSnippet != null;
             int markerId = Integer.parseInt(markerSnippet.split(":")[0]);
 
-            Bitmap image = ImageUtils.decodeBase64ToBitmap(markerSnippet.split(":")[1]);
-            ImageUtils.saveBitmap(image, markerId, requireView());
+//            Bitmap image = ImageUtils.decodeBase64ToBitmap(markerSnippet.split(":")[1]);
+//            ImageUtils.saveBitmap(image, markerId, requireView());
 
             intent.putExtra("libraryId", markerId);
             intent.putExtra("libraryName",marker.getTitle());
             intent.putExtra("libraryLat", marker.getPosition().latitude);
             intent.putExtra("libraryLng", marker.getPosition().longitude);
+            intent.putExtra("libraryEncodedImage", markerSnippet.split(":")[1]);
 
             marker.hideInfoWindow();
             startActivity(intent);
@@ -164,7 +165,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void loadNormalMarker(pt.ulisboa.tecnico.cmov.project.objects.Marker marker) {
         LatLng markerLocation = new LatLng(marker.getLat(), marker.getLng());
         MarkerOptions mkOpt = new MarkerOptions().position(markerLocation).
-                title(marker.getName()).snippet(marker.getId() + ":" + marker.getEncodedImage());
+                title(marker.getName()).snippet(marker.getId() + ":a");
 
         // TODO: Guardar mkOpts para depois quando tivermos o startActivityForResult,
         //  se o fav tiver sido alterado, darmos clean e por mos os markers de novo

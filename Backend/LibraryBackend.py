@@ -10,27 +10,23 @@ from gevent.pywsgi import WSGIServer
 import library as LB
 import book as BK
 
-libraries = [LB.Library(1, "Lisbon", 38.713912, -9.133397, False, 'madrid.txt'),
-             LB.Library(2, "Madrid", 40.416891, -3.703739, False, 'madrid.txt'),
-             LB.Library(3, "Zaragoza", 41.657059, -0.875448, True, 'zaragoza.txt'),
-             LB.Library(4, "Lagos", 6.476754, 3.368539, True, 'lagos.txt')]
 
-libraries[0].addBook(BK.Book(45632, "Marco Polo", "Aventura para descobrir o amanha", 'lagos.txt', 123))
-libraries[0].addBook(BK.Book(5346, "martim Manha", "Hoje tenho uma erecao", 'lagos.txt', 123))
-libraries[1].addBook(BK.Book(5346, "martim Manha", "Hoje tenho uma erecao", 'zaragoza.txt', 123))
+books = [BK.Book(45632, "Marco Polo", "Aventura para descobrir o amanha", 'LibraryPics/lagos.txt'),
+         BK.Book(5346, "martim Manha", "Hoje tenho uma erecao", 'LibraryPics/lagos.txt')]
 
 
-# def getLibraryMarkerInfo():
-#   global libraries
-#   result =[]
-#   for library in libraries:
-#     result.append
+libraries = [LB.Library(1, "Lisbon", 38.713912, -9.133397, False, 'LibraryPics/madrid.txt'),
+             LB.Library(2, "Madrid", 40.416891, -3.703739, False, 'LibraryPics/madrid.txt'),
+             LB.Library(3, "Zaragoza", 41.657059, -0.875448, True, 'LibraryPics/zaragoza.txt'),
+             LB.Library(4, "Lagos", 6.476754, 3.368539, True, 'LibraryPics/lagos.txt')]
+
+libraries[0].addBook(books[0])
+libraries[0].addBook(books[1])
+libraries[1].addBook(books[1])
 
 
 websocket_connections = []
 
-
-# websocket_broadcast(state)
 
 
 def websocket_broadcast(message):
@@ -40,6 +36,9 @@ def websocket_broadcast(message):
         except ConnectionClosed:
             websocket_connections.remove(ws)
 
+# def addBookToLibrary(atributos do livro, id da livraria):
+    # criar o objecto livro e coloca lo no array dos books
+    # dar append desse livro ao array de livro da livraria
 
 def get_library(library_id):
     global libraries
@@ -57,45 +56,38 @@ def updateFavLibrary(library_id):
 
 app = Flask(__name__)
 sockets = Sock(app)
-
+    
 
 @app.route('/', methods=['GET'])
 def index():
-    library_strings = []
-    for library in libraries:
-        library_strings.append(str(library))
-    return library_strings
+    return [str(library) for library in libraries]
 
 
 @app.route('/books', methods=['GET'])
 def showAllBooks():
-    global libraries
-    list = []
-    for library in libraries:
-        l = library.getLibraryBooks()
-        for book in l:
-            list.append(book)
-    
-    print(list)
-    return jsonify(list)
+    global books
+    return jsonify([book.getBookInfo() for book in books])
 
 
 @app.route('/libraryBooks/<int:libraryId>', methods=['GET'])
 def showLibraryBooks(libraryId):
     global libraries
-    library_books = None
-    for library in libraries:
-        if library.id == libraryId:
-            library_books = library.getLibraryBooks()
-            break
-    return jsonify(library_books)
+    library = next((l for l in libraries if l.id == libraryId), None)
+    return jsonify([book.getBookInfo() for book in library.registered_books])
 
 
 @app.route('/markers', methods=['GET'])
 def get_state():
     global libraries
-    return jsonify([library.getLibraryInfo() for library in libraries])
-    # return jsonify(markers)
+    return jsonify([library.getMarkerInfo() for library in libraries])
+
+
+@app.route('/libraryExtras/<int:libraryId>', methods=['GET'])
+def getLibraryImage(libraryId):
+    global libraries
+    for l in libraries:
+        if l.id == libraryId:
+            return jsonify(l.getLibraryImage())
 
 
 @app.route('/libraryExtras', methods=['GET'])
@@ -121,7 +113,7 @@ def ws(ws):
     websocket_connections.append(ws)
 
     while True:
-        ws.send(json.dumps([library.getLibraryInfo() for library in libraries]))
+        ws.send(json.dumps([library.getMarkerInfo() for library in libraries]))
         ws.receive()
 
 

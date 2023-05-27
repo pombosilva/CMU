@@ -40,6 +40,7 @@ import pt.ulisboa.tecnico.cmov.project.adapters.CustomBaseAdapter;
 import pt.ulisboa.tecnico.cmov.project.fragments.MapFragment;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
+import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
 
 public class LibraryInfo_Activity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -52,6 +53,9 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
     private CustomBaseAdapter bookListCustomBaseAdapter;
 
     private WebConnector webConnector;
+
+    private ImageView libraryImage;
+
     public LibraryInfo_Activity() {
         /* TODO: Perguntar ao professor sobre a melhor implementacao. Criar novas
             instancias de web connector ou conseguir passar de alguma forma entre elas
@@ -105,22 +109,25 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
             TextView libraryNameTv = findViewById(R.id.library_name);
             libraryNameTv.setText(libraryName);
 
-            ImageView libraryImage = findViewById(R.id.library_image);
-            String[] projection = {MediaStore.Images.Media.DATA};
-            String selection = MediaStore.Images.Media.DISPLAY_NAME + " = ?";
-            String[] selectionArgs = {"library"+libraryId+".jpg"};
-            Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
-            if (cursor != null && cursor.moveToFirst()) {
-                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-                String imagePath = cursor.getString(columnIndex);
-                cursor.close();
+            libraryImage = findViewById(R.id.library_image);
 
-                File imageFile = new File(imagePath);
-                if (imageFile.exists()) {
-                    Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
-                    libraryImage.setImageBitmap(bitmap);
-                }
-            }
+//            webConnector.getLibraryImage(intentContents.getInt("libraryId"));
+
+//            String[] projection = {MediaStore.Images.Media.DATA};
+//            String selection = MediaStore.Images.Media.DISPLAY_NAME + " = ?";
+//            String[] selectionArgs = {"library"+libraryId+".jpg"};
+//            Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
+//            if (cursor != null && cursor.moveToFirst()) {
+//                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+//                String imagePath = cursor.getString(columnIndex);
+//                cursor.close();
+//
+//                File imageFile = new File(imagePath);
+//                if (imageFile.exists()) {
+//                    Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+//                    libraryImage.setImageBitmap(bitmap);
+//                }
+//            }
         }
         else {
             Toast.makeText( getApplicationContext(), "Wasn't able to load library contents",
@@ -222,6 +229,7 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
 
     private static final int  UPDATE_UI_MSG= 0;
     private static final int TOAST_MSG = 1;
+    private static final int LIBRARY_IMG_MSG = 2;
 
     @SuppressLint("HandlerLeak")
     private final Handler handler = new Handler(){
@@ -230,6 +238,9 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
             switch (msg.what) {
                 case UPDATE_UI_MSG:
                     bookListCustomBaseAdapter.notifyDataSetChanged();
+                    return;
+                case LIBRARY_IMG_MSG:
+                    libraryImage.setImageBitmap(ImageUtils.decodeBase64ToBitmap((String) msg.obj));
                     return;
                 case TOAST_MSG:
                     Toast.makeText(getApplicationContext(),

@@ -7,15 +7,15 @@ public class Marker {
     private final double lat;
     private final double lng;
     private final boolean fav;
-    private final String encodedImage;
+//    private final String encodedImage;
 
-    public Marker(int id, String name, double lat, double lng, boolean fav, String encodedImage ) {
+    public Marker(int id, String name, double lat, double lng, boolean fav/*, String encodedImage */) {
         this.id = id;
         this.name = name;
         this.lat = lat;
         this.lng = lng;
         this.fav = fav;
-        this.encodedImage = encodedImage;
+//        this.encodedImage = encodedImage;
     }
 
     public int getId() {
@@ -38,7 +38,7 @@ public class Marker {
         return fav;
     }
 
-    public String getEncodedImage() {
-        return encodedImage;
-    }
+//    public String getEncodedImage() {
+//        return encodedImage;
+//    }
 }

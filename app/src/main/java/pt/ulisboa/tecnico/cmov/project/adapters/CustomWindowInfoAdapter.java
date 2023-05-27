@@ -39,17 +39,17 @@ public class CustomWindowInfoAdapter implements GoogleMap.InfoWindowAdapter{
             tvTitle.setText(title);
         }
 
-        String snippet = marker.getSnippet().split(":")[1];
-        ImageView libraryImageView = (ImageView) view.findViewById(R.id.library_image);
+//        String snippet = marker.getSnippet().split(":")[1];
+//        ImageView libraryImageView = (ImageView) view.findViewById(R.id.library_image);
 //        TextView tvSnipppet = (TextView) view.findViewById(R.id.library_description);
 
-        if ( snippet != null && !snippet.equals(""))
-        {
-            byte[] decodedString = Base64.decode(snippet,Base64.DEFAULT);
-            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            libraryImageView.setImageBitmap(decodedByte);
-//            tvSnipppet.setText(snippet);
-        }
+//        if ( snippet != null && !snippet.equals(""))
+//        {
+//            byte[] decodedString = Base64.decode(snippet,Base64.DEFAULT);
+//            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+//            libraryImageView.setImageBitmap(decodedByte);
+////            tvSnipppet.setText(snippet);
+//        }
 
 
 //        ImageView libraryImageView = (ImageView) view.findViewById(R.id.library_image);

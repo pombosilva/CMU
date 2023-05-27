@@ -31,6 +31,7 @@ import java.util.concurrent.Executors;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import pt.ulisboa.tecnico.cmov.project.activities.LibraryInfo_Activity;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomBaseAdapter;
 
 public class WebConnector {
@@ -96,8 +97,9 @@ public class WebConnector {
     }
 
     //TODO: isto tem de aceitar uma string para conectar a bd
-    private JsonReader getData() throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + "/markers").openConnection();
+    private JsonReader getData(String path) throws IOException {
+//        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + "/markers").openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + path).openConnection();
         int respCode = connection.getResponseCode();
 
         if (respCode == 200) {
@@ -134,7 +136,7 @@ public class WebConnector {
     public ArrayList<Marker> getMarkers() throws IOException {
         ArrayList<Marker> markers = new ArrayList<>();
         try {
-            JsonReader data = getData();
+            JsonReader data = getData("/markers");
             data.beginArray();
             while (data.hasNext()) {
                 markers.add(extractMarkers(data));
@@ -154,8 +156,8 @@ public class WebConnector {
     private Marker extractMarkers(JsonReader jReader) throws IOException {
         jReader.beginObject();
 
-        jReader.nextName();
-        String libraryImage = jReader.nextString();
+//        jReader.nextName();
+//        String libraryImage = jReader.nextString();
 
         jReader.nextName();
         boolean markerFav = jReader.nextBoolean();
@@ -174,7 +176,25 @@ public class WebConnector {
 
         jReader.endObject();
 
-        return new Marker(markerId,markerName, markerLat, markerLng, markerFav,libraryImage);
+        return new Marker(markerId,markerName, markerLat, markerLng, markerFav);
+    }
+
+    public void getLibraryImage(int libraryId)
+    {
+        String a = "a";
+        Message msg = new Message();
+        try {
+            JsonReader data = getData("/libraryExtras/1");
+            msg.obj = data.nextString();
+            data.close();
+            msg.what = 2;
+        } catch (IOException e)
+        {
+            msg.obj = "No Internet Connection";
+            msg.what = 1;
+        }
+//        handler.sendMessage(msg);
+//        return librayImage;
     }
 
     // TODO: Isto ta so nojento. Usar uma funcao pa conectar(getData) e esta so aplica os resultados
