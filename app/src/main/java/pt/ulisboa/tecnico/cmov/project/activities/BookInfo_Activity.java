@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.cmov.project.activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import pt.ulisboa.tecnico.cmov.project.R;
+import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
 
 public class BookInfo_Activity extends AppCompatActivity {
 
@@ -46,8 +48,9 @@ public class BookInfo_Activity extends AppCompatActivity {
             bookTitleTv.setText(bookTitle);
 
             ImageView bookCoverIm = findViewById(R.id.bookCover);
-            int bookCover = intentContents.getInt("bookCover");
-            bookCoverIm.setImageResource(bookCover);
+            String bookCover = intentContents.getString("bookCover");
+            Bitmap bitmap = ImageUtils.decodeBase64ToBitmap(bookCover);
+            bookCoverIm.setImageBitmap(bitmap);
         }
         else {
             Toast.makeText( getApplicationContext(), "Wasn't able to load book contents", Toast.LENGTH_SHORT).show();
