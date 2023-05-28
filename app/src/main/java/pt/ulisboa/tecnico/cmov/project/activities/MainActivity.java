@@ -2,6 +2,10 @@ package pt.ulisboa.tecnico.cmov.project.activities;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -13,6 +17,7 @@ import pt.ulisboa.tecnico.cmov.project.databinding.ActivityMainBinding;
 import pt.ulisboa.tecnico.cmov.project.fragments.BooksFragment;
 import pt.ulisboa.tecnico.cmov.project.fragments.MapFragment;
 import pt.ulisboa.tecnico.cmov.project.fragments.UserFragment;
+import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 
 public class MainActivity extends AppCompatActivity {
@@ -43,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
                 replaceFragment(new MapFragment(webConnector));
             } else if (item.getItemId() == R.id.books) {
                 replaceFragment(new BooksFragment(webConnector));
+//                replaceFragment(new BooksFragment());
             } else if (item.getItemId() == R.id.user) {
                 replaceFragment(new UserFragment());
             }
@@ -56,4 +62,5 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.replace(R.id.frame_layout, fragment);
         fragmentTransaction.commit();
     }
+
 }

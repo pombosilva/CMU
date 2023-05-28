@@ -12,7 +12,9 @@ import book as BK
 
 
 books = [BK.Book(45632, "Marco Polo", "Aventura para descobrir o amanha", 'LibraryPics/lagos.txt'),
-         BK.Book(5346, "martim Manha", "Hoje tenho uma erecao", 'LibraryPics/lagos.txt')]
+         BK.Book(5346, "martim Manha", "Hoje tenho uma erecao", 'LibraryPics/lagos.txt'),
+         BK.Book(73821, "Quorao", "Bombastic day", 'LibraryPics/madrid.txt'),
+         BK.Book(375123, "Lusiadas", "Grande portugal", 'LibraryPics/zaragoza.txt')]
 
 
 libraries = [LB.Library(1, "Lisbon", 38.713912, -9.133397, False, 'LibraryPics/madrid.txt'),

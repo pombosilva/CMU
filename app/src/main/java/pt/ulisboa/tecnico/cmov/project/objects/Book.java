@@ -7,14 +7,11 @@ public class Book {
     private String cover;
 
 
-    private final int barcode;
-
-    public Book(int id, String title, String description, String cover, int barcode) {
+    public Book(int id, String title, String description, String cover) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.cover = cover;
-        this.barcode = barcode;
     }
 
     public int getId() {
@@ -45,16 +42,12 @@ public class Book {
         this.cover = cover;
     }
 
-    public int getBarcode() {
-        return barcode;
-    }
 
     @Override
     public String toString() {
         return "Book{" +
                 "id=" + id +
-                ", title='" + title +
-                ", barcode=" + barcode +
+                ", title='" + title + "'"+
                 '}';
     }
 }

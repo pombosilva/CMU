@@ -197,6 +197,30 @@ public class WebConnector {
 //        return librayImage;
     }
 
+
+
+
+    private Book extractBook(JsonReader book) throws IOException
+    {
+        book.beginObject();
+
+        book.nextName();
+        String bookCover = book.nextString();
+
+        book.nextName();
+        String bookDescription = book.nextString();
+
+        book.nextName();
+        int bookId = book.nextInt();
+
+        book.nextName();
+        String bookTitle = book.nextString();
+
+        book.endObject();
+
+        return new Book(bookId,bookTitle, bookDescription, bookCover);
+    }
+
     // TODO: Isto ta so nojento. Usar uma funcao pa conectar(getData) e esta so aplica os resultados
     public ArrayList<Book> getBooks(int libraryId/*, CustomBaseAdapter customBaseAdapter*/) throws IOException{
         ArrayList<Book> books = new ArrayList<>();
@@ -211,22 +235,38 @@ public class WebConnector {
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
             InputStream inputStream = connection.getInputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            StringBuilder response = new StringBuilder();
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                //TODO: Fazer disto uma thread para meter na UI
-                response.append(line);
-            }
-            bufferedReader.close();
+//            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+//            StringBuilder response = new StringBuilder();
+//            String line;
 
-            String jsonResponse = response.toString();
-            Gson gson = new Gson();
-            Log.i("RESPONSE: ", jsonResponse);
-            Type bookListType = new TypeToken<List<Book>>() {}.getType();
-            books = gson.fromJson(jsonResponse, bookListType);
+            JsonReader booksJson = new JsonReader(new InputStreamReader(inputStream));
+            booksJson.setLenient(true);
+            booksJson.beginArray();
+            while ( booksJson.hasNext() )
+            {
+                Message msg = new Message();
+                msg.what = 2;
+                msg.obj = extractBook(booksJson);
+                handler.sendMessage(msg);
+            }
+
+//            while ((line = bufferedReader.readLine()) != null) {
+////                //TODO: Fazer disto uma thread para meter na UI
+////
+////
+//                response.append(line);
+//            }
+//            bufferedReader.close();
+//
+//            Gson gson = new Gson();
+////            Log.d("MensagensDebug", "AAAAAAAAAAAAAAAA "+line);
+//            String jsonResponse = response.toString();
+////            Log.i("RESPONSE: ", jsonResponse);
+//            Type bookListType = new TypeToken<List<Book>>() {}.getType();
+//            books = gson.fromJson(jsonResponse, bookListType);
         }
 
+                Log.d("MensagensDebug", "CHEGUEI AQUI ");
         connection.disconnect();
         return books;
     }

@@ -74,6 +74,7 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
 
         webConnector = new WebConnector(this.getApplicationContext());
         webConnector.startWebSocket();
+        webConnector.setHandler(this.handler);
 
         loadLibraryInfo(getIntent());
 
@@ -144,8 +145,9 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
-                bookList.addAll(webConnector.getBooks(libraryId));
-                sendMessageToHandler(null);
+//                bookList.addAll(webConnector.getBooks(libraryId));
+//                sendMessageToHandler(null);
+                webConnector.getBooks(this.libraryId);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -229,13 +231,19 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
 
     private static final int  UPDATE_UI_MSG= 0;
     private static final int TOAST_MSG = 1;
-    private static final int LIBRARY_IMG_MSG = 2;
+
+    private static final int UPDATE_BOOK_LIST = 2;
+    private static final int LIBRARY_IMG_MSG = 3;
 
     @SuppressLint("HandlerLeak")
     private final Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
+                case UPDATE_BOOK_LIST:
+                    bookList.add((Book) msg.obj);
+                    bookListCustomBaseAdapter.notifyDataSetChanged();
+                    return;
                 case UPDATE_UI_MSG:
                     bookListCustomBaseAdapter.notifyDataSetChanged();
                     return;

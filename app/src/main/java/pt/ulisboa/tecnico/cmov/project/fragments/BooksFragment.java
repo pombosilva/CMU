@@ -1,11 +1,11 @@
 package pt.ulisboa.tecnico.cmov.project.fragments;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,14 +31,13 @@ import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 public class BooksFragment extends Fragment {
 
     private ArrayList<Book> bookList;
-
-    private ListView bookListView;
-    private final WebConnector webConnector;
-
     private CustomBaseAdapter bookListCustomBaseAdapter;
+
+    private final WebConnector webConnector;
 
     public BooksFragment(WebConnector webConnector) {
         this.webConnector = webConnector;
+        webConnector.setHandler(this.handler);
     }
 
     @SuppressWarnings("unused")
@@ -63,7 +62,7 @@ public class BooksFragment extends Fragment {
 
         bookList = new ArrayList<>();
 
-        bookListView = rootView.findViewById(R.id.bookListView);
+        ListView bookListView = rootView.findViewById(R.id.bookListView);
 
         bookListCustomBaseAdapter = new CustomBaseAdapter(getContext(), bookList);
         bookListView.setAdapter(bookListCustomBaseAdapter);
@@ -72,8 +71,14 @@ public class BooksFragment extends Fragment {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
-                bookList.addAll(webConnector.getBooks(-1));
-                sendMessageToHandler(null, UPDATE_UI_MSG);
+//                bookList.addAll(webConnector.getBooks(-1));
+//                sendMessageToHandler(null, UPDATE_UI_MSG);
+                Log.d("MensagensDebug", "Vou conectar me");
+
+
+                webConnector.getBooks(-1);
+
+
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -88,24 +93,24 @@ public class BooksFragment extends Fragment {
 
         // when you click on an item it displays its information
 
-//        Button searchButton = rootView.findViewById(R.id.searchBookButton);
-//        searchButton.setOnClickListener(this::searchBook);
+        Button searchButton = rootView.findViewById(R.id.searchBookButton);
+        searchButton.setOnClickListener(this::searchBook);
 
         return rootView;
     }
 
-//    public void searchBook(View view) {
-//        EditText searchText = requireView().findViewById(R.id.searchBookText);
-//        ArrayList<Book> temp = new ArrayList<>();
-//
-//        for (Book b: bookList){
-//            if (b.getTitle().contains(searchText.getText().toString())){
-//                temp.add(b);
-//            }
-//        }
-//
-//        closeKeyboard(view);
-//    }
+    public void searchBook(View view) {
+        EditText searchText = requireView().findViewById(R.id.searchBookText);
+        ArrayList<Book> temp = new ArrayList<>();
+
+        for (Book b: bookList){
+            if (b.getTitle().contains(searchText.getText().toString())){
+                temp.add(b);
+            }
+        }
+
+        closeKeyboard(view);
+    }
 
     public void closeKeyboard(View view) {
         InputMethodManager inputMethodManager = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -121,17 +126,25 @@ public class BooksFragment extends Fragment {
         msg.obj = obj;
         msg.what = msgType;
         handler.sendMessage(msg);
+//        looperThread.mHandler.sendMessage(msg);
     }
 
     private static final int  UPDATE_UI_MSG= 0;
     private static final int TOAST_MSG = 1;
+    private static final int UPDATE_BOOK_LIST = 2;
 
-    @SuppressLint("HandlerLeak")
+
     private final Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
+            Log.d("MensagensDebug", "Recebi um book pa actualizar logo o codigo e " + msg.what);
             switch (msg.what) {
                 case UPDATE_UI_MSG:
+                    bookListCustomBaseAdapter.notifyDataSetChanged();
+                    return;
+                case UPDATE_BOOK_LIST:
+                    Log.d("MensagensDebug", "Recebi um book pa actualizar");
+                    bookList.add((Book) msg.obj);
                     bookListCustomBaseAdapter.notifyDataSetChanged();
                     return;
                 case TOAST_MSG:
