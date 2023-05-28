@@ -109,6 +109,19 @@ def put_state():
     return "True"
 
 
+@app.route('/bookExistence/<string:bookBarcode>', methods=['GET'])
+def bookExists(bookBarcode):
+    bookBarcode = int(bookBarcode)
+    global books
+    for b in books:
+        if b.id == bookBarcode:
+          print("O book com barcode " + str(bookBarcode) + "existe")
+          return jsonify(True)
+    print("O book com barcode " + str(bookBarcode) + "nao existe")
+    return jsonify(False)
+
+
+
 @sockets.route('/ws')
 def ws(ws):
     global websocket_connections, libraries

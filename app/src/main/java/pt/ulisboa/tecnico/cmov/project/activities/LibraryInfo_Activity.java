@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.cmov.project.activities;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -48,6 +50,8 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
     private static final int CHECKIN = 0;
     private static final int CHECKOUT = 1;
 
+    private Context mContext;
+
     private final ArrayList<Book> bookList = new ArrayList<>();
 
     private CustomBaseAdapter bookListCustomBaseAdapter;
@@ -72,7 +76,9 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
-        webConnector = new WebConnector(this.getApplicationContext());
+        mContext = getApplicationContext();
+
+        webConnector = new WebConnector(mContext);
         webConnector.startWebSocket();
         webConnector.setHandler(this.handler);
 
@@ -172,7 +178,6 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         Button checkoutButton = findViewById(R.id.checkout_btn);
         checkoutButton.setOnClickListener(v -> {
             scanBarcode(CHECKOUT);
-            // TODO: Reagir ao id retornado
             Toast.makeText(getApplicationContext(), "Clicked check out", Toast.LENGTH_SHORT).show();
         });
 
@@ -204,9 +209,18 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         if (result.getContents() != null)
         {
             // TODO: Faltar implementar a reacao ao input (Database needed)
+            String bookBarcode = result.getContents();
+
+            Executor executor = Executors.newSingleThreadExecutor();
+            executor.execute(() -> {
+                boolean bookExistance = webConnector.bookExists(bookBarcode);
+                Log.d("MensagensDebug", "Existe? " + bookExistance);
+            });
+
+
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("CheckIn Result");
-            builder.setMessage(result.getContents());
+            builder.setMessage(bookBarcode);
             builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss()).show();
         }
     });

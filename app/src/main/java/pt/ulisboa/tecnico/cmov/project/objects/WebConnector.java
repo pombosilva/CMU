@@ -33,6 +33,7 @@ import com.google.gson.reflect.TypeToken;
 
 import pt.ulisboa.tecnico.cmov.project.activities.LibraryInfo_Activity;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomBaseAdapter;
+import pt.ulisboa.tecnico.cmov.project.fragments.MapFragment;
 
 public class WebConnector {
 
@@ -280,5 +281,14 @@ public class WebConnector {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    public boolean bookExists(String bookId)
+    {
+        try {
+            return getData("/bookExistence/45632").nextBoolean();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
