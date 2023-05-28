@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         webConnector = new WebConnector(this.getApplicationContext());
-        webConnector.startWebSocket();
+//        webConnector.startWebSocket();
 
         replaceFragment(new MapFragment(webConnector));
 
@@ -61,6 +61,18 @@ public class MainActivity extends AppCompatActivity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_layout, fragment);
         fragmentTransaction.commit();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        webConnector.startWebSocket();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        webConnector.closeWebSocket();
     }
 
 }

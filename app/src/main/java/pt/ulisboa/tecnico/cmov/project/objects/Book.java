@@ -50,4 +50,9 @@ public class Book {
                 ", title='" + title + "'"+
                 '}';
     }
+
+    public String toJson()
+    {
+        return  "{\"bookId\":"+ this.getId() +",\"bookTitle\":"+this.getTitle()+",\"bookDescription\":"+this.getDescription()+",\"bookCover\":"+this.getCover()+"}";
+    }
 }

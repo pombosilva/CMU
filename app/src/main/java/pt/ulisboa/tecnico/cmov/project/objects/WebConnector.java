@@ -97,6 +97,11 @@ public class WebConnector {
         }
     }
 
+    public void closeWebSocket()
+    {
+        webSocketClient.close();
+    }
+
     //TODO: isto tem de aceitar uma string para conectar a bd
     private JsonReader getData(String path) throws IOException {
 //        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + "/markers").openConnection();
@@ -121,7 +126,8 @@ public class WebConnector {
                     .write((data.toString()).getBytes(StandardCharsets.UTF_8));
         } else {
             new DataOutputStream(connection.getOutputStream())
-                    .write(("\"" + data.toString() + "\"").getBytes(StandardCharsets.UTF_8));
+                    .write(("" + data.toString() + "").getBytes(StandardCharsets.UTF_8));
+//                    .write(("\"" + data.toString() + "\"").getBytes(StandardCharsets.UTF_8));
         }
 
         switch (connection.getResponseCode()) {
@@ -286,7 +292,43 @@ public class WebConnector {
     public boolean bookExists(String bookId)
     {
         try {
-            return getData("/bookExistence/45632").nextBoolean();
+            return getData("/bookExistence/" + bookId).nextBoolean();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void checkBookIn(int libraryId, String bookId) {
+        try {
+            String data = "{\"libraryId\":"+ libraryId +",\"bookId\":"+bookId+"}";
+            putData("/checkBookIn", data);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void checkBookOut(int libraryId, String bookId) {
+        try {
+            String data = "{\"libraryId\":"+ libraryId +",\"bookId\":"+bookId+"}";
+            putData("/checkBookOut", data);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void registerBook(Book newBook)
+    {
+        try {
+            putData("/registerBook", newBook.toJson());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Book getBook(String bookId)
+    {
+        try {
+            return extractBook(getData("/getBook/" + bookId));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

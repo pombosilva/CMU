@@ -18,7 +18,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -80,7 +82,6 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
 
         webConnector = new WebConnector(mContext);
         webConnector.startWebSocket();
-        webConnector.setHandler(this.handler);
 
         loadLibraryInfo(getIntent());
 
@@ -91,6 +92,12 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         }
 
         configureButtons();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        webConnector.setHandler(this.handler);
     }
 
     @Override
@@ -208,26 +215,47 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
     ActivityResultLauncher<ScanOptions> checkInScanner = registerForActivityResult(new ScanContract(), result -> {
         if (result.getContents() != null)
         {
-            // TODO: Faltar implementar a reacao ao input (Database needed)
             String bookBarcode = result.getContents();
 
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
-                boolean bookExistance = webConnector.bookExists(bookBarcode);
-                Log.d("MensagensDebug", "Existe? " + bookExistance);
+                boolean bookExists = webConnector.bookExists(bookBarcode);
+                Log.d("MensagensDebug", "Existe? " + bookExists);
+                if ( bookExists )
+                {
+                    webConnector.checkBookIn(this.libraryId, bookBarcode);
+                    sendMessageToHandler(ADD_UPDATE_BOOK_LIST, webConnector.getBook(bookBarcode));
+                }
+                else
+                {
+                    // TODO: Esta a dar aquele erro do context e tal
+                    Intent newIntent  = new Intent(this, CreateBookActivity.class);
+                    newIntent.putExtra("bookId", result.getContents());
+                    startActivityForResult(new Intent(this, CreateBookActivity.class),1);
+                }
             });
-
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("CheckIn Result");
-            builder.setMessage(bookBarcode);
-            builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss()).show();
         }
     });
 
     ActivityResultLauncher<ScanOptions> checkOutScanner = registerForActivityResult(new ScanContract(), result -> {
         if (result.getContents() != null)
         {
+            String bookBarcode = result.getContents();
+
+            Executor executor = Executors.newSingleThreadExecutor();
+            executor.execute(() -> {
+                boolean bookExists = webConnector.bookExists(bookBarcode);
+                if ( bookExists )
+                {
+                    webConnector.checkBookOut(this.libraryId, bookBarcode);
+                    sendMessageToHandler(REMOVE_UPDATE_BOOK_LIST, Integer.parseInt(bookBarcode));
+                }
+                else
+                {
+                    Toast.makeText(getApplicationContext(), "Can checkout books that are not in the library", Toast.LENGTH_SHORT).show();
+                }
+            });
+            
             // TODO: Faltar implementar a reacao ao input (Database needed)
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Checkout Result");
@@ -236,26 +264,72 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         }
     });
 
-    private void sendMessageToHandler(Object obj) {
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d("MensagensDebug", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        if ( data != null ) {
+            if (requestCode == 1) {
+                if (resultCode == RESULT_OK) {
+                    webConnector.registerBook(getBookFromResult(data));
+                }
+            }
+        }else
+        {
+            Log.d("MensagensDebug", "Data is null");
+        }
+    }
+
+
+    private Book getBookFromResult(Intent data)
+    {
+        Book newBook = null;
+        Bundle bundle = data.getExtras();
+
+        if ( !bundle.isEmpty() )
+        {
+            int bookId = Integer.parseInt(bundle.getString("bookId"));
+            String bookTitle = bundle.getString("bookTitle");
+            String bookDescription = bundle.getString("bookDescription");
+            String base64bookCover = bundle.getString("bookEncodedImage");
+
+            newBook = new Book(bookId, bookTitle, bookDescription, base64bookCover);
+        }
+        else
+        {
+            Toast.makeText(LibraryInfo_Activity.this, "Couldn't register new book =(", Toast.LENGTH_LONG).show();
+        }
+
+        return newBook;
+    }
+
+
+    private void sendMessageToHandler(int msgType, Object obj) {
         Message msg = new Message();
         msg.obj = obj;
-        msg.what = UPDATE_UI_MSG;
+        msg.what = msgType;
         handler.sendMessage(msg);
     }
 
     private static final int  UPDATE_UI_MSG= 0;
     private static final int TOAST_MSG = 1;
 
-    private static final int UPDATE_BOOK_LIST = 2;
-    private static final int LIBRARY_IMG_MSG = 3;
+    private static final int ADD_UPDATE_BOOK_LIST = 2;
+    private static final int REMOVE_UPDATE_BOOK_LIST = 3;
+    private static final int LIBRARY_IMG_MSG = 4;
 
     @SuppressLint("HandlerLeak")
     private final Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case UPDATE_BOOK_LIST:
+                case ADD_UPDATE_BOOK_LIST:
                     bookList.add((Book) msg.obj);
+                    bookListCustomBaseAdapter.notifyDataSetChanged();
+                    return;
+                case REMOVE_UPDATE_BOOK_LIST:
+                    bookList.removeIf(book -> book.getId() == (int) msg.obj);
                     bookListCustomBaseAdapter.notifyDataSetChanged();
                     return;
                 case UPDATE_UI_MSG:

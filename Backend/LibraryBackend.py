@@ -14,17 +14,17 @@ import book as BK
 books = [BK.Book(45632, "Marco Polo", "Aventura para descobrir o amanha", 'LibraryPics/lagos.txt'),
          BK.Book(5346, "martim Manha", "Hoje tenho uma erecao", 'LibraryPics/lagos.txt'),
          BK.Book(73821, "Quorao", "Bombastic day", 'LibraryPics/madrid.txt'),
-         BK.Book(375123, "Lusiadas", "Grande portugal", 'LibraryPics/zaragoza.txt')]
+         BK.Book(361452, "Lusiadas", "Grande portugal", 'LibraryPics/zaragoza.txt')]
 
 
-libraries = [LB.Library(1, "Lisbon", 38.713912, -9.133397, False, 'LibraryPics/madrid.txt'),
-             LB.Library(2, "Madrid", 40.416891, -3.703739, False, 'LibraryPics/madrid.txt'),
-             LB.Library(3, "Zaragoza", 41.657059, -0.875448, True, 'LibraryPics/zaragoza.txt'),
-             LB.Library(4, "Lagos", 6.476754, 3.368539, True, 'LibraryPics/lagos.txt')]
+libraries = [LB.Library(0, "Lisbon", 38.713912, -9.133397, False, 'LibraryPics/madrid.txt'),
+             LB.Library(1, "Madrid", 40.416891, -3.703739, False, 'LibraryPics/madrid.txt'),
+             LB.Library(2, "Zaragoza", 41.657059, -0.875448, True, 'LibraryPics/zaragoza.txt'),
+             LB.Library(3, "Lagos", 6.476754, 3.368539, True, 'LibraryPics/lagos.txt')]
 
 libraries[0].addBook(books[0])
 libraries[0].addBook(books[1])
-libraries[1].addBook(books[1])
+libraries[1].addBook(books[2])
 
 
 websocket_connections = []
@@ -115,10 +115,64 @@ def bookExists(bookBarcode):
     global books
     for b in books:
         if b.id == bookBarcode:
-          print("O book com barcode " + str(bookBarcode) + "existe")
           return jsonify(True)
-    print("O book com barcode " + str(bookBarcode) + "nao existe")
     return jsonify(False)
+
+
+@app.route('/getBook/<string:bookBarcode>', methods=['GET'])
+def getBook(bookBarcode):
+    bookBarcode = int(bookBarcode)
+    global books
+    for b in books:
+        if b.id == bookBarcode:
+          return jsonify(b.getBookInfo())
+    return jsonify(False)
+
+
+
+@app.route('/checkBookIn', methods=['PUT'])
+def checkBookIn():
+    data = json.loads(request.data)
+    bookId = data['bookId']
+    libraryId = data['libraryId']
+    global books, libraries
+    for b in books:
+        if b.id == bookId:
+            libraries[libraryId].addBook(b)
+            return "True"
+        
+
+@app.route('/checkBookOut', methods=['PUT'])
+def checkBookOut():
+    data = json.loads(request.data)
+    bookId = data['bookId']
+    libraryId = data['libraryId']
+    global books, libraries
+    for b in books:
+        if b.id == bookId:
+            libraries[libraryId].registered_books.remove(b)
+# Esta linha existe porque nao sei se devemos retirar o livro completamente da db quando lhe damos checkout ou nao
+            # books.remove(b)
+            return "True"
+
+
+@app.route('/registerBook', methods=['PUT'])
+def registerBook():
+    data = json.loads(request.data)
+    bookId = data['bookId']
+    bookTitle = data['bookTitle']
+    bookDescription = data['bookDescription']
+    bookCover = data['bookCover']
+
+    print(bookId)
+    print(bookTitle)
+    print(bookDescription)
+    # global books, libraries
+    # for b in books:
+    #     if b.id == bookId:
+    #         libraries[libraryId].addBook(b)
+    #         return "True"
+    return jsonify(True)
 
 
 

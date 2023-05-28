@@ -29,7 +29,11 @@ class Library:
         return result
 
     def addBook(self, book):
-        self.registered_books.append(book)
+        if book not in self.registered_books: 
+            print("Added new book")
+            self.registered_books.append(book)
+            return
+        print("Book already exists in this library")
 
     def __str__(self):
         return f"Library(id={self.id}, name={self.name}, " \
