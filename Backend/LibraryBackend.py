@@ -10,13 +10,11 @@ from gevent.pywsgi import WSGIServer
 import library as LB
 import book as BK
 
-
 books = [BK.Book(1234567, "Biblia", "palavra de deus", "BookPics/bible.txt"),
          BK.Book(1234, "Harry poter", "feiticos", "BookPics/harry.txt"),
          BK.Book(98, "Ben 10", "bue fixe", 'BookPics/ben.txt'),
          BK.Book(43292, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
          BK.Book(12345678, "Manual de portugues 8ano", "Camoes glorioso", "BookPics/manual.txt")]
-
 
 libraries = [LB.Library(0, "Lisbon", 38.713912, -9.133397, False, 'LibraryPics/madrid.txt'),
              LB.Library(1, "Madrid", 40.416891, -3.703739, False, 'LibraryPics/madrid.txt'),
@@ -27,9 +25,7 @@ libraries[0].addBook(books[0])
 libraries[0].addBook(books[1])
 libraries[1].addBook(books[2])
 
-
 websocket_connections = []
-
 
 
 def websocket_broadcast(message):
@@ -39,9 +35,10 @@ def websocket_broadcast(message):
         except ConnectionClosed:
             websocket_connections.remove(ws)
 
+
 # def addBookToLibrary(atributos do livro, id da livraria):
-    # criar o objecto livro e coloca lo no array dos books
-    # dar append desse livro ao array de livro da livraria
+# criar o objecto livro e coloca lo no array dos books
+# dar append desse livro ao array de livro da livraria
 
 def get_library(library_id):
     global libraries
@@ -59,7 +56,7 @@ def updateFavLibrary(library_id):
 
 app = Flask(__name__)
 sockets = Sock(app)
-    
+
 
 @app.route('/', methods=['GET'])
 def index():
@@ -116,7 +113,7 @@ def bookExists(bookBarcode):
     global books
     for b in books:
         if b.id == bookBarcode:
-          return jsonify(True)
+            return jsonify(True)
     return jsonify(False)
 
 
@@ -126,9 +123,8 @@ def getBook(bookBarcode):
     global books
     for b in books:
         if b.id == bookBarcode:
-          return jsonify(b.getBookInfo())
+            return jsonify(b.getBookInfo())
     return jsonify(False)
-
 
 
 @app.route('/checkBookIn', methods=['PUT'])
@@ -141,7 +137,7 @@ def checkBookIn():
         if b.id == bookId:
             libraries[libraryId].addBook(b)
             return "True"
-        
+
 
 @app.route('/checkBookOut', methods=['PUT'])
 def checkBookOut():
@@ -152,7 +148,7 @@ def checkBookOut():
     for b in books:
         if b.id == bookId:
             libraries[libraryId].registered_books.remove(b)
-# Esta linha existe porque nao sei se devemos retirar o livro completamente da db quando lhe damos checkout ou nao
+            # Esta linha existe porque nao sei se devemos retirar o livro completamente da db quando lhe damos checkout ou nao
             # books.remove(b)
             return "True"
 
@@ -174,7 +170,6 @@ def registerBook():
     #         libraries[libraryId].addBook(b)
     #         return "True"
     return jsonify(True)
-
 
 
 @sockets.route('/ws')

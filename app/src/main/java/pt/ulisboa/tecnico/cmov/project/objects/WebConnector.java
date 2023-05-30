@@ -9,13 +9,10 @@ import android.util.Log;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.lang.reflect.Type;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,17 +20,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import pt.ulisboa.tecnico.cmov.project.activities.LibraryInfo_Activity;
-import pt.ulisboa.tecnico.cmov.project.adapters.CustomBaseAdapter;
-import pt.ulisboa.tecnico.cmov.project.fragments.MapFragment;
 
 public class WebConnector {
 
@@ -228,54 +217,21 @@ public class WebConnector {
         return new Book(bookId,bookTitle, bookDescription, bookCover);
     }
 
-    // TODO: Isto ta so nojento. Usar uma funcao pa conectar(getData) e esta so aplica os resultados
-    public ArrayList<Book> getBooks(int libraryId/*, CustomBaseAdapter customBaseAdapter*/) throws IOException{
+    public void getBooks(int libraryId) throws IOException {
         ArrayList<Book> books = new ArrayList<>();
-        URL url = new URL("http://192.92.147.96:5000/libraryBooks/" + libraryId);
+        Executor executor = Executors.newSingleThreadExecutor();
+        JsonReader jsonReader;
+        if (libraryId == -1) jsonReader = getData("/books");
+        else jsonReader = getData("/books/" + libraryId);
 
-        if(libraryId == -1)
-            url = new URL("http://192.92.147.96:5000/books");
-
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-
-        int responseCode = connection.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            InputStream inputStream = connection.getInputStream();
-//            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-//            StringBuilder response = new StringBuilder();
-//            String line;
-
-            JsonReader booksJson = new JsonReader(new InputStreamReader(inputStream));
-            booksJson.setLenient(true);
-            booksJson.beginArray();
-            while ( booksJson.hasNext() )
-            {
-                Message msg = new Message();
-                msg.what = 2;
-                msg.obj = extractBook(booksJson);
-                handler.sendMessage(msg);
-            }
-
-//            while ((line = bufferedReader.readLine()) != null) {
-////                //TODO: Fazer disto uma thread para meter na UI
-////
-////
-//                response.append(line);
-//            }
-//            bufferedReader.close();
-//
-//            Gson gson = new Gson();
-////            Log.d("MensagensDebug", "AAAAAAAAAAAAAAAA "+line);
-//            String jsonResponse = response.toString();
-////            Log.i("RESPONSE: ", jsonResponse);
-//            Type bookListType = new TypeToken<List<Book>>() {}.getType();
-//            books = gson.fromJson(jsonResponse, bookListType);
+        jsonReader.setLenient(true);
+        jsonReader.beginArray();
+        while (jsonReader.hasNext()) {
+            Message msg = new Message();
+            msg.what = 2;
+            msg.obj = extractBook(jsonReader);
+            handler.sendMessage(msg);
         }
-
-                Log.d("MensagensDebug", "CHEGUEI AQUI ");
-        connection.disconnect();
-        return books;
     }
 
     public void setLibraryFav(int libraryId) {
