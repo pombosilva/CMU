@@ -3,8 +3,9 @@ package pt.ulisboa.tecnico.cmov.project.objects;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-import android.util.JsonReader;
 import android.util.Log;
+
+import com.google.gson.Gson;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -23,6 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import com.google.gson.stream.JsonReader;
 
 public class WebConnector {
 
@@ -148,35 +151,12 @@ public class WebConnector {
         return markers;
     }
 
-    // TODO: Mudar isto para o class GSON
     private Marker extractMarkers(JsonReader jReader) throws IOException {
-        jReader.beginObject();
-
-//        jReader.nextName();
-//        String libraryImage = jReader.nextString();
-
-        jReader.nextName();
-        boolean markerFav = jReader.nextBoolean();
-
-        jReader.nextName();
-        int markerId = jReader.nextInt();
-
-        jReader.nextName();
-        double markerLat =  jReader.nextDouble();
-
-        jReader.nextName();
-        double markerLng =  jReader.nextDouble();
-
-        jReader.nextName();
-        String markerName = jReader.nextString();
-
-        jReader.endObject();
-
-        return new Marker(markerId,markerName, markerLat, markerLng, markerFav);
+        Gson gson = new Gson();
+        return gson.fromJson(jReader, Marker.class);
     }
 
-    public void getLibraryImage(int libraryId)
-    {
+    public void getLibraryImage(int libraryId) {
         String a = "a";
         Message msg = new Message();
         try {
@@ -193,36 +173,10 @@ public class WebConnector {
 //        return librayImage;
     }
 
-
-
-
-    private Book extractBook(JsonReader book) throws IOException
-    {
-        book.beginObject();
-
-        book.nextName();
-        String bookCover = book.nextString();
-
-        book.nextName();
-        String bookDescription = book.nextString();
-
-        book.nextName();
-        int bookId = book.nextInt();
-
-        book.nextName();
-        String bookTitle = book.nextString();
-
-        book.endObject();
-
-        return new Book(bookId,bookTitle, bookDescription, bookCover);
-    }
-
     public void getBooks(int libraryId) throws IOException {
-        ArrayList<Book> books = new ArrayList<>();
-        Executor executor = Executors.newSingleThreadExecutor();
         JsonReader jsonReader;
         if (libraryId == -1) jsonReader = getData("/books");
-        else jsonReader = getData("/books/" + libraryId);
+        else jsonReader = getData("/libraryBooks/" + libraryId);
 
         jsonReader.setLenient(true);
         jsonReader.beginArray();
@@ -230,8 +184,20 @@ public class WebConnector {
             Message msg = new Message();
             msg.what = 2;
             msg.obj = extractBook(jsonReader);
-            handler.sendMessage(msg);
+            try {
+                handler.sendMessage(msg);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
         }
+    }
+
+    private Book extractBook(JsonReader book) throws IOException {
+        Gson gson = new Gson();
+        Book b = gson.fromJson(book, Book.class);
+        Log.i("BOOKSSS: ", b.toJson());
+        Log.i("BOOK: ", b.toString());
+        return b;
     }
 
     public void setLibraryFav(int libraryId) {
@@ -245,8 +211,7 @@ public class WebConnector {
         });
     }
 
-    public boolean bookExists(String bookId)
-    {
+    public boolean bookExists(String bookId) {
         try {
             return getData("/bookExistence/" + bookId).nextBoolean();
         } catch (IOException e) {

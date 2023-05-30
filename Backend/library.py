@@ -17,7 +17,7 @@ class Library:
         self.registered_books = []
 
     def getMarkerInfo(self):
-        return {'id': self.id, 'name': self.name, 'lat': self.lat, 'lnt': self.lng, 'fav': self.fav}
+        return {'id': self.id, 'name': self.name, 'lat': self.lat, 'lng': self.lng, 'fav': self.fav}
 
     def getLibraryImage(self):
         return getEncodedImage(self.image_file)

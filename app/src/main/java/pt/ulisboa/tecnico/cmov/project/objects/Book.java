@@ -53,6 +53,6 @@ public class Book {
 
     public String toJson()
     {
-        return  "{\"bookId\":"+ this.getId() +",\"bookTitle\":"+this.getTitle()+",\"bookDescription\":"+this.getDescription()+",\"bookCover\":"+this.getCover()+"}";
+        return  "{\"id\":"+ this.getId() +",\"title\":"+this.getTitle()+",\"description\":"+this.getDescription()+",\"cover\":"+this.getCover()+"}";
     }
 }

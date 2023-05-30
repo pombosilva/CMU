@@ -150,6 +150,7 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
     }
 
     private void configureBookListView() throws IOException {
+        webConnector.setHandler(this.handler);
         bookList.clear();
         ListView bookListView = findViewById(R.id.library_bookListView);
         bookListCustomBaseAdapter = new CustomBaseAdapter(getApplicationContext(), bookList);
@@ -160,9 +161,10 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
             try {
 //                bookList.addAll(webConnector.getBooks(libraryId));
 //                sendMessageToHandler(null);
+                Log.i("ENTREI: ", String.valueOf(this.libraryId));
                 webConnector.getBooks(this.libraryId);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
 
