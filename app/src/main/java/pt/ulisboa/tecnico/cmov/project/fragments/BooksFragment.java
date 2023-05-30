@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmov.project.fragments;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -30,7 +31,12 @@ import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 
 public class BooksFragment extends Fragment {
 
-    private ArrayList<Book> bookList;
+    private final ArrayList<Book> bookList = new ArrayList<>();
+
+    private final ArrayList<Book> tempBookList = new ArrayList<>();
+
+    private ListView bookListView;
+
     private CustomBaseAdapter bookListCustomBaseAdapter;
 
     private final WebConnector webConnector;
@@ -58,11 +64,8 @@ public class BooksFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_books, container, false);
-        Context context = rootView.getContext();
 
-        bookList = new ArrayList<>();
-
-        ListView bookListView = rootView.findViewById(R.id.bookListView);
+        bookListView = rootView.findViewById(R.id.bookListView);
 
         bookListCustomBaseAdapter = new CustomBaseAdapter(getContext(), bookList);
         bookListView.setAdapter(bookListCustomBaseAdapter);
@@ -100,12 +103,15 @@ public class BooksFragment extends Fragment {
     }
 
     public void searchBook(View view) {
+        tempBookList.clear();
         EditText searchText = requireView().findViewById(R.id.searchBookText);
-        ArrayList<Book> temp = new ArrayList<>();
+        CustomBaseAdapter adapter = new CustomBaseAdapter(bookListView.getContext(), tempBookList);
+        bookListView.setAdapter(adapter);
 
-        for (Book b: bookList){
-            if (b.getTitle().contains(searchText.getText().toString())){
-                temp.add(b);
+        for (Book b: bookList) {
+            if (b.getTitle().contains(searchText.getText().toString())) {
+                tempBookList.add(b);
+                adapter.notifyDataSetChanged();
             }
         }
 
@@ -134,6 +140,7 @@ public class BooksFragment extends Fragment {
     private static final int UPDATE_BOOK_LIST = 2;
 
 
+    @SuppressLint("HandlerLeak")
     private final Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {

@@ -11,10 +11,11 @@ import library as LB
 import book as BK
 
 
-books = [BK.Book(45632, "Marco Polo", "Aventura para descobrir o amanha", 'LibraryPics/lagos.txt'),
-         BK.Book(5346, "martim Manha", "Hoje tenho uma erecao", 'LibraryPics/lagos.txt'),
-         BK.Book(73821, "Quorao", "Bombastic day", 'LibraryPics/madrid.txt'),
-         BK.Book(361452, "Lusiadas", "Grande portugal", 'LibraryPics/zaragoza.txt')]
+books = [BK.Book(1234567, "Biblia", "palavra de deus", "BookPics/bible.txt"),
+         BK.Book(1234, "Harry poter", "feiticos", "BookPics/harry.txt"),
+         BK.Book(98, "Ben 10", "bue fixe", 'BookPics/ben.txt'),
+         BK.Book(43292, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
+         BK.Book(12345678, "Manual de portugues 8ano", "Camoes glorioso", "BookPics/manual.txt")]
 
 
 libraries = [LB.Library(0, "Lisbon", 38.713912, -9.133397, False, 'LibraryPics/madrid.txt'),
