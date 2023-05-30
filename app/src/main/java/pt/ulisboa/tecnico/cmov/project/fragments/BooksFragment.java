@@ -1,12 +1,11 @@
 package pt.ulisboa.tecnico.cmov.project.fragments;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,21 +23,16 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import pt.ulisboa.tecnico.cmov.project.R;
-import pt.ulisboa.tecnico.cmov.project.activities.BookInfo_Activity;
-import pt.ulisboa.tecnico.cmov.project.adapters.CustomBaseAdapter;
+import pt.ulisboa.tecnico.cmov.project.activities.BookInfoActivity;
+import pt.ulisboa.tecnico.cmov.project.adapters.CustomBookBaseAdapter;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 
 public class BooksFragment extends Fragment {
-
     private final ArrayList<Book> bookList = new ArrayList<>();
-
     private final ArrayList<Book> tempBookList = new ArrayList<>();
-
     private ListView bookListView;
-
-    private CustomBaseAdapter bookListCustomBaseAdapter;
-
+    private CustomBookBaseAdapter bookListCustomBaseAdapter;
     private final WebConnector webConnector;
 
     public BooksFragment(WebConnector webConnector) {
@@ -67,35 +61,28 @@ public class BooksFragment extends Fragment {
 
         bookListView = rootView.findViewById(R.id.bookListView);
 
-        bookListCustomBaseAdapter = new CustomBaseAdapter(getContext(), bookList);
+        bookListCustomBaseAdapter = new CustomBookBaseAdapter(getContext(), bookList);
         bookListView.setAdapter(bookListCustomBaseAdapter);
 
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
-//                bookList.addAll(webConnector.getBooks(-1));
-//                sendMessageToHandler(null, UPDATE_UI_MSG);
-                Log.d("MensagensDebug", "Vou conectar me");
-
-
                 webConnector.getBooks(-1);
-
-
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
 
         bookListView.setOnItemClickListener((parent, view, position, id) -> {
-            Intent intent = new Intent(getActivity(), BookInfo_Activity.class);
+            Intent intent = new Intent(getActivity(), BookInfoActivity.class);
             intent.putExtra("bookTitle", bookList.get(position).getTitle());
             intent.putExtra("bookCover", bookList.get(position).getCover());
+            intent.putExtra("bookBarcode", bookList.get(position).getId());
             startActivity(intent);
         });
 
         // when you click on an item it displays its information
-
         Button searchButton = rootView.findViewById(R.id.searchBookButton);
         searchButton.setOnClickListener(this::searchBook);
 
@@ -105,7 +92,7 @@ public class BooksFragment extends Fragment {
     public void searchBook(View view) {
         tempBookList.clear();
         EditText searchText = requireView().findViewById(R.id.searchBookText);
-        CustomBaseAdapter adapter = new CustomBaseAdapter(bookListView.getContext(), tempBookList);
+        CustomBookBaseAdapter adapter = new CustomBookBaseAdapter(bookListView.getContext(), tempBookList);
         bookListView.setAdapter(adapter);
 
         for (Book b: bookList) {
@@ -125,40 +112,20 @@ public class BooksFragment extends Fragment {
         }
     }
 
-
-    //TODO: Partilhar o mesmo handler por todos os fragmentos da activity princiapl
-    private void sendMessageToHandler(Object obj, int msgType) {
-        Message msg = new Message();
-        msg.obj = obj;
-        msg.what = msgType;
-        handler.sendMessage(msg);
-//        looperThread.mHandler.sendMessage(msg);
-    }
-
-    private static final int  UPDATE_UI_MSG= 0;
-    private static final int TOAST_MSG = 1;
+    private static final int NO_INTERNET = 1;
     private static final int UPDATE_BOOK_LIST = 2;
 
-
-    @SuppressLint("HandlerLeak")
-    private final Handler handler = new Handler(){
+    private final Handler handler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg) {
-            Log.d("MensagensDebug", "Recebi um book pa actualizar logo o codigo e " + msg.what);
             switch (msg.what) {
-                case UPDATE_UI_MSG:
-                    bookListCustomBaseAdapter.notifyDataSetChanged();
-                    return;
                 case UPDATE_BOOK_LIST:
-                    Log.d("MensagensDebug", "Recebi um book pa actualizar");
                     bookList.add((Book) msg.obj);
                     bookListCustomBaseAdapter.notifyDataSetChanged();
                     return;
-                case TOAST_MSG:
-                    Toast.makeText(getActivity(),
-                            (String) msg.obj, Toast.LENGTH_LONG).show();
+                case NO_INTERNET:
+                    Toast.makeText(getActivity(), (String) msg.obj, Toast.LENGTH_LONG).show();
             }
         }
     };
-
 }

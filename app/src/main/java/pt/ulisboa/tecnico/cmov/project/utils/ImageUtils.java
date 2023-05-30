@@ -20,8 +20,7 @@ public class ImageUtils {
         return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
     }
 
-    public static  String encodeBitmapToBase64(Bitmap bitmap, Bitmap.CompressFormat compressFormat, int quality)
-    {
+    public static  String encodeBitmapToBase64(Bitmap bitmap, Bitmap.CompressFormat compressFormat, int quality) {
         ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
         bitmap.compress(compressFormat, quality, byteArrayOS);
         return Base64.encodeToString(byteArrayOS.toByteArray(), Base64.DEFAULT);

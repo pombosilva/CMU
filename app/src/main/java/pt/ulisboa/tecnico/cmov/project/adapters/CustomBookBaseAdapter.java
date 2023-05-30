@@ -2,9 +2,6 @@ package pt.ulisboa.tecnico.cmov.project.adapters;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,23 +16,20 @@ import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
 
 
-public class CustomBaseAdapter extends BaseAdapter {
-
-
+public class CustomBookBaseAdapter extends BaseAdapter {
     Context context;
-    ArrayList<Book> bookList;
+    ArrayList<Book> list;
     LayoutInflater inflater;
 
-    public CustomBaseAdapter(Context ctx, ArrayList<Book> bookList)
-    {
+    public CustomBookBaseAdapter(Context ctx, ArrayList<Book> list) {
         this.context = ctx;
-        this.bookList = bookList;
+        this.list = list;
         inflater = LayoutInflater.from(ctx);
     }
 
     @Override
     public int getCount() {
-        return bookList.size();
+        return list.size();
     }
 
     @Override
@@ -54,9 +48,9 @@ public class CustomBaseAdapter extends BaseAdapter {
         convertView = inflater.inflate(R.layout.info_book_list_view, null);
         TextView textView = convertView.findViewById(R.id.textView);
         ImageView fruitImg = convertView.findViewById(R.id.imageIcon);
-        textView.setText(bookList.get(i).getTitle());
+        textView.setText(list.get(i).getTitle());
 
-        String encodedCover =  bookList.get(i).getCover();
+        String encodedCover =  list.get(i).getCover();
         fruitImg.setImageBitmap(ImageUtils.decodeBase64ToBitmap(encodedCover));
 
         return convertView;

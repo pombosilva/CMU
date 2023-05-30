@@ -3,29 +3,23 @@ package pt.ulisboa.tecnico.cmov.project.objects;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 
 import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
-import com.google.gson.stream.JsonReader;
 
 public class WebConnector {
 
@@ -33,7 +27,7 @@ public class WebConnector {
     private static final String wsEndpoint = "ws://192.92.147.96:5000/ws";
     private WebSocketClient webSocketClient = null;
 
-    Handler handler;
+    private Handler handler;
 
     public WebConnector(Context applicationContext) {
         // empty constructor
@@ -41,39 +35,6 @@ public class WebConnector {
 
     public void setHandler(Handler handler) {
         this.handler = handler;
-    }
-
-    private class WSClient extends WebSocketClient {
-        public WSClient(URI serverUri, Map<String, String> httpHeaders) {
-            super(serverUri, httpHeaders);
-        }
-
-        @Override
-        public void onOpen(ServerHandshake handshake) {
-            Log.i("MessageDebug", "Opened");
-        }
-
-        @Override
-        public void onMessage(String message) {
-            Log.i("MessageDebug", "Message: " + message);
-
-            if (message != null) {
-                JsonReader jsonReader = new JsonReader(new StringReader(message));
-                jsonReader.setLenient(true);
-            }
-        }
-
-        @Override
-        public void onClose(int code, String reason, boolean remote) {
-            if (this != webSocketClient) return;
-            Log.i("MessageDebug", (remote ? "Remotely " : "Locally ") + "Closed " + reason);
-        }
-
-        @Override
-        public void onError(Exception ex) {
-            if (this != webSocketClient) return;
-            Log.i("MessageDebug", "Error " + ex.getMessage());
-        }
     }
 
     public void startWebSocket() {
@@ -89,14 +50,11 @@ public class WebConnector {
         }
     }
 
-    public void closeWebSocket()
-    {
+    public void closeWebSocket() {
         webSocketClient.close();
     }
 
-    //TODO: isto tem de aceitar uma string para conectar a bd
     private JsonReader getData(String path) throws IOException {
-//        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + "/markers").openConnection();
         HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + path).openConnection();
         int respCode = connection.getResponseCode();
 
@@ -113,50 +71,45 @@ public class WebConnector {
         connection.setRequestMethod("PUT");
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setDoOutput(true);
+
         if (data instanceof Boolean || data instanceof Integer) {
             new DataOutputStream(connection.getOutputStream())
                     .write((data.toString()).getBytes(StandardCharsets.UTF_8));
         } else {
             new DataOutputStream(connection.getOutputStream())
                     .write(("" + data.toString() + "").getBytes(StandardCharsets.UTF_8));
-//                    .write(("\"" + data.toString() + "\"").getBytes(StandardCharsets.UTF_8));
         }
 
-        switch (connection.getResponseCode()) {
-            case 200: {
-            }
-            break;
-            default: {
-                throw new RuntimeException("Unexpected response: " + connection.getResponseMessage());
-            }
+        if (connection.getResponseCode() != 200) {
+            throw new RuntimeException("Unexpected response: " + connection.getResponseMessage());
         }
     }
 
-    public ArrayList<Marker> getMarkers() throws IOException {
-        ArrayList<Marker> markers = new ArrayList<>();
+    public void getMarkers() throws IOException {
         try {
             JsonReader data = getData("/markers");
             data.beginArray();
             while (data.hasNext()) {
-                markers.add(extractMarkers(data));
+                Message msg = new Message();
+                msg.what = 2;
+                msg.obj = extractMarker(data);
+                handler.sendMessage(msg);
             }
             data.close();
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             Message msg = new Message();
             msg.obj = "No Internet Connection";
             msg.what = 1;
             handler.sendMessage(msg);
         }
-        return markers;
     }
 
-    private Marker extractMarkers(JsonReader jReader) throws IOException {
+    private Marker extractMarker(JsonReader jReader) throws IOException {
         Gson gson = new Gson();
         return gson.fromJson(jReader, Marker.class);
     }
 
-    public void getLibraryImage(int libraryId) {
+    /**public void getLibraryImage(int libraryId) {
         String a = "a";
         Message msg = new Message();
         try {
@@ -171,36 +124,56 @@ public class WebConnector {
         }
 //        handler.sendMessage(msg);
 //        return librayImage;
-    }
+    }*/
 
     public void getBooks(int libraryId) throws IOException {
-        JsonReader jsonReader;
-        if (libraryId == -1) jsonReader = getData("/books");
-        else jsonReader = getData("/libraryBooks/" + libraryId);
+        try {
+            JsonReader jsonReader;
+            if (libraryId == -1) jsonReader = getData("/books");
+            else jsonReader = getData("/libraryBooks/" + libraryId);
 
-        jsonReader.setLenient(true);
-        jsonReader.beginArray();
-        while (jsonReader.hasNext()) {
-            Message msg = new Message();
-            msg.what = 2;
-            msg.obj = extractBook(jsonReader);
-            try {
+            jsonReader.setLenient(true);
+            jsonReader.beginArray();
+            while (jsonReader.hasNext()) {
+                Message msg = new Message();
+                msg.what = 2;
+                msg.obj = extractBook(jsonReader);
                 handler.sendMessage(msg);
-            }catch (Exception e){
-                e.printStackTrace();
             }
+        }catch(Exception e){
+            Message msg = new Message();
+            msg.obj = "No Internet Connection";
+            msg.what = 1;
+            handler.sendMessage(msg);
         }
     }
 
     private Book extractBook(JsonReader book) throws IOException {
         Gson gson = new Gson();
-        Book b = gson.fromJson(book, Book.class);
-        Log.i("BOOKSSS: ", b.toJson());
-        Log.i("BOOK: ", b.toString());
-        return b;
+        return gson.fromJson(book, Book.class);
     }
 
-    public void setLibraryFav(int libraryId) {
+    public void getLibrariesThatContainBook(int bookBarcode) {
+        try {
+            JsonReader jsonReader = getData("/bookInLibrary/" + bookBarcode);
+
+            jsonReader.setLenient(true);
+            jsonReader.beginArray();
+            while (jsonReader.hasNext()) {
+                Message msg = new Message();
+                msg.what = 2;
+                msg.obj = extractMarker(jsonReader);
+                handler.sendMessage(msg);
+            }
+        }catch(Exception e){
+            Message msg = new Message();
+            msg.obj = "No Internet Connection";
+            msg.what = 1;
+            handler.sendMessage(msg);
+        }
+    }
+
+    public void setFavouriteLibrary(int libraryId) {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
@@ -219,7 +192,7 @@ public class WebConnector {
         }
     }
 
-    public void checkBookIn(int libraryId, String bookId) {
+    public void checkInBook(int libraryId, String bookId) {
         try {
             String data = "{\"libraryId\":"+ libraryId +",\"bookId\":"+bookId+"}";
             putData("/checkBookIn", data);
@@ -228,7 +201,7 @@ public class WebConnector {
         }
     }
 
-    public void checkBookOut(int libraryId, String bookId) {
+    public void checkOutBook(int libraryId, String bookId) {
         try {
             String data = "{\"libraryId\":"+ libraryId +",\"bookId\":"+bookId+"}";
             putData("/checkBookOut", data);
@@ -237,8 +210,7 @@ public class WebConnector {
         }
     }
 
-    public void registerBook(Book newBook)
-    {
+    public void registerBook(Book newBook) {
         try {
             putData("/registerBook", newBook.toJson());
         } catch (IOException e) {
@@ -246,8 +218,7 @@ public class WebConnector {
         }
     }
 
-    public Book getBook(String bookId)
-    {
+    public Book getBook(String bookId) {
         try {
             return extractBook(getData("/getBook/" + bookId));
         } catch (IOException e) {

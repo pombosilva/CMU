@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal"
-    tools:context=".activities.BookInfo_Activity">
+    tools:context=".activities.BookInfoActivity">
 
     <TextView
         android:id="@+id/bookTitle"
@@ -18,10 +18,12 @@
 
     <ImageView
         android:id="@+id/bookCover"
-        android:layout_height="400dp"
-        android:layout_width="match_parent"
-        android:layout_marginHorizontal="20sp"
-        android:scaleType="centerCrop"/>
+        android:layout_height="200dp"
+        android:layout_width="200dp"
+        android:layout_marginHorizontal="20dp"
+        android:scaleType="centerCrop"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="@string/todo" />
 
     <Button
         android:id="@+id/buttonFav"
@@ -39,5 +41,12 @@
     <ListView
         android:id="@+id/bookAvailableLibraries"
         android:layout_width="match_parent"
-        android:layout_height="443dp" />
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:dividerHeight="3dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="8dp"
+        />
 </LinearLayout>

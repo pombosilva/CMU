@@ -3,22 +3,16 @@ package pt.ulisboa.tecnico.cmov.project.activities;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -33,39 +27,30 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import pt.ulisboa.tecnico.cmov.project.R;
-import pt.ulisboa.tecnico.cmov.project.adapters.CustomBaseAdapter;
-import pt.ulisboa.tecnico.cmov.project.fragments.MapFragment;
+import pt.ulisboa.tecnico.cmov.project.adapters.CustomBookBaseAdapter;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
-import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
 
-public class LibraryInfo_Activity extends AppCompatActivity implements OnMapReadyCallback {
+public class LibraryInfoActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private int libraryId;
     private static final int CHECKIN = 0;
     private static final int CHECKOUT = 1;
 
-    private Context mContext;
-
     private final ArrayList<Book> bookList = new ArrayList<>();
 
-    private CustomBaseAdapter bookListCustomBaseAdapter;
+    private CustomBookBaseAdapter bookListCustomBaseAdapter;
 
     private WebConnector webConnector;
 
-    private ImageView libraryImage;
-
-    public LibraryInfo_Activity() {
-        /* TODO: Perguntar ao professor sobre a melhor implementacao. Criar novas
-            instancias de web connector ou conseguir passar de alguma forma entre elas
-        *   Talvez Webconnector ser singleton*/
+    public LibraryInfoActivity() {
+        // empty constructor
     }
 
     @Override
@@ -78,9 +63,9 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
-        mContext = getApplicationContext();
+        Context mContext = getApplicationContext();
 
-        webConnector = new WebConnector(mContext);
+        webConnector = new WebConnector(this.getApplicationContext());
         webConnector.startWebSocket();
 
         loadLibraryInfo(getIntent());
@@ -123,25 +108,6 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
             TextView libraryNameTv = findViewById(R.id.library_name);
             libraryNameTv.setText(libraryName);
 
-            libraryImage = findViewById(R.id.library_image);
-
-//            webConnector.getLibraryImage(intentContents.getInt("libraryId"));
-
-//            String[] projection = {MediaStore.Images.Media.DATA};
-//            String selection = MediaStore.Images.Media.DISPLAY_NAME + " = ?";
-//            String[] selectionArgs = {"library"+libraryId+".jpg"};
-//            Cursor cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
-//            if (cursor != null && cursor.moveToFirst()) {
-//                int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-//                String imagePath = cursor.getString(columnIndex);
-//                cursor.close();
-//
-//                File imageFile = new File(imagePath);
-//                if (imageFile.exists()) {
-//                    Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
-//                    libraryImage.setImageBitmap(bitmap);
-//                }
-//            }
         }
         else {
             Toast.makeText( getApplicationContext(), "Wasn't able to load library contents",
@@ -153,7 +119,7 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         webConnector.setHandler(this.handler);
         bookList.clear();
         ListView bookListView = findViewById(R.id.library_bookListView);
-        bookListCustomBaseAdapter = new CustomBaseAdapter(getApplicationContext(), bookList);
+        bookListCustomBaseAdapter = new CustomBookBaseAdapter(getApplicationContext(), bookList);
         bookListView.setAdapter(bookListCustomBaseAdapter);
 
         Executor executor = Executors.newSingleThreadExecutor();
@@ -169,9 +135,10 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         });
 
         bookListView.setOnItemClickListener((parent, view, position, id) -> {
-            Intent intent = new Intent(LibraryInfo_Activity.this, BookInfo_Activity.class);
+            Intent intent = new Intent(LibraryInfoActivity.this, BookInfoActivity.class);
             intent.putExtra("bookTitle", bookList.get(position).getTitle());
             intent.putExtra("bookCover", bookList.get(position).getCover());
+            intent.putExtra("bookBarcode", bookList.get(position).getId());
             startActivity(intent);
         });
     }
@@ -193,7 +160,7 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
 
         Button favouriteButton = findViewById(R.id.library_favourite_button);
         favouriteButton.setOnClickListener(v -> {
-            webConnector.setLibraryFav(libraryId);
+            webConnector.setFavouriteLibrary(libraryId);
             Toast.makeText(getApplicationContext(), "Clicked favourite button", Toast.LENGTH_SHORT).show();
         });
     }
@@ -203,7 +170,7 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         options.setPrompt("------------------Volume up to flash on-----------------");
         options.setBeepEnabled(true);
         options.setOrientationLocked(true);
-        options.setCaptureActivity(Capture_Activity.class);
+        options.setCaptureActivity(CaptureActivity.class);
         switch (mode) {
             case CHECKIN:
                 checkInScanner.launch(options);
@@ -225,11 +192,10 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
                 Log.d("MensagensDebug", "Existe? " + bookExists);
                 if ( bookExists )
                 {
-                    webConnector.checkBookIn(this.libraryId, bookBarcode);
+                    webConnector.checkInBook(this.libraryId, bookBarcode);
                     sendMessageToHandler(ADD_UPDATE_BOOK_LIST, webConnector.getBook(bookBarcode));
                 }
-                else
-                {
+                else {
                     // TODO: Esta a dar aquele erro do context e tal
                     Intent newIntent  = new Intent(this, CreateBookActivity.class);
                     newIntent.putExtra("bookId", result.getContents());
@@ -249,7 +215,7 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
                 boolean bookExists = webConnector.bookExists(bookBarcode);
                 if ( bookExists )
                 {
-                    webConnector.checkBookOut(this.libraryId, bookBarcode);
+                    webConnector.checkOutBook(this.libraryId, bookBarcode);
                     sendMessageToHandler(REMOVE_UPDATE_BOOK_LIST, Integer.parseInt(bookBarcode));
                 }
                 else
@@ -300,7 +266,7 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
         }
         else
         {
-            Toast.makeText(LibraryInfo_Activity.this, "Couldn't register new book =(", Toast.LENGTH_LONG).show();
+            Toast.makeText(LibraryInfoActivity.this, "Couldn't register new book =(", Toast.LENGTH_LONG).show();
         }
 
         return newBook;
@@ -319,7 +285,6 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
 
     private static final int ADD_UPDATE_BOOK_LIST = 2;
     private static final int REMOVE_UPDATE_BOOK_LIST = 3;
-    private static final int LIBRARY_IMG_MSG = 4;
 
     @SuppressLint("HandlerLeak")
     private final Handler handler = new Handler(){
@@ -336,9 +301,6 @@ public class LibraryInfo_Activity extends AppCompatActivity implements OnMapRead
                     return;
                 case UPDATE_UI_MSG:
                     bookListCustomBaseAdapter.notifyDataSetChanged();
-                    return;
-                case LIBRARY_IMG_MSG:
-                    libraryImage.setImageBitmap(ImageUtils.decodeBase64ToBitmap((String) msg.obj));
                     return;
                 case TOAST_MSG:
                     Toast.makeText(getApplicationContext(),

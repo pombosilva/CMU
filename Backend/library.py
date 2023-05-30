@@ -22,6 +22,13 @@ class Library:
     def getLibraryImage(self):
         return getEncodedImage(self.image_file)
 
+    def isBookPresent(self, barcode):
+        for book in self.registered_books:
+            if book.id == barcode:
+                return True
+        return False
+
+
     def getLibraryBooks(self):
         result = []
         for book in self.registered_books:

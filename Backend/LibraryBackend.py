@@ -23,7 +23,7 @@ libraries = [LB.Library(0, "Lisbon", 38.713912, -9.133397, False, 'LibraryPics/m
 
 libraries[0].addBook(books[0])
 libraries[0].addBook(books[1])
-libraries[1].addBook(books[2])
+libraries[1].addBook(books[0])
 
 websocket_connections = []
 
@@ -67,6 +67,16 @@ def index():
 def showAllBooks():
     global books
     return jsonify([book.getBookInfo() for book in books])
+
+
+@app.route('/bookInLibrary/<int:bookBarcode>', methods=['GET'])
+def getLibrariesThatContainBook(bookBarcode):
+    global libraries
+    result = []
+    for l in libraries:
+        if l.isBookPresent(bookBarcode):
+            result.append(l.getMarkerInfo())
+    return jsonify(result)
 
 
 @app.route('/libraryBooks/<int:libraryId>', methods=['GET'])
