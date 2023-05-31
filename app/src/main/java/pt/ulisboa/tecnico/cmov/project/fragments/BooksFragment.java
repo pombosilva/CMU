@@ -6,10 +6,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -34,6 +36,8 @@ public class BooksFragment extends Fragment {
     private ListView bookListView;
     private CustomBookBaseAdapter bookListCustomBaseAdapter;
     private final WebConnector webConnector;
+
+    private int currentlyDisplayedBooks=0;
 
     public BooksFragment(WebConnector webConnector) {
         this.webConnector = webConnector;
@@ -64,11 +68,36 @@ public class BooksFragment extends Fragment {
         bookListCustomBaseAdapter = new CustomBookBaseAdapter(getContext(), bookList);
         bookListView.setAdapter(bookListCustomBaseAdapter);
 
+        ftView = inflater.inflate(R.layout.footer_view, null);
+
+        bookListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                Log.d("BooksFragment", "Cheguei ao fim");
+                Log.d("BooksFragment", "view.getLastVisiblePosition() = " + view.getLastVisiblePosition());
+                Log.d("BooksFragment", "currentlyDisplayedBooks = " + currentlyDisplayedBooks );
+                Log.d("BooksFragment", "isLoading = " + isLoading );
+                if ( !isLoading && view.getLastVisiblePosition() == currentlyDisplayedBooks - 1 && currentlyDisplayedBooks!=0)
+                {
+                    isLoading = true;
+                    Log.d("BooksFragment", "Vou correr a thread");
+                    Thread thread = new ThreadGetMoreBooks();
+                    thread.start();
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            }
+        });
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
-                webConnector.getBooks(-1);
+                isLoading = true;
+                handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
+                currentlyDisplayedBooks += webConnector.getBooks(-1, 0);
+                handler.sendEmptyMessage(DISABLE_LOADING_FOOTER);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -112,9 +141,16 @@ public class BooksFragment extends Fragment {
         }
     }
 
+
+    private View  ftView;
+    private boolean isLoading = false;
+
     private static final int NO_INTERNET = 1;
     private static final int UPDATE_BOOK_LIST = 2;
 
+    private static final int ENABLE_LOADING_FOOTER = 3;
+
+    private static final int DISABLE_LOADING_FOOTER = 4;
     private final Handler handler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg) {
@@ -123,9 +159,33 @@ public class BooksFragment extends Fragment {
                     bookList.add((Book) msg.obj);
                     bookListCustomBaseAdapter.notifyDataSetChanged();
                     return;
+                case ENABLE_LOADING_FOOTER:
+                    bookListView.addFooterView(ftView);
+                    break;
+                case DISABLE_LOADING_FOOTER:
+                    isLoading = false;
+                    bookListView.removeFooterView(ftView);
+                    break;
                 case NO_INTERNET:
                     Toast.makeText(getActivity(), (String) msg.obj, Toast.LENGTH_LONG).show();
+
             }
         }
     };
+
+    public class ThreadGetMoreBooks extends Thread
+    {
+        @Override
+        public void run()
+        {
+            handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
+            try {
+                currentlyDisplayedBooks += webConnector.getBooks(-1, currentlyDisplayedBooks);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            handler.sendEmptyMessage(DISABLE_LOADING_FOOTER);
+        }
+    }
+
 }

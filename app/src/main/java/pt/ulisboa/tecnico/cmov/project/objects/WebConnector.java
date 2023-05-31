@@ -54,6 +54,8 @@ public class WebConnector {
         webSocketClient.close();
     }
 
+
+
     private JsonReader getData(String path) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + path).openConnection();
         int respCode = connection.getResponseCode();
@@ -126,15 +128,17 @@ public class WebConnector {
 //        return librayImage;
     }*/
 
-    public void getBooks(int libraryId) throws IOException {
+    public int getBooks(int libraryId, int startId) throws IOException {
+        int numberDownloadedBooks = 0;
         try {
             JsonReader jsonReader;
-            if (libraryId == -1) jsonReader = getData("/books");
+            if (libraryId == -1) jsonReader = getData("/books?startId="+startId);
             else jsonReader = getData("/libraryBooks/" + libraryId);
 
             jsonReader.setLenient(true);
             jsonReader.beginArray();
             while (jsonReader.hasNext()) {
+                numberDownloadedBooks++;
                 Message msg = new Message();
                 msg.what = 2;
                 msg.obj = extractBook(jsonReader);
@@ -146,6 +150,7 @@ public class WebConnector {
             msg.what = 1;
             handler.sendMessage(msg);
         }
+        return numberDownloadedBooks;
     }
 
     private Book extractBook(JsonReader book) throws IOException {

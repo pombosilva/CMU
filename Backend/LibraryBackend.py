@@ -10,11 +10,28 @@ from gevent.pywsgi import WSGIServer
 import library as LB
 import book as BK
 
-books = [BK.Book(1234567, "Biblia", "palavra de deus", "BookPics/bible.txt"),
-         BK.Book(1234, "Harry poter", "feiticos", "BookPics/harry.txt"),
+
+toLoad = 5
+
+books = [BK.Book(1234567, "Biblia II", "palavra de deus", "BookPics/bible.txt"),
+         BK.Book(123457, "Biblia II", "palavra de deus", "BookPics/bible.txt"),
+         BK.Book(1234, "Harry Spotter", "feiticos", "BookPics/harry.txt"),
+         BK.Book(1134, "Harry Spotter", "feiticos", "BookPics/harry.txt"),
+         BK.Book(75420, "Gains of Thrones", "feiticos", "BookPics/gow.txt"),
+         BK.Book(7542, "Gains of Thrones", "feiticos", "BookPics/gow.txt"),
          BK.Book(98, "Ben 10", "bue fixe", 'BookPics/ben.txt'),
+         BK.Book(8, "Ben 10", "bue fixe", 'BookPics/ben.txt'),
          BK.Book(43292, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
-         BK.Book(12345678, "Manual de portugues 8ano", "Camoes glorioso", "BookPics/manual.txt")]
+         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
+         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
+         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
+         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
+         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
+         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
+         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
+         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
+         BK.Book(1232678, "Manual de portugues 8ano", "Camoes glorioso", "BookPics/manual.txt"),
+         BK.Book(125678, "Manual de portugues 8ano", "Camoes glorioso", "BookPics/manual.txt")]
 
 libraries = [LB.Library(0, "Lisbon", 38.713912, -9.133397, False, 'LibraryPics/madrid.txt'),
              LB.Library(1, "Madrid", 40.416891, -3.703739, False, 'LibraryPics/madrid.txt'),
@@ -65,8 +82,16 @@ def index():
 
 @app.route('/books', methods=['GET'])
 def showAllBooks():
-    global books
-    return jsonify([book.getBookInfo() for book in books])
+    global books, toLoad
+    start_id = int(request.args.get("startId", 0))
+    selected_books = books[start_id:start_id+toLoad]
+    return jsonify([book.getBookInfo() for book in selected_books])
+
+# @app.route('/books', methods=['GET'])
+# def showAllBooks():
+#     global books
+#     print(request.args.get("startId"))
+#     return jsonify([book.getBookInfo() for book in books])
 
 
 @app.route('/bookInLibrary/<int:bookBarcode>', methods=['GET'])

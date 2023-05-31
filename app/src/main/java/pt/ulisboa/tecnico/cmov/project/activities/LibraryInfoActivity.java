@@ -128,7 +128,7 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
 //                bookList.addAll(webConnector.getBooks(libraryId));
 //                sendMessageToHandler(null);
                 Log.i("ENTREI: ", String.valueOf(this.libraryId));
-                webConnector.getBooks(this.libraryId);
+                webConnector.getBooks(this.libraryId, 0);
             } catch (Exception e) {
                 e.printStackTrace();
             }

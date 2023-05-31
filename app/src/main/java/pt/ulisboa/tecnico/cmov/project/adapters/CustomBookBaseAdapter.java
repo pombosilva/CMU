@@ -27,6 +27,12 @@ public class CustomBookBaseAdapter extends BaseAdapter {
         inflater = LayoutInflater.from(ctx);
     }
 
+
+    public void addListItemAdapter(ArrayList<Book> list)
+    {
+        this.list.addAll(list);
+    }
+
     @Override
     public int getCount() {
         return list.size();
