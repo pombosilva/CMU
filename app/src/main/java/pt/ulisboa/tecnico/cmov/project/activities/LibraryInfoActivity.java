@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.View;
+import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -34,6 +36,7 @@ import java.util.concurrent.Executors;
 
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomBookBaseAdapter;
+import pt.ulisboa.tecnico.cmov.project.fragments.BooksFragment;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 
@@ -48,6 +51,14 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
     private CustomBookBaseAdapter bookListCustomBaseAdapter;
 
     private WebConnector webConnector;
+
+
+    private ListView bookListView;
+
+    private int currentlyDisplayedBooks=0;
+
+    private View ftView;
+    private boolean isLoading = false;
 
     public LibraryInfoActivity() {
         // empty constructor
@@ -67,6 +78,11 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
 
         webConnector = new WebConnector(this.getApplicationContext());
         webConnector.startWebSocket();
+
+
+        // LayoutInflater li = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)
+        // li.inflate(R.layout.footer_view,null);
+        ftView = getLayoutInflater().inflate(R.layout.footer_view, null);
 
         loadLibraryInfo(getIntent());
 
@@ -118,17 +134,39 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
     private void configureBookListView() throws IOException {
         webConnector.setHandler(this.handler);
         bookList.clear();
-        ListView bookListView = findViewById(R.id.library_bookListView);
+        bookListView = findViewById(R.id.library_bookListView);
         bookListCustomBaseAdapter = new CustomBookBaseAdapter(getApplicationContext(), bookList);
         bookListView.setAdapter(bookListCustomBaseAdapter);
+
+
+        bookListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+                if ( !isLoading && view.getLastVisiblePosition() == currentlyDisplayedBooks - 1 && currentlyDisplayedBooks!=0)
+                {
+                    isLoading = true;
+                    Log.d("BooksFragment", "Vou correr a thread");
+                    Thread thread = new ThreadGetMoreBooks();
+                    thread.start();
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+            }
+        });
+
 
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
 //                bookList.addAll(webConnector.getBooks(libraryId));
 //                sendMessageToHandler(null);
-                Log.i("ENTREI: ", String.valueOf(this.libraryId));
-                webConnector.getBooks(this.libraryId, 0);
+//                Log.i("ENTREI: ", String.valueOf(this.libraryId));
+                isLoading = true;
+                handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
+                currentlyDisplayedBooks += webConnector.getBooks(this.libraryId, 0);
+                handler.sendEmptyMessage(DISABLE_LOADING_FOOTER);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -280,11 +318,16 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
         handler.sendMessage(msg);
     }
 
+
     private static final int  UPDATE_UI_MSG= 0;
     private static final int TOAST_MSG = 1;
 
     private static final int ADD_UPDATE_BOOK_LIST = 2;
     private static final int REMOVE_UPDATE_BOOK_LIST = 3;
+
+    private static final int ENABLE_LOADING_FOOTER = 5;
+
+    private static final int DISABLE_LOADING_FOOTER = 6;
 
     @SuppressLint("HandlerLeak")
     private final Handler handler = new Handler(){
@@ -295,6 +338,13 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
                     bookList.add((Book) msg.obj);
                     bookListCustomBaseAdapter.notifyDataSetChanged();
                     return;
+                case ENABLE_LOADING_FOOTER:
+                    bookListView.addFooterView(ftView);
+                    break;
+                case DISABLE_LOADING_FOOTER:
+                    isLoading = false;
+                    bookListView.removeFooterView(ftView);
+                    break;
                 case REMOVE_UPDATE_BOOK_LIST:
                     bookList.removeIf(book -> book.getId() == (int) msg.obj);
                     bookListCustomBaseAdapter.notifyDataSetChanged();
@@ -308,4 +358,22 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
             }
         }
     };
+
+
+    // TODO: Transformar isto numa class fora porque esta repertida no BooksFragment
+    // devoler o numero de livros que foram downloaded
+    private class ThreadGetMoreBooks extends Thread
+    {
+        @Override
+        public void run()
+        {
+            handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
+            try {
+                currentlyDisplayedBooks += webConnector.getBooks(libraryId, currentlyDisplayedBooks);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            handler.sendEmptyMessage(DISABLE_LOADING_FOOTER);
+        }
+    }
 }

@@ -132,8 +132,9 @@ public class WebConnector {
         int numberDownloadedBooks = 0;
         try {
             JsonReader jsonReader;
-            if (libraryId == -1) jsonReader = getData("/books?startId="+startId);
-            else jsonReader = getData("/libraryBooks/" + libraryId);
+            String queryParameter = "?startId="+startId;
+            if (libraryId == -1) jsonReader = getData("/books"+ queryParameter);
+            else jsonReader = getData("/libraryBooks/" + libraryId + queryParameter);
 
             jsonReader.setLenient(true);
             jsonReader.beginArray();

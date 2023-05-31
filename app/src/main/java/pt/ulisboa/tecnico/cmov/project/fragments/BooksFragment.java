@@ -73,10 +73,6 @@ public class BooksFragment extends Fragment {
         bookListView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-                Log.d("BooksFragment", "Cheguei ao fim");
-                Log.d("BooksFragment", "view.getLastVisiblePosition() = " + view.getLastVisiblePosition());
-                Log.d("BooksFragment", "currentlyDisplayedBooks = " + currentlyDisplayedBooks );
-                Log.d("BooksFragment", "isLoading = " + isLoading );
                 if ( !isLoading && view.getLastVisiblePosition() == currentlyDisplayedBooks - 1 && currentlyDisplayedBooks!=0)
                 {
                     isLoading = true;
@@ -173,7 +169,7 @@ public class BooksFragment extends Fragment {
         }
     };
 
-    public class ThreadGetMoreBooks extends Thread
+    private class ThreadGetMoreBooks extends Thread
     {
         @Override
         public void run()

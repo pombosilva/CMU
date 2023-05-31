@@ -22,9 +22,9 @@ books = [BK.Book(1234567, "Biblia II", "palavra de deus", "BookPics/bible.txt"),
          BK.Book(98, "Ben 10", "bue fixe", 'BookPics/ben.txt'),
          BK.Book(8, "Ben 10", "bue fixe", 'BookPics/ben.txt'),
          BK.Book(43292, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
-         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
-         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
-         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
+         BK.Book(4392, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
+         BK.Book(592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
+         BK.Book(4352, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
          BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
          BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
          BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
@@ -39,7 +39,13 @@ libraries = [LB.Library(0, "Lisbon", 38.713912, -9.133397, False, 'LibraryPics/m
              LB.Library(3, "Lagos", 6.476754, 3.368539, True, 'LibraryPics/lagos.txt')]
 
 libraries[0].addBook(books[0])
-libraries[0].addBook(books[1])
+libraries[0].addBook(books[2])
+libraries[0].addBook(books[4])
+libraries[0].addBook(books[6])
+libraries[0].addBook(books[8])
+libraries[0].addBook(books[9])
+libraries[0].addBook(books[10])
+libraries[0].addBook(books[11])
 libraries[1].addBook(books[0])
 
 websocket_connections = []
@@ -104,11 +110,34 @@ def getLibrariesThatContainBook(bookBarcode):
     return jsonify(result)
 
 
+
+
 @app.route('/libraryBooks/<int:libraryId>', methods=['GET'])
 def showLibraryBooks(libraryId):
-    global libraries
+    global libraries, toLoad
+    start_id = int(request.args.get("startId", 0))
+    print(start_id)
     library = next((l for l in libraries if l.id == libraryId), None)
-    return jsonify([book.getBookInfo() for book in library.registered_books])
+    
+    if library is None:
+        return jsonify({"error": "Library not found"})
+    
+    selected_books = library.registered_books[start_id : start_id + 5]
+    
+    return jsonify([book.getBookInfo() for book in selected_books])
+
+# @app.route('/libraryBooks/<int:libraryId>', methods=['GET'])
+# def showLibraryBooks(libraryId):
+#     global libraries, toLoad
+#     start_id = int(request.args.get("startId", 0))
+#     library = next((l for l in libraries if l.id == libraryId), None)
+#     return jsonify([book.getBookInfo() for book in library.registered_books])
+
+
+
+
+
+
 
 
 @app.route('/markers', methods=['GET'])
