@@ -37,22 +37,22 @@ public class WebConnector {
         this.handler = handler;
     }
 
-    public void startWebSocket() {
-        if (webSocketClient != null) {
-            webSocketClient.close();
-        }
-
-        try {
-            webSocketClient = new WSClient(new URI(wsEndpoint), new HashMap<>());
-            webSocketClient.connect();
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void closeWebSocket() {
-        webSocketClient.close();
-    }
+//    public void startWebSocket() {
+//        if (webSocketClient != null) {
+//            webSocketClient.close();
+//        }
+//
+//        try {
+//            webSocketClient = new WSClient(new URI(wsEndpoint), new HashMap<>());
+//            webSocketClient.connect();
+//        } catch (URISyntaxException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+//
+//    public void closeWebSocket() {
+//        webSocketClient.close();
+//    }
 
 
 
@@ -132,9 +132,9 @@ public class WebConnector {
         int numberDownloadedBooks = 0;
         try {
             JsonReader jsonReader;
-            String queryParameter = "?startId="+startId;
+            String queryParameter = "?libraryId="+libraryId+"&startId="+startId;
             if (libraryId == -1) jsonReader = getData("/books"+ queryParameter);
-            else jsonReader = getData("/libraryBooks/" + libraryId + queryParameter);
+            else jsonReader = getData("/libraryBooks" + queryParameter);
 
             jsonReader.setLenient(true);
             jsonReader.beginArray();
@@ -161,7 +161,8 @@ public class WebConnector {
 
     public void getLibrariesThatContainBook(int bookBarcode) {
         try {
-            JsonReader jsonReader = getData("/bookInLibrary/" + bookBarcode);
+            String query = "/bookInLibrary?bookId=" + bookBarcode;
+            JsonReader jsonReader = getData(query);
 
             jsonReader.setLenient(true);
             jsonReader.beginArray();
@@ -192,7 +193,8 @@ public class WebConnector {
 
     public boolean bookExists(String bookId) {
         try {
-            return getData("/bookExistence/" + bookId).nextBoolean();
+            String query = "/bookExistence?bookId=" + bookId;
+            return getData(query).nextBoolean();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -226,9 +228,12 @@ public class WebConnector {
 
     public Book getBook(String bookId) {
         try {
-            return extractBook(getData("/getBook/" + bookId));
+            String query = "/getBook?bookId=" + bookId;
+            return extractBook(getData(query));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
+
 }

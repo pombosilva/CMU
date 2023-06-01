@@ -77,7 +77,7 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
         Context mContext = getApplicationContext();
 
         webConnector = new WebConnector(this.getApplicationContext());
-        webConnector.startWebSocket();
+//        webConnector.startWebSocket();
 
 
         // LayoutInflater li = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)

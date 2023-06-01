@@ -100,21 +100,23 @@ def showAllBooks():
 #     return jsonify([book.getBookInfo() for book in books])
 
 
-@app.route('/bookInLibrary/<int:bookBarcode>', methods=['GET'])
-def getLibrariesThatContainBook(bookBarcode):
+@app.route('/bookInLibrary', methods=['GET'])
+def getLibrariesThatContainBook():
     global libraries
+    bookId = int(request.args.get("bookId",-1))
     result = []
     for l in libraries:
-        if l.isBookPresent(bookBarcode):
+        if l.isBookPresent(bookId):
             result.append(l.getMarkerInfo())
     return jsonify(result)
 
 
 
 
-@app.route('/libraryBooks/<int:libraryId>', methods=['GET'])
-def showLibraryBooks(libraryId):
+@app.route('/libraryBooks', methods=['GET'])
+def showLibraryBooks():
     global libraries, toLoad
+    libraryId= int(request.args.get("libraryId", -1))
     start_id = int(request.args.get("startId", 0))
     print(start_id)
     library = next((l for l in libraries if l.id == libraryId), None)
@@ -146,12 +148,12 @@ def get_state():
     return jsonify([library.getMarkerInfo() for library in libraries])
 
 
-@app.route('/libraryExtras/<int:libraryId>', methods=['GET'])
-def getLibraryImage(libraryId):
-    global libraries
-    for l in libraries:
-        if l.id == libraryId:
-            return jsonify(l.getLibraryImage())
+# @app.route('/libraryExtras/<int:libraryId>', methods=['GET'])
+# def getLibraryImage(libraryId):
+#     global libraries
+#     for l in libraries:
+#         if l.id == libraryId:
+#             return jsonify(l.getLibraryImage())
 
 
 @app.route('/libraryExtras', methods=['GET'])
@@ -171,25 +173,28 @@ def put_state():
     return "True"
 
 
-@app.route('/bookExistence/<string:bookBarcode>', methods=['GET'])
-def bookExists(bookBarcode):
-    bookBarcode = int(bookBarcode)
-    global books
-    for b in books:
-        if b.id == bookBarcode:
-            return jsonify(True)
-    return jsonify(False)
 
 
-@app.route('/getBook/<string:bookBarcode>', methods=['GET'])
-def getBook(bookBarcode):
-    bookBarcode = int(bookBarcode)
+@app.route('/getBook', methods=['GET'])
+def getBook():
+    bookBarcode = int(request.args.get("bookBarcode",-1))
     global books
     for b in books:
         if b.id == bookBarcode:
             return jsonify(b.getBookInfo())
     return jsonify(False)
 
+
+
+@app.route('/bookExistence', methods=['GET'])
+def bookExists():
+    bookBarcode = int(request.args.get("bookId",-1))
+    print("BookBarcode = " + str(bookBarcode))
+    global books
+    for b in books:
+        if b.id == bookBarcode:
+            return jsonify(True)
+    return jsonify(False)
 
 @app.route('/checkBookIn', methods=['PUT'])
 def checkBookIn():

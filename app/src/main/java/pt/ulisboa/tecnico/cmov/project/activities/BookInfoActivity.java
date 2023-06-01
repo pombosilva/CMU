@@ -40,7 +40,7 @@ public class BookInfoActivity extends AppCompatActivity {
         setContentView(R.layout.info_book);
 
         webConnector = new WebConnector(this.getApplicationContext());
-        webConnector.startWebSocket();
+//        webConnector.startWebSocket();
 
         loadBookInfo(getIntent());
         configureListView();

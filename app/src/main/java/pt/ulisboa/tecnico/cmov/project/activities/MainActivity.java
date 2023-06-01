@@ -57,12 +57,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        webConnector.startWebSocket();
+//        webConnector.startWebSocket();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        webConnector.closeWebSocket();
+//        webConnector.closeWebSocket();
     }
 }
