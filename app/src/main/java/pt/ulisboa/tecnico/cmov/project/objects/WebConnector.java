@@ -58,7 +58,7 @@ public class WebConnector {
 
 
 
-    private JsonReader getData(String path) throws IOException {
+    private static JsonReader getData(String path) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + path).openConnection();
         int respCode = connection.getResponseCode();
 
@@ -156,7 +156,7 @@ public class WebConnector {
         return numberDownloadedBooks;
     }
 
-    private Book extractBook(JsonReader book) throws IOException {
+    private static Book extractBook(JsonReader book) throws IOException {
         Gson gson = new Gson();
         return gson.fromJson(book, Book.class);
     }
@@ -182,7 +182,7 @@ public class WebConnector {
         }
     }
 
-    public void setFavouriteLibrary(int libraryId) {
+    public static void setFavouriteLibrary(int libraryId) {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
@@ -193,7 +193,7 @@ public class WebConnector {
         });
     }
 
-    public boolean bookExists(String bookId) {
+    public static boolean bookExists(String bookId) {
         try {
             String query = "/bookExistence?bookId=" + bookId;
             return getData(query).nextBoolean();
@@ -204,7 +204,7 @@ public class WebConnector {
 
 
 
-    public void checkInBook(int libraryId, String bookId) {
+    public static void checkInBook(int libraryId, String bookId) {
         try {
             String data = "{\"libraryId\":"+ libraryId +",\"bookId\":"+bookId+"}";
             putData("/checkBookIn", data);
@@ -213,7 +213,7 @@ public class WebConnector {
         }
     }
 
-    public void checkOutBook(int libraryId, String bookId) {
+    public static void checkOutBook(int libraryId, String bookId) {
         try {
             String data = "{\"libraryId\":"+ libraryId +",\"bookId\":"+bookId+"}";
             putData("/checkBookOut", data);
@@ -233,7 +233,7 @@ public class WebConnector {
 
 
 
-    public Book getBook(String bookId) {
+    public static Book getBook(String bookId) {
         try {
             String query = "/getBook?bookId=" + bookId;
             return extractBook(getData(query));

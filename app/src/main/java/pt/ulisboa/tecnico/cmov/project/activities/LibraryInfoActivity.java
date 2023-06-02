@@ -201,7 +201,7 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
 
         Button favouriteButton = findViewById(R.id.library_favourite_button);
         favouriteButton.setOnClickListener(v -> {
-            webConnector.setFavouriteLibrary(libraryId);
+            WebConnector.setFavouriteLibrary(libraryId);
             Toast.makeText(getApplicationContext(), "Clicked favourite button", Toast.LENGTH_SHORT).show();
         });
     }
@@ -229,12 +229,12 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
 
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
-                boolean bookExists = webConnector.bookExists(bookBarcode);
+                boolean bookExists = WebConnector.bookExists(bookBarcode);
                 Log.d("MensagensDebug", "Existe? " + bookExists);
                 if ( bookExists )
                 {
-                    webConnector.checkInBook(this.libraryId, bookBarcode);
-                    sendMessageToHandler(ADD_UPDATE_BOOK_LIST, webConnector.getBook(bookBarcode));
+                    WebConnector.checkInBook(this.libraryId, bookBarcode);
+                    sendMessageToHandler(ADD_UPDATE_BOOK_LIST, WebConnector.getBook(bookBarcode));
                 }
                 else {
                     // TODO: Esta a dar aquele erro do context e tal
@@ -284,10 +284,10 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
 
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
-                boolean bookExists = webConnector.bookExists(bookBarcode);
+                boolean bookExists = WebConnector.bookExists(bookBarcode);
                 if ( bookExists )
                 {
-                    webConnector.checkOutBook(this.libraryId, bookBarcode);
+                    WebConnector.checkOutBook(this.libraryId, bookBarcode);
                     sendMessageToHandler(REMOVE_UPDATE_BOOK_LIST, Integer.parseInt(bookBarcode));
                 }
                 else
