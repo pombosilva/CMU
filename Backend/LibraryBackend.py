@@ -77,6 +77,12 @@ def updateFavLibrary(library_id):
             lib.fav = not lib.fav
 
 
+def createFile(content, book_file_name):
+    f = open(book_file_name, "w")
+    f.write(content)
+    f.close()
+    return book_file_name
+
 app = Flask(__name__)
 sockets = Sock(app)
 
@@ -196,6 +202,7 @@ def bookExists():
             return jsonify(True)
     return jsonify(False)
 
+
 @app.route('/checkBookIn', methods=['PUT'])
 def checkBookIn():
     data = json.loads(request.data)
@@ -222,22 +229,33 @@ def checkBookOut():
             return "True"
 
 
-@app.route('/registerBook', methods=['PUT'])
-def registerBook():
-    data = json.loads(request.data)
-    bookId = data['bookId']
-    bookTitle = data['bookTitle']
-    bookDescription = data['bookDescription']
-    bookCover = data['bookCover']
+@app.route('/registerBook/<string:libraryId>', methods=['PUT'])
+def registerBook(libraryId):
 
-    print(bookId)
-    print(bookTitle)
-    print(bookDescription)
-    # global books, libraries
-    # for b in books:
-    #     if b.id == bookId:
-    #         libraries[libraryId].addBook(b)
-    #         return "True"
+
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+
+
+    data = json.loads(request.data)
+    bookId = data['id']
+    bookTitle = data['title']
+    bookDescription = data['description']
+    bookCover = data['cover']
+
+    # print("Data = " + str(request.data))
+    # print("Data jsoned = " + str(data))
+
+    # print("BookdId = "  + str(bookId))   
+    # print("BookTitle = "  + str(bookTitle))   
+    # print("BookDescription = "  + str(bookDescription))   
+    global books, libraries
+    # print(str(libraries[libraryId].registered_books))
+    
+    newBook = BK.Book(bookId, bookTitle, bookDescription, createFile(bookCover, "BookPics/"+str(bookId)+".txt"))
+
+    libraries[int(libraryId)].addBook(newBook)
+    books.append(newBook)
+    # print(str(libraries[libraryId].registered_books))
     return jsonify(True)
 
 

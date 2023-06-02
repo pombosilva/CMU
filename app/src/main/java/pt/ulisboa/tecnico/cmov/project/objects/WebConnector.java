@@ -3,6 +3,8 @@ package pt.ulisboa.tecnico.cmov.project.objects;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
+import android.util.LruCache;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
@@ -68,7 +70,7 @@ public class WebConnector {
         throw new RuntimeException("Unexpected response: " + connection.getResponseMessage());
     }
 
-    private void putData(String path, Object data) throws IOException {
+    private static void putData(String path, Object data) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + path).openConnection();
         connection.setRequestMethod("PUT");
         connection.setRequestProperty("Content-Type", "application/json");
@@ -200,6 +202,8 @@ public class WebConnector {
         }
     }
 
+
+
     public void checkInBook(int libraryId, String bookId) {
         try {
             String data = "{\"libraryId\":"+ libraryId +",\"bookId\":"+bookId+"}";
@@ -218,13 +222,16 @@ public class WebConnector {
         }
     }
 
-    public void registerBook(Book newBook) {
+    public static void registerBook(Book newBook, int libraryId) {
         try {
-            putData("/registerBook", newBook.toJson());
+            Log.d("RegisterBook", "Vou registar um livro na livraria " + libraryId);
+            putData("/registerBook/"+libraryId, newBook.toJson());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
+
+
 
     public Book getBook(String bookId) {
         try {

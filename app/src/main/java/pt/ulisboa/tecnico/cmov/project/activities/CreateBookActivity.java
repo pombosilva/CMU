@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -16,7 +17,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 import pt.ulisboa.tecnico.cmov.project.R;
+import pt.ulisboa.tecnico.cmov.project.objects.Book;
+import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
 
 public class CreateBookActivity extends AppCompatActivity {
@@ -62,18 +68,35 @@ public class CreateBookActivity extends AppCompatActivity {
             else {
                 if (isEmpty(base64Picture)){ Toast.makeText(CreateBookActivity.this, "Please take a picture of the book", Toast.LENGTH_LONG).show(); }
                 else {
-                    Intent resultIntent = new Intent();
-                    resultIntent.putExtra("bookId", getIntent().getExtras().getString("bookId"));
-                    resultIntent.putExtra("bookTitle", bookTitle);
-                    resultIntent.putExtra("bookDescription", bookDescription);
-                    resultIntent.putExtra("bookEncodedImage", base64Picture);
+                    int bookId = Integer.parseInt(getIntent().getExtras().getString("bookId"));
+                    int libraryId = Integer.parseInt(getIntent().getExtras().getString("libraryId"));
 
-                    setResult(RESULT_OK, resultIntent);
-                    finish();
+                    Log.d("RegisterBook", "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
+                    Executor executor = Executors.newSingleThreadExecutor();
+                    executor.execute(() -> {
+
+                        Log.d("RegisterBook", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+
+                        registerBookToCloud(bookId, bookTitle, bookDescription, base64Picture, libraryId);
+
+                        Log.d("RegisterBook", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+
+
+                        finish();
+
+                        }
+                    );
                 }
             }
         });
     }
+
+
+    public void registerBookToCloud(int bookId, String bookTitle, String bookDescription, String bookEncodedImage, int libraryId)
+    {
+        WebConnector.registerBook(new Book(bookId, bookTitle, bookDescription, bookEncodedImage), libraryId);
+    }
+
 
     //TODO: change deprecated method
     private void configureTakePictureButton(){
@@ -90,8 +113,10 @@ public class CreateBookActivity extends AppCompatActivity {
             assert data != null;
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
             imageView.setImageBitmap(bitmap);
-            imageView.setImageBitmap(bitmap);
+//            imageView.setImageBitmap(bitmap);
             base64Picture = ImageUtils.encodeBitmapToBase64(bitmap, Bitmap.CompressFormat.JPEG, 64);
+
+
         }
     }
 

@@ -14,7 +14,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -235,13 +238,44 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
                 }
                 else {
                     // TODO: Esta a dar aquele erro do context e tal
-                    Intent newIntent  = new Intent(this, CreateBookActivity.class);
-                    newIntent.putExtra("bookId", result.getContents());
-                    startActivityForResult(new Intent(this, CreateBookActivity.class),1);
+                    Intent intent  = new Intent(this, CreateBookActivity.class);
+                    intent.putExtra("bookId", result.getContents());
+                    intent.putExtra("libraryId", ""+libraryId);
+//                    registerNewBook.launch(new Intent(this, CreateBookActivity.class));
+
+                    startActivity(intent);
                 }
             });
         }
     });
+
+
+//    ActivityResultLauncher<Intent> registerNewBook = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+//            new ActivityResultCallback<ActivityResult>() {
+//                @Override
+//                public void onActivityResult(ActivityResult result) {
+//                    Log.d("RegisterBook", "Data = " + result.getResultCode());
+//                    Log.d("RegisterBook", "resultCode = " + result.getData());
+//                    if (result.getData() != null) {
+//                        if (result.getResultCode() == RESULT_OK) {
+//                            Log.d("RegisterBook", "AAAAAAAAAAAAAAA");
+//                            webConnector.registerBook(getBookFromResult(result.getData()));
+//                        }
+//                    } else {
+//                        Log.d("MensagensDebug", "Data is null");
+//                    }
+//                }
+//            });
+
+
+
+
+
+
+
+
+
+
 
     ActivityResultLauncher<ScanOptions> checkOutScanner = registerForActivityResult(new ScanContract(), result -> {
         if (result.getContents() != null)
@@ -271,21 +305,24 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
     });
 
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.d("MensagensDebug", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-        if ( data != null ) {
-            if (requestCode == 1) {
-                if (resultCode == RESULT_OK) {
-                    webConnector.registerBook(getBookFromResult(data));
-                }
-            }
-        }else
-        {
-            Log.d("MensagensDebug", "Data is null");
-        }
-    }
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        Log.d("RegisterBook", "requestCode = " + requestCode);
+//        Log.d("RegisterBook", "resultCode = " + resultCode);
+//        Log.d("RegisterBook", "Data = " + data);
+//        if ( data != null ) {
+//            if (requestCode == 1) {
+//                if (resultCode == RESULT_OK) {
+//                    Log.d("RegisterBook", "AAAAAAAAAAAAAAA");
+//                    webConnector.registerBook(getBookFromResult(data));
+//                }
+//            }
+//        }else
+//        {
+//            Log.d("MensagensDebug", "Data is null");
+//        }
+//    }
 
 
     private Book getBookFromResult(Intent data)

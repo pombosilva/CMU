@@ -1,5 +1,9 @@
 package pt.ulisboa.tecnico.cmov.project.objects;
 
+import android.util.Log;
+
+import com.google.gson.Gson;
+
 public class Book {
     private final int id;
     private String title;
@@ -53,8 +57,15 @@ public class Book {
                 '}';
     }
 
+//    public String toJson()
+//    {
+//        return  "{\"id\":"+ this.getId() +",\"title\":\""+this.getTitle()+"\",\"description\":\""+this.getDescription()+"\",\"cover\":\""+this.getCover()+"\"}";
+//    }
     public String toJson()
     {
-        return  "{\"id\":"+ this.getId() +",\"title\":"+this.getTitle()+",\"description\":"+this.getDescription()+",\"cover\":"+this.getCover()+"}";
+        Gson gson = new Gson();
+        Log.d("RegisterBook", "Livro Jsonificado = " + gson.toJson(this));
+        return gson.toJson(this);
+
     }
 }
