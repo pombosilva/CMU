@@ -42,6 +42,7 @@ import pt.ulisboa.tecnico.cmov.project.adapters.CustomBookBaseAdapter;
 import pt.ulisboa.tecnico.cmov.project.fragments.BooksFragment;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
+import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
 
 public class LibraryInfoActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -139,6 +140,7 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
         bookList.clear();
         bookListView = findViewById(R.id.library_bookListView);
         bookListCustomBaseAdapter = new CustomBookBaseAdapter(getApplicationContext(), bookList);
+        bookListCustomBaseAdapter.setHandler(this.handler);
         bookListView.setAdapter(bookListCustomBaseAdapter);
 
 
@@ -168,7 +170,7 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
 //                Log.i("ENTREI: ", String.valueOf(this.libraryId));
                 isLoading = true;
                 handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
-                currentlyDisplayedBooks += webConnector.getBooks(this.libraryId, 0);
+                currentlyDisplayedBooks += webConnector.getBooks(this.libraryId, 0, NetworkUtils.hasUnmeteredConnection(getApplicationContext()));
                 handler.sendEmptyMessage(DISABLE_LOADING_FOOTER);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -268,15 +270,6 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
 //            });
 
 
-
-
-
-
-
-
-
-
-
     ActivityResultLauncher<ScanOptions> checkOutScanner = registerForActivityResult(new ScanContract(), result -> {
         if (result.getContents() != null)
         {
@@ -362,9 +355,10 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
     private static final int ADD_UPDATE_BOOK_LIST = 2;
     private static final int REMOVE_UPDATE_BOOK_LIST = 3;
 
-    private static final int ENABLE_LOADING_FOOTER = 5;
+    public static final int UPDATE_BOOK_COVER = 5;
+    private static final int ENABLE_LOADING_FOOTER = 6;
 
-    private static final int DISABLE_LOADING_FOOTER = 6;
+    private static final int DISABLE_LOADING_FOOTER = 7;
 
     @SuppressLint("HandlerLeak")
     private final Handler handler = new Handler(){
@@ -389,6 +383,15 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
                 case UPDATE_UI_MSG:
                     bookListCustomBaseAdapter.notifyDataSetChanged();
                     return;
+
+                case UPDATE_BOOK_COVER:
+                    String[] objs = ((String) msg.obj).split(":");
+                    int bookId = Integer.parseInt(objs[0]);
+                    String encodedImage = objs[1];
+                    bookList.get(bookId).setCover(encodedImage);
+                    Log.d("ImageDownloads", "Vou dar update ha imagem");
+                    bookListCustomBaseAdapter.notifyDataSetChanged();
+                    break;
                 case TOAST_MSG:
                     Toast.makeText(getApplicationContext(),
                             (String) msg.obj, Toast.LENGTH_LONG).show();
@@ -406,7 +409,7 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
         {
             handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
             try {
-                currentlyDisplayedBooks += webConnector.getBooks(libraryId, currentlyDisplayedBooks);
+                currentlyDisplayedBooks += webConnector.getBooks(libraryId, currentlyDisplayedBooks, NetworkUtils.hasUnmeteredConnection(getApplicationContext()));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

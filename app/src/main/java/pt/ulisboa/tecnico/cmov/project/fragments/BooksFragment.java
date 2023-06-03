@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmov.project.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -29,6 +30,8 @@ import pt.ulisboa.tecnico.cmov.project.activities.BookInfoActivity;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomBookBaseAdapter;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
+import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
+import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
 
 public class BooksFragment extends Fragment {
     private final ArrayList<Book> bookList = new ArrayList<>();
@@ -66,6 +69,7 @@ public class BooksFragment extends Fragment {
         bookListView = rootView.findViewById(R.id.bookListView);
 
         bookListCustomBaseAdapter = new CustomBookBaseAdapter(getContext(), bookList);
+        bookListCustomBaseAdapter.setHandler(this.handler);
         bookListView.setAdapter(bookListCustomBaseAdapter);
 
         ftView = inflater.inflate(R.layout.footer_view, null);
@@ -92,7 +96,7 @@ public class BooksFragment extends Fragment {
             try {
                 isLoading = true;
                 handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
-                currentlyDisplayedBooks += webConnector.getBooks(-1, 0);
+                currentlyDisplayedBooks += webConnector.getBooks(-1, 0, NetworkUtils.hasUnmeteredConnection(this.getContext()));
                 handler.sendEmptyMessage(DISABLE_LOADING_FOOTER);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -147,6 +151,10 @@ public class BooksFragment extends Fragment {
     private static final int ENABLE_LOADING_FOOTER = 3;
 
     private static final int DISABLE_LOADING_FOOTER = 4;
+
+    public static final int UPDATE_BOOK_COVER = 5;
+
+
     private final Handler handler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg) {
@@ -162,6 +170,14 @@ public class BooksFragment extends Fragment {
                     isLoading = false;
                     bookListView.removeFooterView(ftView);
                     break;
+                case UPDATE_BOOK_COVER:
+                    String[] objs = ((String) msg.obj).split(":");
+                    int bookId = Integer.parseInt(objs[0]);
+                    String encodedImage = objs[1];
+                    bookList.get(bookId).setCover(encodedImage);
+                    Log.d("ImageDownloads", "Vou dar update ha imagem");
+                    bookListCustomBaseAdapter.notifyDataSetChanged();
+                    break;
                 case NO_INTERNET:
                     Toast.makeText(getActivity(), (String) msg.obj, Toast.LENGTH_LONG).show();
 
@@ -176,7 +192,7 @@ public class BooksFragment extends Fragment {
         {
             handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
             try {
-                currentlyDisplayedBooks += webConnector.getBooks(-1, currentlyDisplayedBooks);
+                currentlyDisplayedBooks += webConnector.getBooks(-1, currentlyDisplayedBooks, NetworkUtils.hasUnmeteredConnection(getContext()));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

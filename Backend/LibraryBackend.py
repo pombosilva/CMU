@@ -99,6 +99,22 @@ def showAllBooks():
     selected_books = books[start_id:start_id+toLoad]
     return jsonify([book.getBookInfo() for book in selected_books])
 
+
+@app.route('/booksWithoutImage', methods=['GET'])
+def booksWithoutImage():
+    global books, toLoad
+    start_id = int(request.args.get("startId", 0))
+    selected_books = books[start_id:start_id+toLoad]
+    return jsonify([book.getBookWithoutImage() for book in selected_books])
+
+
+@app.route('/bookCover/<int:bookId>', methods=['GET'])
+def getBookCover(bookId):
+    global books
+    for b in books:
+        if b.id == bookId:
+            return jsonify(b.getBookImage())
+
 # @app.route('/books', methods=['GET'])
 # def showAllBooks():
 #     global books
@@ -134,6 +150,22 @@ def showLibraryBooks():
     
     return jsonify([book.getBookInfo() for book in selected_books])
 
+
+@app.route('/libraryBooksWithoutImage', methods=['GET'])
+def showLibraryBooksWithoutImage():
+    global libraries, toLoad
+    libraryId= int(request.args.get("libraryId", -1))
+    start_id = int(request.args.get("startId", 0))
+
+    library = next((l for l in libraries if l.id == libraryId), None)
+    
+    if library is None:
+        return jsonify({"error": "Library not found"})
+
+    selected_books = library.registered_books[start_id : start_id + 5]
+
+    return jsonify([book.getBookWithoutImage() for book in selected_books])
+
 # @app.route('/libraryBooks/<int:libraryId>', methods=['GET'])
 # def showLibraryBooks(libraryId):
 #     global libraries, toLoad
@@ -149,9 +181,18 @@ def showLibraryBooks():
 
 
 @app.route('/markers', methods=['GET'])
-def get_state():
+def get_markers():
     global libraries
     return jsonify([library.getMarkerInfo() for library in libraries])
+
+
+@app.route('/favMarker', methods=['PUT'])
+def favMarker():
+    global libraries
+    data = json.loads(request.data)
+    updateFavLibrary(data)
+    return "True"
+
 
 
 # @app.route('/libraryExtras/<int:libraryId>', methods=['GET'])
@@ -171,12 +212,6 @@ def getLibrayExtras():
     return jsonify(lib.getLibraryBooks())
 
 
-@app.route('/favMarker', methods=['PUT'])
-def put_state():
-    global libraries
-    data = json.loads(request.data)
-    updateFavLibrary(data)
-    return "True"
 
 
 

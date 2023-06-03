@@ -60,7 +60,11 @@ public class WebConnector {
 
     private static JsonReader getData(String path) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + path).openConnection();
+//        Log.d("ImageDownloads", "Passei o teste");
         int respCode = connection.getResponseCode();
+
+//        Log.d("ImageDownloads", "Passei o teste");
+
 
         if (respCode == 200) {
             JsonReader jsonReader = new JsonReader(new InputStreamReader(connection.getInputStream()));
@@ -130,13 +134,40 @@ public class WebConnector {
 //        return librayImage;
     }*/
 
-    public int getBooks(int libraryId, int startId) throws IOException {
+
+    private String getBookUrl(int libraryId, boolean hasUnmeteredConnection)
+    {
+        String booksUrl = "/libraryBooksWithoutImage";
+
+        if ( hasUnmeteredConnection )
+        {
+            booksUrl = "/libraryBooks";
+        }
+
+        if ( libraryId == -1 )
+        {
+            booksUrl = "/booksWithoutImage";
+
+            if ( hasUnmeteredConnection )
+            {
+                booksUrl = "/books";
+            }
+
+        }
+//        Log.d("ImageDownloads", "Vou usar a url: " + booksUrl);
+        return booksUrl;
+    }
+
+    public int getBooks(int libraryId, int startId, boolean hasUnmeteredConnection) throws IOException {
         int numberDownloadedBooks = 0;
         try {
             JsonReader jsonReader;
-            String queryParameter = "?libraryId="+libraryId+"&startId="+startId;
-            if (libraryId == -1) jsonReader = getData("/books"+ queryParameter);
-            else jsonReader = getData("/libraryBooks" + queryParameter);
+            String queryParameters = "?libraryId="+libraryId+"&startId="+startId;
+
+            String url = getBookUrl(libraryId, hasUnmeteredConnection) + queryParameters;
+            Log.d("ImageDownloads", "Cheguei aqui com a url = " + url);
+            jsonReader = getData(url);
+            Log.d("ImageDownloads", "Passei para aqui");
 
             jsonReader.setLenient(true);
             jsonReader.beginArray();
@@ -158,7 +189,10 @@ public class WebConnector {
 
     private static Book extractBook(JsonReader book) throws IOException {
         Gson gson = new Gson();
-        return gson.fromJson(book, Book.class);
+        Log.d("ImageDownloads", "Cheguei aqui");
+        Book newBook = gson.fromJson(book, Book.class);
+        Log.d("ImageDownloads", "Novo livro = " + newBook.toString());
+        return newBook;
     }
 
     public void getLibrariesThatContainBook(int bookBarcode) {
@@ -237,6 +271,14 @@ public class WebConnector {
         try {
             String query = "/getBook?bookId=" + bookId;
             return extractBook(getData(query));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String getBookCover(int bookId) {
+        try {
+            return getData("/bookCover/" + bookId).nextString();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

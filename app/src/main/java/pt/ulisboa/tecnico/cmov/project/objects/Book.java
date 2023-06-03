@@ -4,12 +4,16 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import pt.ulisboa.tecnico.cmov.project.R;
+
 public class Book {
     private final int id;
     private String title;
     private String description;
     private String cover;
 
+
+    public static final int unloadedBookCover = R.drawable.unloaded_book;
 
     public Book(int id, String title, String description, String cover) {
         this.id = id;

@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
 
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomLibraryBaseAdapter;
+import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.Marker;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
@@ -55,10 +56,19 @@ public class BookInfoActivity extends AppCompatActivity {
             TextView bookTitleTv = findViewById(R.id.bookTitle);
             bookTitleTv.setText(bookTitle);
 
+
             ImageView bookCoverIm = findViewById(R.id.bookCover);
-            String bookCover = intentContents.getString("bookCover");
-            Bitmap bitmap = ImageUtils.decodeBase64ToBitmap(bookCover);
-            bookCoverIm.setImageBitmap(bitmap);
+
+            try {
+                String bookCover = intentContents.getString("bookCover");
+                Bitmap bitmap = ImageUtils.decodeBase64ToBitmap(bookCover);
+                bookCoverIm.setImageBitmap(bitmap);
+            }catch (Exception e)
+            {
+                bookCoverIm.setImageResource(Book.unloadedBookCover);
+            }
+
+
 
             bookBarcode = intentContents.getInt("bookBarcode");
         }

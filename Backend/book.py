@@ -11,8 +11,15 @@ class Book:
         self.cover = cover
 
     def getBookInfo(self):
-        return {'id': self.id, 'title': self.title, 'description': self.description,
-                'cover': getEncodedImage(self.cover)}
+        return {'id': self.id, 'title': self.title, 'description': self.description, 'cover': getEncodedImage(self.cover)}
+
+
+    def getBookWithoutImage(self):
+        return { 'id': self.id, 'title': self.title, 'description': self.description, 'cover': None } 
+
+    def getBookImage(self):
+        return getEncodedImage(self.cover)
+
 
     def __str__(self):
         return f"Book(id={self.id}, title={self.title}, description={self.description}, cover={self.cover})"
