@@ -61,10 +61,6 @@ public class Book {
                 '}';
     }
 
-//    public String toJson()
-//    {
-//        return  "{\"id\":"+ this.getId() +",\"title\":\""+this.getTitle()+"\",\"description\":\""+this.getDescription()+"\",\"cover\":\""+this.getCover()+"\"}";
-//    }
     public String toJson()
     {
         Gson gson = new Gson();

@@ -165,9 +165,6 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
-//                bookList.addAll(webConnector.getBooks(libraryId));
-//                sendMessageToHandler(null);
-//                Log.i("ENTREI: ", String.valueOf(this.libraryId));
                 isLoading = true;
                 handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
                 currentlyDisplayedBooks += webConnector.getBooks(this.libraryId, 0, NetworkUtils.hasUnmeteredConnection(getApplicationContext()));
@@ -252,24 +249,6 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
     });
 
 
-//    ActivityResultLauncher<Intent> registerNewBook = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-//            new ActivityResultCallback<ActivityResult>() {
-//                @Override
-//                public void onActivityResult(ActivityResult result) {
-//                    Log.d("RegisterBook", "Data = " + result.getResultCode());
-//                    Log.d("RegisterBook", "resultCode = " + result.getData());
-//                    if (result.getData() != null) {
-//                        if (result.getResultCode() == RESULT_OK) {
-//                            Log.d("RegisterBook", "AAAAAAAAAAAAAAA");
-//                            webConnector.registerBook(getBookFromResult(result.getData()));
-//                        }
-//                    } else {
-//                        Log.d("MensagensDebug", "Data is null");
-//                    }
-//                }
-//            });
-
-
     ActivityResultLauncher<ScanOptions> checkOutScanner = registerForActivityResult(new ScanContract(), result -> {
         if (result.getContents() != null)
         {
@@ -296,26 +275,6 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
             builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss()).show();
         }
     });
-
-
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        Log.d("RegisterBook", "requestCode = " + requestCode);
-//        Log.d("RegisterBook", "resultCode = " + resultCode);
-//        Log.d("RegisterBook", "Data = " + data);
-//        if ( data != null ) {
-//            if (requestCode == 1) {
-//                if (resultCode == RESULT_OK) {
-//                    Log.d("RegisterBook", "AAAAAAAAAAAAAAA");
-//                    webConnector.registerBook(getBookFromResult(data));
-//                }
-//            }
-//        }else
-//        {
-//            Log.d("MensagensDebug", "Data is null");
-//        }
-//    }
 
 
     private Book getBookFromResult(Intent data)

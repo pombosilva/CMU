@@ -98,7 +98,6 @@ public class CustomBookBaseAdapter extends BaseAdapter {
                                 msg.obj = i+":"+encodedBookCover;
 
                                 handler.sendMessage(msg);
-//                                bookCoverImgVw.setImageBitmap(encodedBookCover);
                             }
                     );
                 }

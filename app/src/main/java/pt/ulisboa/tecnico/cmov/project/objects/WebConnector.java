@@ -117,23 +117,6 @@ public class WebConnector {
         return gson.fromJson(jReader, Marker.class);
     }
 
-    /**public void getLibraryImage(int libraryId) {
-        String a = "a";
-        Message msg = new Message();
-        try {
-            JsonReader data = getData("/libraryExtras/1");
-            msg.obj = data.nextString();
-            data.close();
-            msg.what = 2;
-        } catch (IOException e)
-        {
-            msg.obj = "No Internet Connection";
-            msg.what = 1;
-        }
-//        handler.sendMessage(msg);
-//        return librayImage;
-    }*/
-
 
     private String getBookUrl(int libraryId, boolean hasUnmeteredConnection)
     {
@@ -264,7 +247,6 @@ public class WebConnector {
             throw new RuntimeException(e);
         }
     }
-
 
 
     public static Book getBook(String bookId) {

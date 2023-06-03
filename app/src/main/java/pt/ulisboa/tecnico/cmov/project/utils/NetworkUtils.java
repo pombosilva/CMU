@@ -12,7 +12,6 @@ public class NetworkUtils {
         if ( ctx == null )
             Log.d("NetworkUtils", "Context is null");
 
-
         final ConnectivityManager connMgr = (ConnectivityManager)
                 ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
         final android.net.NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);

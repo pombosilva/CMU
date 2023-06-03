@@ -71,19 +71,10 @@ public class CreateBookActivity extends AppCompatActivity {
                     int bookId = Integer.parseInt(getIntent().getExtras().getString("bookId"));
                     int libraryId = Integer.parseInt(getIntent().getExtras().getString("libraryId"));
 
-                    Log.d("RegisterBook", "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB");
                     Executor executor = Executors.newSingleThreadExecutor();
                     executor.execute(() -> {
-
-                        Log.d("RegisterBook", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-
                         registerBookToCloud(bookId, bookTitle, bookDescription, base64Picture, libraryId);
-
-                        Log.d("RegisterBook", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-
-
                         finish();
-
                         }
                     );
                 }
@@ -113,10 +104,7 @@ public class CreateBookActivity extends AppCompatActivity {
             assert data != null;
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
             imageView.setImageBitmap(bitmap);
-//            imageView.setImageBitmap(bitmap);
             base64Picture = ImageUtils.encodeBitmapToBase64(bitmap, Bitmap.CompressFormat.JPEG, 64);
-
-
         }
     }
 
