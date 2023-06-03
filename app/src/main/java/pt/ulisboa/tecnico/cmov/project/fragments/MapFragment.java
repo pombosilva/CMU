@@ -1,15 +1,18 @@
 package pt.ulisboa.tecnico.cmov.project.fragments;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +25,8 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -32,6 +37,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -46,6 +52,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private final WebConnector webConnector;
     private Marker searchMarker;
 
+    private ArrayList<Marker> markers = new ArrayList<Marker>();
+
     public MapFragment(WebConnector webConnector) {
         this.webConnector = webConnector;
     }
@@ -57,7 +65,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         this.webConnector.setHandler(this.handler);
 
@@ -116,6 +124,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    @SuppressLint("PotentialBehaviorOverride")
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
@@ -141,22 +150,72 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
 
         mMap.setInfoWindowAdapter(new CustomMarkerBaseAdapter(getActivity()));
-        mMap.setOnInfoWindowClickListener(marker -> {
-            Intent intent = new Intent(getActivity(), LibraryInfoActivity.class);
+        mMap.setOnInfoWindowClickListener(this::openLibraryInfo);
+        openLibraryIfNear();
+    }
 
-            String markerSnippet = marker.getSnippet();
-            assert markerSnippet != null;
-            int markerId = Integer.parseInt(markerSnippet.split(":")[0]);
+    public void openLibraryInfo(Marker marker){
+        Intent intent = new Intent(getActivity(), LibraryInfoActivity.class);
+        String markerSnippet = marker.getSnippet();
+        assert markerSnippet != null;
+        int markerId = Integer.parseInt(markerSnippet.split(":")[0]);
 
-            intent.putExtra("libraryId", markerId);
-            intent.putExtra("libraryName",marker.getTitle());
-            intent.putExtra("libraryLat", marker.getPosition().latitude);
-            intent.putExtra("libraryLng", marker.getPosition().longitude);
-            intent.putExtra("libraryEncodedImage", markerSnippet.split(":")[1]);
+        intent.putExtra("libraryId", markerId);
+        intent.putExtra("libraryName",marker.getTitle());
+        intent.putExtra("libraryLat", marker.getPosition().latitude);
+        intent.putExtra("libraryLng", marker.getPosition().longitude);
+        intent.putExtra("libraryEncodedImage", markerSnippet.split(":")[1]);
 
-            marker.hideInfoWindow();
-            startActivity(intent);
+        marker.hideInfoWindow();
+        startActivity(intent);
+    }
+
+    public void openLibraryIfNear() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            FusedLocationProviderClient fusedLocationClient =
+                    LocationServices.getFusedLocationProviderClient(requireContext());
+
+            if (ActivityCompat.checkSelfPermission(requireContext(),
+                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(requireContext(),
+                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+
+            fusedLocationClient.getLastLocation().
+                    addOnSuccessListener(requireActivity(), location -> {
+                        if (location != null) {
+                            Marker m = getMostCloserMarker(location);
+                            if (m != null) {
+                                openLibraryInfo(m);
+                            }
+                        }
+                    });
         });
+    }
+
+    public Marker getMostCloserMarker(Location currentLocation){
+        double tempDistance = -1;
+        Marker tempMarker = null;
+        for (Marker m: markers){
+            Location location = new Location("");
+            LatLng position = m.getPosition();
+            location.setLatitude(position.latitude);
+            location.setLongitude(position.longitude);
+            double distance = currentLocation.distanceTo(location);
+            Log.i("DISTANCE: ", String.valueOf(distance));
+            if (distance < 100){
+                if (tempMarker == null) {
+                    tempMarker = m;
+                    tempDistance = distance;
+                }
+                else if (distance < tempDistance){
+                    tempMarker = m;
+                    tempDistance = distance;
+                }
+            }
+        }
+        return tempMarker;
     }
 
     private void loadNormalMarker(pt.ulisboa.tecnico.cmov.project.objects.Marker marker) {
@@ -187,7 +246,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MARKER_MSG:
-                    mMap.addMarker((MarkerOptions)msg.obj);
+                    markers.add(mMap.addMarker((MarkerOptions) msg.obj));
                     return;
                 case NO_INTERNET:
                     Toast.makeText(requireActivity().getApplicationContext(),
