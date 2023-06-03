@@ -1,10 +1,11 @@
 package pt.ulisboa.tecnico.cmov.project.activities;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
@@ -14,12 +15,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -39,7 +36,6 @@ import java.util.concurrent.Executors;
 
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomBookBaseAdapter;
-import pt.ulisboa.tecnico.cmov.project.fragments.BooksFragment;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
@@ -56,6 +52,8 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
 
     private WebConnector webConnector;
 
+    private double libraryLat;
+    private double libraryLng;
 
     private ListView bookListView;
 
@@ -77,8 +75,6 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
                 .findFragmentById(R.id.library_map);
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
-
-        Context mContext = getApplicationContext();
 
         webConnector = new WebConnector(this.getApplicationContext());
 //        webConnector.startWebSocket();
@@ -107,8 +103,8 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
-        double libraryLat = getIntent().getDoubleExtra("libraryLat",49.621271);
-        double libraryLng = getIntent().getDoubleExtra("libraryLng", -86.942096);
+        libraryLat = getIntent().getDoubleExtra("libraryLat",49.621271);
+        libraryLng = getIntent().getDoubleExtra("libraryLng", -86.942096);
         LatLng coordinates = new LatLng(libraryLat, libraryLng);
 
         googleMap.addMarker(new MarkerOptions().position(coordinates));
@@ -203,6 +199,23 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
             WebConnector.setFavouriteLibrary(libraryId);
             Toast.makeText(getApplicationContext(), "Clicked favourite button", Toast.LENGTH_SHORT).show();
         });
+
+        Button navigateButton = findViewById(R.id.navigate_btn);
+        navigateButton.setOnClickListener(v -> {
+            getDirections();
+            Toast.makeText(getApplicationContext(), "Clicked navigate button", Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void getDirections(){
+        String uri = "http://maps.google.com/maps?daddr=" + libraryLat + "," + libraryLng;
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+        intent.setPackage("com.google.android.apps.maps");
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Google Maps not installed", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void scanBarcode(int mode) {
@@ -320,7 +333,7 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
     private static final int DISABLE_LOADING_FOOTER = 7;
 
     @SuppressLint("HandlerLeak")
-    private final Handler handler = new Handler(){
+    private final Handler handler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {

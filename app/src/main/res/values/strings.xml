@@ -15,4 +15,5 @@
     <string name="add_to_favourites">Favourite</string>
     <string name="check_out_book">Check-out</string>
     <string name="check_in_book">Check-in</string>
+    <string name="navigate">Navigate</string>
 </resources>

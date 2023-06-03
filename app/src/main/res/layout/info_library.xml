@@ -70,10 +70,21 @@
             android:textColor="#8D6E63" />
     </LinearLayout>
 
+    <Button
+        android:id="@+id/navigate_btn"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:lines="1"
+        android:text="@string/navigate"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"
+        android:textColor="#8D6E63" />
+
     <ListView
         android:id="@+id/library_bookListView"
         android:layout_width="match_parent"
-        android:layout_height="230dp"
+        android:layout_height="130dp"
         android:clickable="true"
         android:focusable="true"
         android:dividerHeight="3dp"
