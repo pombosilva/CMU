@@ -5,10 +5,16 @@
     android:layout_height="match_parent"
     tools:context=".fragments.UserFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+    <Button
+        android:id="@+id/change_language"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginEnd="2sp"
+        android:lines="1"
+        android:text="@string/change_language"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"
+        android:textColor="#8D6E63" />
 
 </FrameLayout>

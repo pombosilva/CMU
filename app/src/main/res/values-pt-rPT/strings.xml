@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="search_for_a_library">Procurar biblioteca</string>
+    <string name="search">Procurar</string>
+    <string name="books">Livros</string>
+    <string name="map">Mapa</string>
+    <string name="user">Utilizador</string>
+    <string name="search_for_a_book">Procurar livro</string>
+    <string name="library_description">Descrição da biblioteca</string>
+    <string name="add_to_favourites">Favorito</string>
+    <string name="navigate">Navegar</string>
+    <string name="change_language">Mudar lingua</string>
+    <string name="take_picture">Tirar Fotografia</string>
+    <string name="save_book">Salvar Livro</string>
+    <string name="name">Nome</string>
+</resources>
