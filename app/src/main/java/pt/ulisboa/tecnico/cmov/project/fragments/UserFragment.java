@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
 import java.util.Locale;
@@ -32,6 +33,9 @@ public class UserFragment extends Fragment {
         Button languageButton = rootView.findViewById(R.id.change_language);
         languageButton.setOnClickListener(this::changeLanguage);
 
+        Button themeButton = rootView.findViewById(R.id.change_theme);
+        themeButton.setOnClickListener(this::changeTheme);
+
         return rootView;
     }
 
@@ -48,5 +52,12 @@ public class UserFragment extends Fragment {
         getResources().updateConfiguration(config, getResources().getDisplayMetrics());
 
         requireActivity().recreate();
+    }
+
+    public void changeTheme(View view){
+        if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_NO)
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        else
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
     }
 }

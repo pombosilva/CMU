@@ -13,4 +13,5 @@
     <string name="take_picture">Tirar Fotografia</string>
     <string name="save_book">Salvar Livro</string>
     <string name="name">Nome</string>
+    <string name="change_theme">Mudar Tema</string>
 </resources>

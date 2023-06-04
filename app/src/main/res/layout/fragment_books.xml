@@ -44,8 +44,6 @@
         android:id="@+id/bookListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:divider="@android:color/darker_gray"
-        android:dividerHeight="1dp"
-        android:background="#FFFFFF"  />
+        android:dividerHeight="1dp" />
 
 </LinearLayout>
