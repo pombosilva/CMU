@@ -165,11 +165,11 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
                 isLoading = true;
                 handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
                 if (NetworkUtils.hasUnmeteredConnection(getApplicationContext())){
-                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS,this.libraryId, 0, "");
+                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS,this.libraryId, 0, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
                 }
                 else
                 {
-                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE,this.libraryId, 0, "");
+                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE,this.libraryId, 0, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
                 }
                 handler.sendEmptyMessage(DISABLE_LOADING_FOOTER);
             } catch (Exception e) {
@@ -389,11 +389,11 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
             handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
             try {
                 if (NetworkUtils.hasUnmeteredConnection(getApplicationContext())){
-                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS,libraryId, currentlyDisplayedBooks, "");
+                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS,libraryId, currentlyDisplayedBooks, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
                 }
                 else
                 {
-                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE,libraryId, currentlyDisplayedBooks, "");
+                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE,libraryId, currentlyDisplayedBooks, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);

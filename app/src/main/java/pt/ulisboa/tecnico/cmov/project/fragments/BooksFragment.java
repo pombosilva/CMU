@@ -40,6 +40,7 @@ public class BooksFragment extends Fragment {
     private CustomBookBaseAdapter bookListCustomBaseAdapter;
     private final WebConnector webConnector;
 
+    private boolean isFiltered = false;
     private int numberOfDisplayedBooks =0;
 
     public BooksFragment(WebConnector webConnector) {
@@ -97,11 +98,11 @@ public class BooksFragment extends Fragment {
                 isLoading = true;
                 handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
                 if (NetworkUtils.hasUnmeteredConnection(this.getContext())){
-                    numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS,-1, 0, "");
+                    numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS,-1, 0, "", UPDATE_BOOK_LIST, NO_INTERNET);
                 }
                 else
                 {
-                    numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE,-1, 0, "");
+                    numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE,-1, 0, "", UPDATE_BOOK_LIST, NO_INTERNET);
                 }
                 handler.sendEmptyMessage(DISABLE_LOADING_FOOTER);
             } catch (IOException e) {
@@ -127,24 +128,38 @@ public class BooksFragment extends Fragment {
     public void searchBook(View view) {
         String searchText = ((EditText) requireView().findViewById(R.id.searchBookText)).getText().toString().toLowerCase();
 
-        Log.d("SearchBook", "Lista displayed -> " + displayedBooks.toString());
-        Log.d("SearchBook", "Lista all -> " + allBooks.toString());
+//        Log.d("SearchBook", "Lista displayed -> " + displayedBooks.toString());
+//        Log.d("SearchBook", "Lista all -> " + allBooks.toString());
 
 
+        displayedBooks.clear();
         if ( searchText.equals("") )
         {
-            displayedBooks.clear();
             displayedBooks.addAll(allBooks);
             numberOfDisplayedBooks = allBooks.size();
+            isFiltered = false;
         }
         else
         {
-            displayedBooks.removeIf(book -> !book.getTitle().toLowerCase().contains(searchText));
-            numberOfDisplayedBooks = displayedBooks.size();
+//            displayedBooks.removeIf(book -> !book.getTitle().toLowerCase().contains(searchText));
+//            numberOfDisplayedBooks = displayedBooks.size();
+            isFiltered = true;
+//            numberOfDisplayedBooks = 0;
+            Executor executor = Executors.newSingleThreadExecutor();
+            executor.execute(() -> {
+                try {
+                    isLoading = true;
+                    handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
+                    webConnector.getBooks(DomainConstants.FILTERED_BOOKS,-1, numberOfDisplayedBooks, searchText, FILTERED_BOOK_LIST_UPDATE, NO_INTERNET);
+                    handler.sendEmptyMessage(DISABLE_LOADING_FOOTER);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         }
 
-        Log.d("SearchBook", "Lista displayed -> " + displayedBooks.toString());
-        Log.d("SearchBook", "Lista all -> " + allBooks.toString());
+//        Log.d("SearchBook", "Lista displayed -> " + displayedBooks.toString());
+//        Log.d("SearchBook", "Lista all -> " + allBooks.toString());
 
         bookListCustomBaseAdapter.notifyDataSetChanged();
 
@@ -172,6 +187,8 @@ public class BooksFragment extends Fragment {
 
     public static final int UPDATE_BOOK_COVER = 5;
 
+    public static final int FILTERED_BOOK_LIST_UPDATE = 6;
+
 
     private final Handler handler = new Handler(Looper.getMainLooper()){
         @Override
@@ -188,6 +205,10 @@ public class BooksFragment extends Fragment {
                 case DISABLE_LOADING_FOOTER:
                     isLoading = false;
                     bookListView.removeFooterView(ftView);
+                    break;
+                case FILTERED_BOOK_LIST_UPDATE:
+                    displayedBooks.add((Book) msg.obj);
+                    bookListCustomBaseAdapter.notifyDataSetChanged();
                     break;
                 case UPDATE_BOOK_COVER:
                     String[] objs = ((String) msg.obj).split(":");
@@ -211,12 +232,12 @@ public class BooksFragment extends Fragment {
         {
             handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
             try {
-                if (NetworkUtils.hasUnmeteredConnection(getContext())){
-                    numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS,-1, numberOfDisplayedBooks, "");
-                }
-                else
-                {
-                    numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE,-1, numberOfDisplayedBooks, "");
+                if (!isFiltered) {
+                    if (NetworkUtils.hasUnmeteredConnection(getContext())) {
+                        numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS, -1, numberOfDisplayedBooks, "", UPDATE_BOOK_LIST, NO_INTERNET);
+                    } else {
+                        numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE, -1, numberOfDisplayedBooks, "", UPDATE_BOOK_LIST, NO_INTERNET);
+                    }
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);

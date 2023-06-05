@@ -281,21 +281,23 @@ def registerBook(libraryId):
     return jsonify(True)
 
 
-@app.route('/filteredBooks', methods=['PUT'])
-def registerBook():
-
-    start_id = int(request.args.get("startId", 0))
-    filtr= str(request.args.get("filtr", ""))
+@app.route('/filteredBooks', methods=['GET'])
+def filteredBooks():
+    start_id = int(request.args.get("start_id",0))
+    filtr = str(request.args.get("filter",""))
 
     global books
 
-    # for b in books:
-    #     if filtr.lower in b.title.lower:
-    #         selected_books.append(b)
+    selected_books = [b for b in books if filtr.lower() in b.title.lower()]
+    
+    # for b in selected_books:
+    #     print(b.getBookWithoutImage())
+    # print(str(selected_books))
 
     # selected_books = selected_books[start_id:start_id+toLoad]
-    
-    selected_books = [b for b in books if filtr.lower() in b.title.lower()][start_id:start_id+toLoad]
+    # for b in selected_books:
+    #     print(b.getBookWithoutImage())
+    # print(str(selected_books))
     
     return jsonify([book.getBookInfo() for book in selected_books])
 

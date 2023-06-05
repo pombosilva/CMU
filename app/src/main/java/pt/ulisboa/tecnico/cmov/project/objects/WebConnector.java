@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.cmov.project.objects;
 
 import android.content.Context;
+import android.icu.text.LocaleDisplayNames;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -119,10 +120,11 @@ public class WebConnector {
         return gson.fromJson(jReader, Marker.class);
     }
 
-    public int getBooks(String domain, int libraryId, int startId, String filter) throws IOException {
+    public int getBooks(String domain, int libraryId, int startId, String filter, int successMessageType, int unsuccessfulMessageType) throws IOException {
         int numberDownloadedBooks = 0;
         try {
             JsonReader jsonReader;
+            Log.d("SearchBook", "Search Text = " + filter);
             String queryParameters = "?libraryId="+libraryId+"&startId="+startId+"&filter="+filter;
 
             String url = domain + queryParameters;
@@ -135,14 +137,14 @@ public class WebConnector {
             while (jsonReader.hasNext()) {
                 numberDownloadedBooks++;
                 Message msg = new Message();
-                msg.what = 2;
+                msg.what = successMessageType;
                 msg.obj = extractBook(jsonReader);
                 handler.sendMessage(msg);
             }
         }catch(Exception e){
             Message msg = new Message();
             msg.obj = "No Internet Connection";
-            msg.what = 1;
+            msg.what = unsuccessfulMessageType;
             handler.sendMessage(msg);
         }
         return numberDownloadedBooks;
