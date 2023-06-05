@@ -267,31 +267,42 @@ def checkBookOut():
 @app.route('/registerBook/<string:libraryId>', methods=['PUT'])
 def registerBook(libraryId):
 
-
-    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-
-
     data = json.loads(request.data)
     bookId = data['id']
     bookTitle = data['title']
     bookDescription = data['description']
     bookCover = data['cover']
 
-    # print("Data = " + str(request.data))
-    # print("Data jsoned = " + str(data))
-
-    # print("BookdId = "  + str(bookId))   
-    # print("BookTitle = "  + str(bookTitle))   
-    # print("BookDescription = "  + str(bookDescription))   
     global books, libraries
-    # print(str(libraries[libraryId].registered_books))
-    
     newBook = BK.Book(bookId, bookTitle, bookDescription, createFile(bookCover, "BookPics/"+str(bookId)+".txt"))
 
     libraries[int(libraryId)].addBook(newBook)
     books.append(newBook)
-    # print(str(libraries[libraryId].registered_books))
     return jsonify(True)
+
+
+@app.route('/filteredBooks', methods=['PUT'])
+def registerBook():
+
+    start_id = int(request.args.get("startId", 0))
+    filtr= str(request.args.get("filtr", ""))
+
+    global books
+
+    # for b in books:
+    #     if filtr.lower in b.title.lower:
+    #         selected_books.append(b)
+
+    # selected_books = selected_books[start_id:start_id+toLoad]
+    
+    selected_books = [b for b in books if filtr.lower() in b.title.lower()][start_id:start_id+toLoad]
+    
+    return jsonify([book.getBookInfo() for book in selected_books])
+
+
+
+
+
 
 
 @sockets.route('/ws')

@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import pt.ulisboa.tecnico.cmov.project.Constants.DomainConstants;
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomBookBaseAdapter;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
@@ -163,7 +164,13 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
             try {
                 isLoading = true;
                 handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
-                currentlyDisplayedBooks += webConnector.getBooks(this.libraryId, 0, NetworkUtils.hasUnmeteredConnection(getApplicationContext()));
+                if (NetworkUtils.hasUnmeteredConnection(getApplicationContext())){
+                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS,this.libraryId, 0, "");
+                }
+                else
+                {
+                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE,this.libraryId, 0, "");
+                }
                 handler.sendEmptyMessage(DISABLE_LOADING_FOOTER);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -381,7 +388,13 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
         {
             handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
             try {
-                currentlyDisplayedBooks += webConnector.getBooks(libraryId, currentlyDisplayedBooks, NetworkUtils.hasUnmeteredConnection(getApplicationContext()));
+                if (NetworkUtils.hasUnmeteredConnection(getApplicationContext())){
+                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS,libraryId, currentlyDisplayedBooks, "");
+                }
+                else
+                {
+                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE,libraryId, currentlyDisplayedBooks, "");
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

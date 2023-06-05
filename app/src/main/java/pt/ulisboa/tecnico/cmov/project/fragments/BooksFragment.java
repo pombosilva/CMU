@@ -2,7 +2,6 @@ package pt.ulisboa.tecnico.cmov.project.fragments;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,22 +24,23 @@ import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import pt.ulisboa.tecnico.cmov.project.Constants.DomainConstants;
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.activities.BookInfoActivity;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomBookBaseAdapter;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
-import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
 import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
 
 public class BooksFragment extends Fragment {
-    private final ArrayList<Book> bookList = new ArrayList<>();
-    private final ArrayList<Book> tempBookList = new ArrayList<>();
+
+    private ArrayList<Book> allBooks= new ArrayList<>();
+    private ArrayList<Book> displayedBooks = new ArrayList<>();
     private ListView bookListView;
     private CustomBookBaseAdapter bookListCustomBaseAdapter;
     private final WebConnector webConnector;
 
-    private int currentlyDisplayedBooks=0;
+    private int numberOfDisplayedBooks =0;
 
     public BooksFragment(WebConnector webConnector) {
         this.webConnector = webConnector;
@@ -68,7 +68,7 @@ public class BooksFragment extends Fragment {
 
         bookListView = rootView.findViewById(R.id.bookListView);
 
-        bookListCustomBaseAdapter = new CustomBookBaseAdapter(getContext(), bookList);
+        bookListCustomBaseAdapter = new CustomBookBaseAdapter(getContext(), displayedBooks);
         bookListCustomBaseAdapter.setHandler(this.handler);
         bookListView.setAdapter(bookListCustomBaseAdapter);
 
@@ -77,7 +77,7 @@ public class BooksFragment extends Fragment {
         bookListView.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
-                if ( !isLoading && view.getLastVisiblePosition() == currentlyDisplayedBooks - 1 && currentlyDisplayedBooks!=0)
+                if ( !isLoading && view.getLastVisiblePosition() == numberOfDisplayedBooks - 1 && numberOfDisplayedBooks !=0)
                 {
                     isLoading = true;
                     Log.d("BooksFragment", "Vou correr a thread");
@@ -96,7 +96,13 @@ public class BooksFragment extends Fragment {
             try {
                 isLoading = true;
                 handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
-                currentlyDisplayedBooks += webConnector.getBooks(-1, 0, NetworkUtils.hasUnmeteredConnection(this.getContext()));
+                if (NetworkUtils.hasUnmeteredConnection(this.getContext())){
+                    numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS,-1, 0, "");
+                }
+                else
+                {
+                    numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE,-1, 0, "");
+                }
                 handler.sendEmptyMessage(DISABLE_LOADING_FOOTER);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -105,9 +111,9 @@ public class BooksFragment extends Fragment {
 
         bookListView.setOnItemClickListener((parent, view, position, id) -> {
             Intent intent = new Intent(getActivity(), BookInfoActivity.class);
-            intent.putExtra("bookTitle", bookList.get(position).getTitle());
-            intent.putExtra("bookCover", bookList.get(position).getCover());
-            intent.putExtra("bookBarcode", bookList.get(position).getId());
+            intent.putExtra("bookTitle", displayedBooks.get(position).getTitle());
+            intent.putExtra("bookCover", displayedBooks.get(position).getCover());
+            intent.putExtra("bookBarcode", displayedBooks.get(position).getId());
             startActivity(intent);
         });
 
@@ -119,17 +125,29 @@ public class BooksFragment extends Fragment {
     }
 
     public void searchBook(View view) {
-        tempBookList.clear();
-        EditText searchText = requireView().findViewById(R.id.searchBookText);
-        CustomBookBaseAdapter adapter = new CustomBookBaseAdapter(bookListView.getContext(), tempBookList);
-        bookListView.setAdapter(adapter);
+        String searchText = ((EditText) requireView().findViewById(R.id.searchBookText)).getText().toString().toLowerCase();
 
-        for (Book b: bookList) {
-            if (b.getTitle().contains(searchText.getText().toString())) {
-                tempBookList.add(b);
-                adapter.notifyDataSetChanged();
-            }
+        Log.d("SearchBook", "Lista displayed -> " + displayedBooks.toString());
+        Log.d("SearchBook", "Lista all -> " + allBooks.toString());
+
+
+        if ( searchText.equals("") )
+        {
+            displayedBooks.clear();
+            displayedBooks.addAll(allBooks);
+            numberOfDisplayedBooks = allBooks.size();
         }
+        else
+        {
+            displayedBooks.removeIf(book -> !book.getTitle().toLowerCase().contains(searchText));
+            numberOfDisplayedBooks = displayedBooks.size();
+        }
+
+        Log.d("SearchBook", "Lista displayed -> " + displayedBooks.toString());
+        Log.d("SearchBook", "Lista all -> " + allBooks.toString());
+
+        bookListCustomBaseAdapter.notifyDataSetChanged();
+
 
         closeKeyboard(view);
     }
@@ -160,7 +178,8 @@ public class BooksFragment extends Fragment {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case UPDATE_BOOK_LIST:
-                    bookList.add((Book) msg.obj);
+                    displayedBooks.add((Book) msg.obj);
+                    allBooks.add((Book) msg.obj);
                     bookListCustomBaseAdapter.notifyDataSetChanged();
                     return;
                 case ENABLE_LOADING_FOOTER:
@@ -174,7 +193,7 @@ public class BooksFragment extends Fragment {
                     String[] objs = ((String) msg.obj).split(":");
                     int bookId = Integer.parseInt(objs[0]);
                     String encodedImage = objs[1];
-                    bookList.get(bookId).setCover(encodedImage);
+                    displayedBooks.get(bookId).setCover(encodedImage);
                     Log.d("ImageDownloads", "Vou dar update ha imagem");
                     bookListCustomBaseAdapter.notifyDataSetChanged();
                     break;
@@ -192,7 +211,13 @@ public class BooksFragment extends Fragment {
         {
             handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
             try {
-                currentlyDisplayedBooks += webConnector.getBooks(-1, currentlyDisplayedBooks, NetworkUtils.hasUnmeteredConnection(getContext()));
+                if (NetworkUtils.hasUnmeteredConnection(getContext())){
+                    numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS,-1, numberOfDisplayedBooks, "");
+                }
+                else
+                {
+                    numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE,-1, numberOfDisplayedBooks, "");
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

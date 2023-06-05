@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import pt.ulisboa.tecnico.cmov.project.Constants.DomainConstants;
+
 public class WebConnector {
 
     private static final String endpoint = "http://192.92.147.96:5000";
@@ -95,7 +97,7 @@ public class WebConnector {
 
     public void getMarkers() throws IOException {
         try {
-            JsonReader data = getData("/markers");
+            JsonReader data = getData(DomainConstants.MARKERS);
             data.beginArray();
             while (data.hasNext()) {
                 Message msg = new Message();
@@ -117,40 +119,16 @@ public class WebConnector {
         return gson.fromJson(jReader, Marker.class);
     }
 
-
-    private String getBookUrl(int libraryId, boolean hasUnmeteredConnection)
-    {
-        String booksUrl = "/libraryBooksWithoutImage";
-
-        if ( hasUnmeteredConnection )
-        {
-            booksUrl = "/libraryBooks";
-        }
-
-        if ( libraryId == -1 )
-        {
-            booksUrl = "/booksWithoutImage";
-
-            if ( hasUnmeteredConnection )
-            {
-                booksUrl = "/books";
-            }
-
-        }
-//        Log.d("ImageDownloads", "Vou usar a url: " + booksUrl);
-        return booksUrl;
-    }
-
-    public int getBooks(int libraryId, int startId, boolean hasUnmeteredConnection) throws IOException {
+    public int getBooks(String domain, int libraryId, int startId, String filter) throws IOException {
         int numberDownloadedBooks = 0;
         try {
             JsonReader jsonReader;
-            String queryParameters = "?libraryId="+libraryId+"&startId="+startId;
+            String queryParameters = "?libraryId="+libraryId+"&startId="+startId+"&filter="+filter;
 
-            String url = getBookUrl(libraryId, hasUnmeteredConnection) + queryParameters;
-            Log.d("ImageDownloads", "Cheguei aqui com a url = " + url);
+            String url = domain + queryParameters;
+//            Log.d("ImageDownloads", "Cheguei aqui com a url = " + url);
             jsonReader = getData(url);
-            Log.d("ImageDownloads", "Passei para aqui");
+//            Log.d("ImageDownloads", "Passei para aqui");
 
             jsonReader.setLenient(true);
             jsonReader.beginArray();
@@ -180,7 +158,7 @@ public class WebConnector {
 
     public void getLibrariesThatContainBook(int bookBarcode) {
         try {
-            String query = "/bookInLibrary?bookId=" + bookBarcode;
+            String query = DomainConstants.BOOK_IN_LIBRARY+"?bookId=" + bookBarcode;
             JsonReader jsonReader = getData(query);
 
             jsonReader.setLenient(true);
@@ -203,7 +181,7 @@ public class WebConnector {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {
-                putData("/favMarker",libraryId);
+                putData(DomainConstants.FAV_MARKER,libraryId);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -212,7 +190,7 @@ public class WebConnector {
 
     public static boolean bookExists(String bookId) {
         try {
-            String query = "/bookExistence?bookId=" + bookId;
+            String query = DomainConstants.HAS_BOOK+"?bookId=" + bookId;
             return getData(query).nextBoolean();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -224,7 +202,7 @@ public class WebConnector {
     public static void checkInBook(int libraryId, String bookId) {
         try {
             String data = "{\"libraryId\":"+ libraryId +",\"bookId\":"+bookId+"}";
-            putData("/checkBookIn", data);
+            putData(DomainConstants.CHECK_BOOK_IN, data);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -233,7 +211,7 @@ public class WebConnector {
     public static void checkOutBook(int libraryId, String bookId) {
         try {
             String data = "{\"libraryId\":"+ libraryId +",\"bookId\":"+bookId+"}";
-            putData("/checkBookOut", data);
+            putData(DomainConstants.CHECK_BOOK_OUT, data);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -242,7 +220,7 @@ public class WebConnector {
     public static void registerBook(Book newBook, int libraryId) {
         try {
             Log.d("RegisterBook", "Vou registar um livro na livraria " + libraryId);
-            putData("/registerBook/"+libraryId, newBook.toJson());
+            putData(DomainConstants.REGISTER_BOOK + "/" +libraryId, newBook.toJson());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -251,7 +229,7 @@ public class WebConnector {
 
     public static Book getBook(String bookId) {
         try {
-            String query = "/getBook?bookId=" + bookId;
+            String query = DomainConstants.GET_BOOK + "?bookId=" + bookId;
             return extractBook(getData(query));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -260,11 +238,10 @@ public class WebConnector {
 
     public static String getBookCover(int bookId) {
         try {
-            return getData("/bookCover/" + bookId).nextString();
+            return getData(DomainConstants.GET_BOOK_COVER + "/" + bookId).nextString();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
 
 }
