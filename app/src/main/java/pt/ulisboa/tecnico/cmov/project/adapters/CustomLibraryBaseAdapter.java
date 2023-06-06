@@ -48,6 +48,8 @@ public class CustomLibraryBaseAdapter extends BaseAdapter {
         convertView = inflater.inflate(R.layout.info_library_list_view, null);
         TextView textView = convertView.findViewById(R.id.libraryTitle);
         textView.setText(list.get(i).getName());
+        TextView distance = convertView.findViewById(R.id.libraryDistance);
+        distance.setText(String.valueOf(list.get(i).getDistance()));
         return convertView;
     }
 }

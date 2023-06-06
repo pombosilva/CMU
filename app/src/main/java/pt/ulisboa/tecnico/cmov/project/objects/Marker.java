@@ -7,6 +7,7 @@ public class Marker {
     private final double lat;
     private final double lng;
     private final boolean fav;
+    private String distance;
 
     public Marker(int id, String name, double lat, double lng, boolean fav) {
         this.id = id;
@@ -35,4 +36,8 @@ public class Marker {
     public boolean isFav() {
         return fav;
     }
+
+    public String getDistance(){return distance;}
+
+    public void setDistance(String distance){this.distance = distance;}
 }
