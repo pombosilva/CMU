@@ -1,7 +1,6 @@
 package pt.ulisboa.tecnico.cmov.project.activities;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -22,9 +21,10 @@ import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -123,23 +123,36 @@ public class BookInfoActivity extends AppCompatActivity {
     }
 
     public void getLibrariesDistances() {
-        FusedLocationProviderClient location = LocationServices.
+        FusedLocationProviderClient locationProvider = LocationServices.
                 getFusedLocationProviderClient(getApplicationContext());
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        location.getLastLocation().
-                addOnSuccessListener(this, location1 -> {
-                    if (location1 != null){
+        locationProvider.getLastLocation().
+                addOnSuccessListener(this, currentLocation -> {
+                    if (currentLocation != null){
                         for(Marker m: libraryList) {
                             Location library = new Location("library");
                             library.setLongitude(m.getLng());
                             library.setLatitude(m.getLat());
-                            String distance = (int) location1.distanceTo(library) / 1000 + "km";
-                            sendMessageToHandler(3, distance);
+                            String distance = (int) currentLocation.distanceTo(library) / 1000 + "km";
+                            m.setDistance(distance);
+                            sendMessageToHandler(3, null);
                         }
+                        reorderLibrariesBasedOnDistance();
                     }
                 });
+    }
+
+    public void reorderLibrariesBasedOnDistance(){
+        libraryList.sort((m1, m2) -> {
+            if(m1.getDistance() != null && m2.getDistance() != null) {
+                int d1 = Integer.parseInt(m1.getDistance().split("km")[0]);
+                int d2 = Integer.parseInt(m2.getDistance().split("km")[0]);
+                return Integer.compare(d1, d2);
+            }
+            return 0;
+        });
     }
 
     public void sendMessageToHandler(int what, Object obj){
@@ -151,23 +164,17 @@ public class BookInfoActivity extends AppCompatActivity {
 
     private static final int NO_INTERNET = 1;
     private static final int ADD_LIBRARY_TO_LIST = 2;
-    private static final int ADD_DISTANCE_TO_LIBRARY = 3;
+    private static final int NOTIFY_CHANGES = 3;
 
     private final Handler handler = new Handler(Looper.getMainLooper()){
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case ADD_DISTANCE_TO_LIBRARY:
-                    for(Marker m: libraryList) {
-                        if (m.getDistance() == null) {
-                            m.setDistance((String) msg.obj);
-                            break;
-                        }
-                    }
-                    libraryListCustomBaseAdapter.notifyDataSetChanged();
-                    return;
                 case ADD_LIBRARY_TO_LIST:
                     libraryList.add((Marker) msg.obj);
+                    libraryListCustomBaseAdapter.notifyDataSetChanged();
+                    return;
+                case NOTIFY_CHANGES:
                     libraryListCustomBaseAdapter.notifyDataSetChanged();
                     return;
                 case NO_INTERNET:

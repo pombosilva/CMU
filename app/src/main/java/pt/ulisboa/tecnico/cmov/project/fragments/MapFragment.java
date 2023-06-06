@@ -203,7 +203,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             location.setLatitude(position.latitude);
             location.setLongitude(position.longitude);
             double distance = currentLocation.distanceTo(location);
-            Log.i("DISTANCE: ", String.valueOf(distance));
+            // Log.i("DISTANCE: ", String.valueOf(distance));
             if (distance < 100){
                 if (tempMarker == null) {
                     tempMarker = m;
