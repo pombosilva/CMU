@@ -13,25 +13,25 @@ import book as BK
 
 toLoad = 5
 
-books = [BK.Book(1234567, "Biblia II", "palavra de deus", "BookPics/bible.txt"),
-         BK.Book(123457, "Biblia II", "palavra de deus", "BookPics/bible.txt"),
-         BK.Book(1234, "Harry Spotter", "feiticos", "BookPics/harry.txt"),
-         BK.Book(1134, "Harry Spotter", "feiticos", "BookPics/harry.txt"),
-         BK.Book(75420, "Gains of Thrones", "feiticos", "BookPics/gow.txt"),
-         BK.Book(7542, "Gains of Thrones", "feiticos", "BookPics/gow.txt"),
-         BK.Book(98, "Ben 10", "bue fixe", 'BookPics/ben.txt'),
-         BK.Book(8, "Ben 10", "bue fixe", 'BookPics/ben.txt'),
-         BK.Book(43292, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
-         BK.Book(4392, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
-         BK.Book(592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
-         BK.Book(4352, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
-         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
-         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
-         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
-         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
-         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt"),
-         BK.Book(1232678, "Manual de portugues 8ano", "Camoes glorioso", "BookPics/manual.txt"),
-         BK.Book(125678, "Manual de portugues 8ano", "Camoes glorioso", "BookPics/manual.txt")]
+books = [BK.Book(1234567, "Biblia II", "palavra de deus", "BookPics/bible.txt", False),
+         BK.Book(123457, "Biblia II", "palavra de deus", "BookPics/bible.txt", False),
+         BK.Book(1234, "Harry Spotter", "feiticos", "BookPics/harry.txt", False),
+         BK.Book(1134, "Harry Spotter", "feiticos", "BookPics/harry.txt", False),
+         BK.Book(75420, "Gains of Thrones", "feiticos", "BookPics/gow.txt", False),
+         BK.Book(7542, "Gains of Thrones", "feiticos", "BookPics/gow.txt", False),
+         BK.Book(98, "Ben 10", "bue fixe", 'BookPics/ben.txt', False),
+         BK.Book(8, "Ben 10", "bue fixe", 'BookPics/ben.txt', False),
+         BK.Book(43292, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
+         BK.Book(4392, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
+         BK.Book(592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
+         BK.Book(4352, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
+         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
+         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
+         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
+         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
+         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
+         BK.Book(1232678, "Manual de portugues 8ano", "Camoes glorioso", "BookPics/manual.txt", False),
+         BK.Book(125678, "Manual de portugues 8ano", "Camoes glorioso", "BookPics/manual.txt", False)]
 
 libraries = [LB.Library(0, "Lisbon", 38.713912, -9.133397, False, 'LibraryPics/madrid.txt'),
              LB.Library(1, "Madrid", 40.416891, -3.703739, False, 'LibraryPics/madrid.txt'),
@@ -75,6 +75,12 @@ def updateFavLibrary(library_id):
     for lib in libraries:
         if lib.id == library_id:
             lib.fav = not lib.fav
+
+def updateFavBook(book_id):
+    global books
+    for book in books:
+        if book.id == book_id:
+            book.fav = not book.fav
 
 
 def createFile(content, book_file_name):
@@ -191,6 +197,13 @@ def favMarker():
     global libraries
     data = json.loads(request.data)
     updateFavLibrary(data)
+    return "True"
+
+@app.route('/favBook', methods=['PUT'])
+def favBook():
+    global books
+    data = json.loads(request.data)
+    updateFavBook(data)
     return "True"
 
 

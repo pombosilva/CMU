@@ -11,15 +11,17 @@ public class Book {
     private String title;
     private String description;
     private String cover;
+    private final boolean fav;
 
 
     public static final int unloadedBookCover = R.drawable.unloaded_book;
 
-    public Book(int id, String title, String description, String cover) {
+    public Book(int id, String title, String description, String cover, boolean fav) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.cover = cover;
+        this.fav = fav;
     }
 
     public int getId() {
@@ -48,6 +50,10 @@ public class Book {
 
     public void setCover(String cover) {
         this.cover = cover;
+    }
+
+    public boolean isFav() {
+        return fav;
     }
 
 

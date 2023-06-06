@@ -309,7 +309,7 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
             String bookDescription = bundle.getString("bookDescription");
             String base64bookCover = bundle.getString("bookEncodedImage");
 
-            newBook = new Book(bookId, bookTitle, bookDescription, base64bookCover);
+            newBook = new Book(bookId, bookTitle, bookDescription, base64bookCover, false);
         }
         else
         {

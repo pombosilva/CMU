@@ -4,23 +4,24 @@ def getEncodedImage(image_file):
 
 
 class Book:
-    def __init__(self, id, title, description, cover):
+    def __init__(self, id, title, description, cover, fav):
         self.id = id # id e o barcode
         self.title = title
         self.description = description
         self.cover = cover
+        self.fav = fav
 
     def getBookInfo(self):
-        return {'id': self.id, 'title': self.title, 'description': self.description, 'cover': getEncodedImage(self.cover)}
+        return {'id': self.id, 'title': self.title, 'description': self.description, 'cover': getEncodedImage(self.cover), 'fav': self.fav}
 
 
     def getBookWithoutImage(self):
-        return { 'id': self.id, 'title': self.title, 'description': self.description, 'cover': None } 
+        return {'id': self.id, 'title': self.title, 'description': self.description, 'cover': None , 'fav': self.fav}
 
     def getBookImage(self):
         return getEncodedImage(self.cover)
 
 
     def __str__(self):
-        return f"Book(id={self.id}, title={self.title}, description={self.description}, cover={self.cover})"
+        return f"Book(id={self.id}, title={self.title}, description={self.description}, cover={self.cover}, fav={self.fav})"
     

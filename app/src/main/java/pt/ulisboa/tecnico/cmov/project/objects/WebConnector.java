@@ -190,6 +190,17 @@ public class WebConnector {
         });
     }
 
+    public static void setFavouriteBook(int bookId) {
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.execute(() -> {
+            try {
+                putData(DomainConstants.FAV_BOOK,bookId);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
     public static boolean bookExists(String bookId) {
         try {
             String query = DomainConstants.HAS_BOOK+"?bookId=" + bookId;

@@ -117,8 +117,8 @@ public class BookInfoActivity extends AppCompatActivity {
     private void configureButtons() {
         Button notificationsButton = findViewById(R.id.buttonFav);
         notificationsButton.setOnClickListener(v -> {
+            WebConnector.setFavouriteBook(bookBarcode);
             Toast.makeText(getApplicationContext(), "Added to favourites", Toast.LENGTH_LONG).show();
-            // TODO: Adicionar aos favoritos
         });
     }
 

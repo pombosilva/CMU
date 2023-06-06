@@ -85,7 +85,7 @@ public class CreateBookActivity extends AppCompatActivity {
 
     public void registerBookToCloud(int bookId, String bookTitle, String bookDescription, String bookEncodedImage, int libraryId)
     {
-        WebConnector.registerBook(new Book(bookId, bookTitle, bookDescription, bookEncodedImage), libraryId);
+        WebConnector.registerBook(new Book(bookId, bookTitle, bookDescription, bookEncodedImage, false), libraryId);
     }
 
 

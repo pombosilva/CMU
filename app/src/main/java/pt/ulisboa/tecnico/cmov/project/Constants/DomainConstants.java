@@ -3,6 +3,7 @@ package pt.ulisboa.tecnico.cmov.project.Constants;
 public class DomainConstants {
     public static final String MARKERS = "/markers";
     public static final String FAV_MARKER = "/favMarker";
+    public static final String FAV_BOOK = "/favBook";
 
     public static final String LIBRARY_BOOKS_WITHOUT_IMAGE = "/libraryBooksWithoutImage";
     public static final String LIBRARY_BOOKS = "/libraryBooks";
