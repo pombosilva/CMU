@@ -138,7 +138,19 @@ def getLibrariesThatContainBook():
             result.append(l.getMarkerInfo())
     return jsonify(result)
 
-
+@app.route('/availableFavBooks', methods=['GET'])
+def getAvailableFavBooks():
+    global libraries
+    result = []
+    books = []
+    for l in libraries:
+        if l.fav is True:
+            result.append(l.getMarkerInfo())
+    for l in libraries:
+        for b in l.registered_books:
+            if b.fav is True:
+                books.append(b.getBookInfo())
+    return jsonify(books)
 
 
 @app.route('/libraryBooks', methods=['GET'])

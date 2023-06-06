@@ -1,11 +1,9 @@
 package pt.ulisboa.tecnico.cmov.project.objects;
 
 import android.content.Context;
-import android.icu.text.LocaleDisplayNames;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.util.LruCache;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
@@ -16,11 +14,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -255,6 +251,16 @@ public class WebConnector {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static ArrayList<Book> getAvailableFavBooks() throws IOException {
+        ArrayList<Book> availableFavBooks = new ArrayList<>();
+        JsonReader data = getData(DomainConstants.AVAILABLE_FAV_BOOKS);
+        data.beginArray();
+        while (data.hasNext())
+            availableFavBooks.add(extractBook(data));
+        data.close();
+        return availableFavBooks;
     }
 
 }
