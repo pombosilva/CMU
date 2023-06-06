@@ -66,23 +66,25 @@ public class MainActivity extends AppCompatActivity {
             try {
                 ArrayList<Book> availableFavBooks = WebConnector.getAvailableFavBooks();
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    NotificationChannel channel = new NotificationChannel("1", "test", NotificationManager.IMPORTANCE_DEFAULT);
-                    channel.setDescription("this is a test");
-                    channel.enableLights(true);
-                    channel.setLightColor(Color.GREEN);
+                if ( availableFavBooks.size() != 0 ) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        NotificationChannel channel = new NotificationChannel("1", "test", NotificationManager.IMPORTANCE_DEFAULT);
+                        channel.setDescription("this is a test");
+                        channel.enableLights(true);
+                        channel.setLightColor(Color.GREEN);
 
+                        NotificationManager notificationManager = getSystemService(NotificationManager.class);
+                        notificationManager.createNotificationChannel(channel);
+                    }
+
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "1")
+                            .setSmallIcon(R.drawable.unloaded_book)
+                            .setContentTitle(availableFavBooks.get(0).getTitle())
+                            .setContentText(availableFavBooks.get(0).getDescription())
+                            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
                     NotificationManager notificationManager = getSystemService(NotificationManager.class);
-                    notificationManager.createNotificationChannel(channel);
+                    notificationManager.notify(1, builder.build());
                 }
-
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "1")
-                        .setSmallIcon(R.drawable.unloaded_book)
-                        .setContentTitle(availableFavBooks.get(0).getTitle())
-                        .setContentText(availableFavBooks.get(0).getDescription())
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-                NotificationManager notificationManager = getSystemService(NotificationManager.class);
-                notificationManager.notify(1, builder.build());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
