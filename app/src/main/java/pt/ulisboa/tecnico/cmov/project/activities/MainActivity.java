@@ -3,9 +3,9 @@ package pt.ulisboa.tecnico.cmov.project.activities;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.service.notification.StatusBarNotification;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
@@ -15,7 +15,6 @@ import androidx.fragment.app.FragmentTransaction;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import pt.ulisboa.tecnico.cmov.project.R;
@@ -29,6 +28,10 @@ import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     private WebConnector webConnector;
+    private static final String CHANNEL_ID = "1";
+
+    private NotificationManager notificationManager;
+    private ArrayList<Book> availableFavBooks;
 
     public MainActivity(){
         //empty constructor
@@ -38,8 +41,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        checkIfFavBookIsAvailable();
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -60,37 +61,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void checkIfFavBookIsAvailable() {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            //TODO: SEND NOTIFICATION WHEN BOOK IS FAV AND IS AVAILABLE
-            try {
-                ArrayList<Book> availableFavBooks = WebConnector.getAvailableFavBooks();
-
-                if ( availableFavBooks.size() != 0 ) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        NotificationChannel channel = new NotificationChannel("1", "test", NotificationManager.IMPORTANCE_DEFAULT);
-                        channel.setDescription("this is a test");
-                        channel.enableLights(true);
-                        channel.setLightColor(Color.GREEN);
-
-                        NotificationManager notificationManager = getSystemService(NotificationManager.class);
-                        notificationManager.createNotificationChannel(channel);
-                    }
-
-                    NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "1")
-                            .setSmallIcon(R.drawable.unloaded_book)
-                            .setContentTitle(availableFavBooks.get(0).getTitle())
-                            .setContentText(availableFavBooks.get(0).getDescription())
-                            .setPriority(NotificationCompat.PRIORITY_DEFAULT);
-                    NotificationManager notificationManager = getSystemService(NotificationManager.class);
-                    notificationManager.notify(1, builder.build());
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-    }
-
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -101,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        checkIfFavBookIsAvailable();
 //        webConnector.startWebSocket();
     }
 
@@ -108,5 +79,60 @@ public class MainActivity extends AppCompatActivity {
     public void onStop() {
         super.onStop();
 //        webConnector.closeWebSocket();
+    }
+
+    private void checkIfFavBookIsAvailable() {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                // get every fav book available
+                availableFavBooks = WebConnector.getAvailableFavBooks();
+
+                //check if there is any fav book available
+                if (!availableFavBooks.isEmpty()) {
+                    // create notificationManager
+                    notificationManager = getSystemService(NotificationManager.class);
+
+                    // create notification channel
+                    createNotificationChannel();
+
+                    for(int i = 0; i!= availableFavBooks.size(); i++) {
+                        //check if notification is still active
+                        if(!getActiveNotificationIDs().contains(i)) {
+                            // send notification for each fav book available
+                            sendNotification(i);
+                        }
+
+                    }
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public void createNotificationChannel(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "notificationChannel",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    public ArrayList<Integer> getActiveNotificationIDs(){
+        ArrayList<Integer> activeIds = new ArrayList<>();
+        StatusBarNotification[] activeNotifications = notificationManager.getActiveNotifications();
+        for(StatusBarNotification notification: activeNotifications)
+            activeIds.add(notification.getId());
+        return activeIds;
+    }
+
+    public void sendNotification(Integer i){
+        Book book = availableFavBooks.get(i);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.unloaded_book)
+                .setContentTitle(book.getTitle())
+                .setContentText(book.getDescription())
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        notificationManager.notify(i, builder.build());
     }
 }
