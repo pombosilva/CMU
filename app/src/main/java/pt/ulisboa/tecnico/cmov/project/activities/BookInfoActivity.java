@@ -94,15 +94,8 @@ public class BookInfoActivity extends AppCompatActivity {
                 libraryList);
         listView.setAdapter(libraryListCustomBaseAdapter);
 
-        Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(() -> {
-            try {
-                webConnector.getLibrariesThatContainBook(bookBarcode);
-                getLibrariesDistances();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        Executors.newSingleThreadExecutor().
+                execute(this::getLibrariesDistances);
 
         listView.setOnItemClickListener((parent, view, position, id) -> {
             Intent intent = new Intent(BookInfoActivity.this, LibraryInfoActivity.class);
@@ -131,35 +124,13 @@ public class BookInfoActivity extends AppCompatActivity {
         locationProvider.getLastLocation().
                 addOnSuccessListener(this, currentLocation -> {
                     if (currentLocation != null){
-                        for(Marker m: libraryList) {
-                            Location library = new Location("library");
-                            library.setLongitude(m.getLng());
-                            library.setLatitude(m.getLat());
-                            String distance = (int) currentLocation.distanceTo(library) / 1000 + "km";
-                            m.setDistance(distance);
-                            sendMessageToHandler(3, null);
-                        }
-                        reorderLibrariesBasedOnDistance();
+                        Executor executor = Executors.newSingleThreadExecutor();
+                        executor.execute(() -> {
+                            webConnector.getLibrariesThatContainBook(bookBarcode,
+                                    currentLocation.getLatitude(), currentLocation.getLongitude());
+                        });
                     }
                 });
-    }
-
-    public void reorderLibrariesBasedOnDistance(){
-        libraryList.sort((m1, m2) -> {
-            if(m1.getDistance() != null && m2.getDistance() != null) {
-                int d1 = Integer.parseInt(m1.getDistance().split("km")[0]);
-                int d2 = Integer.parseInt(m2.getDistance().split("km")[0]);
-                return Integer.compare(d1, d2);
-            }
-            return 0;
-        });
-    }
-
-    public void sendMessageToHandler(int what, Object obj){
-        Message msg = new Message();
-        msg.what = what;
-        msg.obj = obj;
-        handler.sendMessage(msg);
     }
 
     private static final int NO_INTERNET = 1;

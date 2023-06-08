@@ -154,9 +154,12 @@ public class WebConnector {
         return newBook;
     }
 
-    public void getLibrariesThatContainBook(int bookBarcode) {
+    public void getLibrariesThatContainBook(int bookBarcode, double latitude, double longitude) {
         try {
-            String query = DomainConstants.BOOK_IN_LIBRARY+"?bookId=" + bookBarcode;
+            // String query = DomainConstants.BOOK_IN_LIBRARY+"?bookId=" + bookBarcode;
+            String query = DomainConstants.BOOK_IN_LIBRARY+"?bookId=" + bookBarcode
+                    +"&lat="+latitude+"&lng="+longitude;
+            // Log.i("QUERY", query);
             JsonReader jsonReader = getData(query);
 
             jsonReader.setLenient(true);

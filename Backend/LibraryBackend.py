@@ -6,7 +6,9 @@ from flask import Flask, render_template, jsonify, json, request
 from flask_sock import Sock
 from simple_websocket.ws import ConnectionClosed
 from gevent import monkey
+monkey.patch_all()
 from gevent.pywsgi import WSGIServer
+from geopy.distance import geodesic
 import library as LB
 import book as BK
 
@@ -132,11 +134,24 @@ def getBookCover(bookId):
 def getLibrariesThatContainBook():
     global libraries
     bookId = int(request.args.get("bookId",-1))
+    latitude = float(request.args.get("lat", 0))
+    longitude = float(request.args.get("lng", 1))
+    coords = (latitude,longitude)
+
     result = []
     for l in libraries:
         if l.isBookPresent(bookId):
-            result.append(l.getMarkerInfo())
-    return jsonify(result)
+            result.append(l)
+
+    result2 = []
+    for l in result:
+        distance = geodesic(coords, (l.lat, l.lng)).kilometers
+        l.setDistance(distance)
+        result2.append(l.getMarkerInfoWithDistance())
+
+    final = sorted(result2, key=lambda x: x["distance"])
+
+    return jsonify(final)
 
 @app.route('/availableFavBooks', methods=['GET'])
 def getAvailableFavBooks():

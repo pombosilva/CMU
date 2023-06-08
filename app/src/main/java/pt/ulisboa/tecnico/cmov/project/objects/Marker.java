@@ -1,5 +1,7 @@
 package pt.ulisboa.tecnico.cmov.project.objects;
 
+import java.util.Locale;
+
 public class Marker {
 
     private final int id;
@@ -7,7 +9,7 @@ public class Marker {
     private final double lat;
     private final double lng;
     private final boolean fav;
-    private String distance;
+    private final double distance;
 
     public Marker(int id, String name, double lat, double lng, boolean fav) {
         this.id = id;
@@ -15,6 +17,16 @@ public class Marker {
         this.lat = lat;
         this.lng = lng;
         this.fav = fav;
+        this.distance = -1;
+    }
+
+    public Marker(int id, String name, double lat, double lng, boolean fav, double distance) {
+        this.id = id;
+        this.name = name;
+        this.lat = lat;
+        this.lng = lng;
+        this.fav = fav;
+        this.distance = distance;
     }
 
     public int getId() {
@@ -37,7 +49,19 @@ public class Marker {
         return fav;
     }
 
-    public String getDistance(){return distance;}
+    public double getDistance(){return Double.parseDouble(
+            String.format(Locale.UK,"%.2f", distance));}
 
-    public void setDistance(String distance){this.distance = distance;}
+
+    @Override
+    public String toString() {
+        return "Marker{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", lat=" + lat +
+                ", lng=" + lng +
+                ", fav=" + fav +
+                ", distance='" + distance + '\'' +
+                '}';
+    }
 }
