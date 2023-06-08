@@ -15,9 +15,13 @@ class Library:
         self.fav = fav
         self.image_file = image_file
         self.registered_books = []
+        self.distance = -1
 
     def getMarkerInfo(self):
         return {'id': self.id, 'name': self.name, 'lat': self.lat, 'lng': self.lng, 'fav': self.fav}
+
+    def getMarkerInfoWithDistance(self):
+        return {'id': self.id, 'name': self.name, 'lat': self.lat, 'lng': self.lng, 'fav': self.fav, 'distance': self.distance}
 
     def getLibraryImage(self):
         return getEncodedImage(self.image_file)
@@ -41,6 +45,9 @@ class Library:
             self.registered_books.append(book)
             return
         print("Book already exists in this library")
+
+    def setDistance(self, dst):
+        self.distance = dst
 
     def __str__(self):
         return f"Library(id={self.id}, name={self.name}, " \
