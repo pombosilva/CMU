@@ -254,7 +254,11 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
                 if ( bookExists )
                 {
                     WebConnector.checkInBook(this.libraryId, bookBarcode);
-                    sendMessageToHandler(ADD_UPDATE_BOOK_LIST, WebConnector.getBook(bookBarcode));
+                    Log.d("CheckBook", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  " );
+                    Book newBook = WebConnector.getBook(bookBarcode);
+                    Log.d("CheckBook", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  " );
+                    sendMessageToHandler(ADD_UPDATE_BOOK_LIST, newBook);
+                    Log.d("CheckBook", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  " );
                 }
                 else {
                     // TODO: Esta a dar aquele erro do context e tal
@@ -281,7 +285,7 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
                 if ( bookExists )
                 {
                     WebConnector.checkOutBook(this.libraryId, bookBarcode);
-                    sendMessageToHandler(REMOVE_UPDATE_BOOK_LIST, Integer.parseInt(bookBarcode));
+                    sendMessageToHandler(REMOVE_UPDATE_BOOK_LIST, Long.parseLong(bookBarcode));
                 }
                 else
                 {
@@ -357,7 +361,7 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
                     bookListView.removeFooterView(ftView);
                     break;
                 case REMOVE_UPDATE_BOOK_LIST:
-                    bookList.removeIf(book -> book.getId() == (int) msg.obj);
+                    bookList.removeIf(book -> book.getId() == (long) msg.obj);
                     bookListCustomBaseAdapter.notifyDataSetChanged();
                     return;
                 case UPDATE_UI_MSG:

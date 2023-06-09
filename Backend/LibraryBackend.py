@@ -258,7 +258,7 @@ def getLibrayExtras():
 
 @app.route('/getBook', methods=['GET'])
 def getBook():
-    bookBarcode = int(request.args.get("bookBarcode",-1))
+    bookBarcode = int(request.args.get("bookId",-1))
     global books
     for b in books:
         if b.id == bookBarcode:
@@ -313,12 +313,6 @@ def registerBook(libraryId):
     bookDescription = data['description']
     bookCover = data['cover']
 
-    print("AAAAAAAAAAAAAAAAAAAAAAAAAAA")
-    print(bookId)
-    print("AAAAAAAAAAAAAAAAAAAAAAAAAAA")
-    print(bookTitle)
-    
-
     global books, libraries
     newBook = BK.Book(bookId, bookTitle, bookDescription, createFile(bookCover, "BookPics/"+str(bookId)+".txt"), False)
 
@@ -359,7 +353,6 @@ def ws(ws):
     websocket_connections.append(ws)
 
     while True:
-        ws.send(json.dumps([library.getMarkerInfo() for library in libraries]))
         ws.receive()
 
 

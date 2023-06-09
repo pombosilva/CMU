@@ -124,9 +124,7 @@ public class WebConnector {
             String queryParameters = "?libraryId="+libraryId+"&startId="+startId+"&filter="+filter;
 
             String url = domain + queryParameters;
-//            Log.d("ImageDownloads", "Cheguei aqui com a url = " + url);
             jsonReader = getData(url);
-//            Log.d("ImageDownloads", "Passei para aqui");
 
             jsonReader.setLenient(true);
             jsonReader.beginArray();
@@ -148,18 +146,13 @@ public class WebConnector {
 
     private static Book extractBook(JsonReader book) throws IOException {
         Gson gson = new Gson();
-        Log.d("ImageDownloads", "Cheguei aqui");
-        Book newBook = gson.fromJson(book, Book.class);
-        Log.d("ImageDownloads", "Novo livro = " + newBook.toString());
-        return newBook;
+        return gson.fromJson(book, Book.class);
     }
 
     public void getLibrariesThatContainBook(int bookBarcode, double latitude, double longitude) {
         try {
-            // String query = DomainConstants.BOOK_IN_LIBRARY+"?bookId=" + bookBarcode;
             String query = DomainConstants.BOOK_IN_LIBRARY+"?bookId=" + bookBarcode
                     +"&lat="+latitude+"&lng="+longitude;
-            // Log.i("QUERY", query);
             JsonReader jsonReader = getData(query);
 
             jsonReader.setLenient(true);
@@ -208,8 +201,6 @@ public class WebConnector {
             throw new RuntimeException(e);
         }
     }
-
-
 
     public static void checkInBook(int libraryId, String bookId) {
         try {
