@@ -90,7 +90,7 @@ public class CustomBookBaseAdapter extends BaseAdapter {
                     Executor executor = Executors.newSingleThreadExecutor();
                     executor.execute( () ->
                             {
-                                int bookBarcode = list.get(i).getId();
+                                long bookBarcode = list.get(i).getId();
                                 String encodedBookCover = WebConnector.getBookCover(bookBarcode);
 
                                 Message msg = new Message();

@@ -313,8 +313,14 @@ def registerBook(libraryId):
     bookDescription = data['description']
     bookCover = data['cover']
 
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    print(bookId)
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAAA")
+    print(bookTitle)
+    
+
     global books, libraries
-    newBook = BK.Book(bookId, bookTitle, bookDescription, createFile(bookCover, "BookPics/"+str(bookId)+".txt"))
+    newBook = BK.Book(bookId, bookTitle, bookDescription, createFile(bookCover, "BookPics/"+str(bookId)+".txt"), False)
 
     libraries[int(libraryId)].addBook(newBook)
     books.append(newBook)

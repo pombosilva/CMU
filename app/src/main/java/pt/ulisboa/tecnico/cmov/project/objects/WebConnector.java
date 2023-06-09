@@ -248,7 +248,7 @@ public class WebConnector {
         }
     }
 
-    public static String getBookCover(int bookId) {
+    public static String getBookCover(long bookId) {
         try {
             return getData(DomainConstants.GET_BOOK_COVER + "/" + bookId).nextString();
         } catch (IOException e) {

@@ -7,7 +7,7 @@ import com.google.gson.Gson;
 import pt.ulisboa.tecnico.cmov.project.R;
 
 public class Book {
-    private final int id;
+    private final long id;
     private String title;
     private String description;
     private String cover;
@@ -16,7 +16,7 @@ public class Book {
 
     public static final int unloadedBookCover = R.drawable.unloaded_book;
 
-    public Book(int id, String title, String description, String cover, boolean fav) {
+    public Book(long id, String title, String description, String cover, boolean fav) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -24,7 +24,7 @@ public class Book {
         this.fav = fav;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

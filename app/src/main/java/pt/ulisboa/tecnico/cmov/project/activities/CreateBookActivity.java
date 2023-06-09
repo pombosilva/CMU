@@ -68,7 +68,7 @@ public class CreateBookActivity extends AppCompatActivity {
             else {
                 if (isEmpty(base64Picture)){ Toast.makeText(CreateBookActivity.this, "Please take a picture of the book", Toast.LENGTH_LONG).show(); }
                 else {
-                    int bookId = Integer.parseInt(getIntent().getExtras().getString("bookId"));
+                    long bookId = Long.parseLong(getIntent().getExtras().getString("bookId"));
                     int libraryId = Integer.parseInt(getIntent().getExtras().getString("libraryId"));
 
                     Executor executor = Executors.newSingleThreadExecutor();
@@ -83,7 +83,7 @@ public class CreateBookActivity extends AppCompatActivity {
     }
 
 
-    public void registerBookToCloud(int bookId, String bookTitle, String bookDescription, String bookEncodedImage, int libraryId)
+    public void registerBookToCloud(long bookId, String bookTitle, String bookDescription, String bookEncodedImage, int libraryId)
     {
         WebConnector.registerBook(new Book(bookId, bookTitle, bookDescription, bookEncodedImage, false), libraryId);
     }
