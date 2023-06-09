@@ -24,12 +24,12 @@ public class Cache {
         return instance;
     }
 
-    public void putEntry(Object key, Object value)
+    public void putEntry(Library key, ArrayList<Book> value)
     {
         this.cache.put(key,value);
     }
 
-    public LruCache<Object, Object> getCache() {
+    public LruCache<Library, ArrayList<Book>> getCache() {
         return cache;
     }
 

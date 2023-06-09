@@ -166,11 +166,11 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
                 isLoading = true;
                 handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
                 if (NetworkUtils.hasUnmeteredConnection(getApplicationContext())){
-                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS,this.libraryId, 0, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
+                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.LIBRARY_BOOKS,this.libraryId, 0, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
                 }
                 else
                 {
-                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE,this.libraryId, 0, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
+                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.LIBRARY_BOOKS_WITHOUT_IMAGE,this.libraryId, 0, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
                 }
                 handler.sendEmptyMessage(DISABLE_LOADING_FOOTER);
             } catch (Exception e) {
