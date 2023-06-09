@@ -111,9 +111,9 @@ public class WebConnector {
         }
     }
 
-    private Marker extractMarker(JsonReader jReader) throws IOException {
+    private Library extractMarker(JsonReader jReader) throws IOException {
         Gson gson = new Gson();
-        return gson.fromJson(jReader, Marker.class);
+        return gson.fromJson(jReader, Library.class);
     }
 
     public int getBooks(String domain, int libraryId, int startId, String filter, int successMessageType, int unsuccessfulMessageType) throws IOException {

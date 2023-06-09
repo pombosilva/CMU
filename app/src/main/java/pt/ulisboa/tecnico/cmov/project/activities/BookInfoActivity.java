@@ -4,12 +4,10 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -22,22 +20,20 @@ import androidx.core.app.ActivityCompat;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomLibraryBaseAdapter;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
-import pt.ulisboa.tecnico.cmov.project.objects.Marker;
+import pt.ulisboa.tecnico.cmov.project.objects.Library;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
 
 public class BookInfoActivity extends AppCompatActivity {
 
-    private final ArrayList<Marker> libraryList = new ArrayList<>();
+    private final ArrayList<Library> libraryList = new ArrayList<>();
     private int bookBarcode;
     private CustomLibraryBaseAdapter libraryListCustomBaseAdapter;
     private WebConnector webConnector;
@@ -142,7 +138,7 @@ public class BookInfoActivity extends AppCompatActivity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case ADD_LIBRARY_TO_LIST:
-                    libraryList.add((Marker) msg.obj);
+                    libraryList.add((Library) msg.obj);
                     libraryListCustomBaseAdapter.notifyDataSetChanged();
                     return;
                 case NOTIFY_CHANGES:

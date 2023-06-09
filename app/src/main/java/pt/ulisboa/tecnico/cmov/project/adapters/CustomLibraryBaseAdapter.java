@@ -11,15 +11,15 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import pt.ulisboa.tecnico.cmov.project.R;
-import pt.ulisboa.tecnico.cmov.project.objects.Marker;
+import pt.ulisboa.tecnico.cmov.project.objects.Library;
 
 
 public class CustomLibraryBaseAdapter extends BaseAdapter {
     Context context;
-    ArrayList<Marker> list;
+    ArrayList<Library> list;
     LayoutInflater inflater;
 
-    public CustomLibraryBaseAdapter(Context ctx, ArrayList<Marker> list) {
+    public CustomLibraryBaseAdapter(Context ctx, ArrayList<Library> list) {
         this.context = ctx;
         this.list = list;
         inflater = LayoutInflater.from(ctx);

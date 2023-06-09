@@ -12,7 +12,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +43,7 @@ import java.util.concurrent.Executors;
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.activities.LibraryInfoActivity;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomMarkerBaseAdapter;
+import pt.ulisboa.tecnico.cmov.project.objects.Library;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
@@ -218,7 +218,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         return tempMarker;
     }
 
-    private void loadNormalMarker(pt.ulisboa.tecnico.cmov.project.objects.Marker marker) {
+    private void loadNormalMarker(Library marker) {
         LatLng markerLocation = new LatLng(marker.getLat(), marker.getLng());
         MarkerOptions mkOpt = new MarkerOptions().position(markerLocation).
                 title(marker.getName()).snippet(marker.getId() + ":a");
@@ -253,8 +253,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             (String) msg.obj, Toast.LENGTH_LONG).show();
                     return;
                 case NEW_MARKER:
-                    loadNormalMarker((pt.ulisboa.tecnico.cmov.project
-                            .objects.Marker) msg.obj);
+                    loadNormalMarker((Library) msg.obj);
             }
         }
     };

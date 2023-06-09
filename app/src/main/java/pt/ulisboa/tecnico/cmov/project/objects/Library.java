@@ -2,7 +2,7 @@ package pt.ulisboa.tecnico.cmov.project.objects;
 
 import java.util.Locale;
 
-public class Marker {
+public class Library {
 
     private final int id;
     private final String name;
@@ -11,7 +11,7 @@ public class Marker {
     private final boolean fav;
     private final double distance;
 
-    public Marker(int id, String name, double lat, double lng, boolean fav) {
+    public Library(int id, String name, double lat, double lng, boolean fav) {
         this.id = id;
         this.name = name;
         this.lat = lat;
@@ -20,7 +20,7 @@ public class Marker {
         this.distance = -1;
     }
 
-    public Marker(int id, String name, double lat, double lng, boolean fav, double distance) {
+    public Library(int id, String name, double lat, double lng, boolean fav, double distance) {
         this.id = id;
         this.name = name;
         this.lat = lat;
