@@ -12,33 +12,51 @@ from geopy.distance import geodesic
 import library as LB
 import book as BK
 
+bookImagesFolder = 'res/BookPics/'
+libraryImagesFolder = 'res/LibraryPics/'
 
 toLoad = 5
 
-books = [BK.Book(1234567, "Biblia II", "palavra de deus", "BookPics/bible.txt", False),
-         BK.Book(123457, "Biblia II", "palavra de deus", "BookPics/bible.txt", False),
-         BK.Book(1234, "Harry Spotter", "feiticos", "BookPics/harry.txt", False),
-         BK.Book(1134, "Harry Spotter", "feiticos", "BookPics/harry.txt", False),
-         BK.Book(75420, "Gains of Thrones", "feiticos", "BookPics/gow.txt", False),
-         BK.Book(7542, "Gains of Thrones", "feiticos", "BookPics/gow.txt", False),
-         BK.Book(98, "Ben 10", "bue fixe", 'BookPics/ben.txt', False),
-         BK.Book(8, "Ben 10", "bue fixe", 'BookPics/ben.txt', False),
-         BK.Book(43292, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
-         BK.Book(4392, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
-         BK.Book(592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
-         BK.Book(4352, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
-         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
-         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
-         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
-         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
-         BK.Book(43592, "Geronimo Stilton", "Rolemodel", "BookPics/g_ronimo.txt", False),
-         BK.Book(1232678, "Manual de portugues 8ano", "Camoes glorioso", "BookPics/manual.txt", False),
-         BK.Book(125678, "Manual de portugues 8ano", "Camoes glorioso", "BookPics/manual.txt", False)]
+books = []
+libraries = []
 
-libraries = [LB.Library(0, "Lisbon", 38.713912, -9.133397, False, 'LibraryPics/madrid.txt'),
-             LB.Library(1, "Madrid", 40.416891, -3.703739, False, 'LibraryPics/madrid.txt'),
-             LB.Library(2, "Zaragoza", 41.657059, -0.875448, True, 'LibraryPics/zaragoza.txt'),
-             LB.Library(3, "Lagos", 6.476754, 3.368539, True, 'LibraryPics/lagos.txt')]
+
+with open('res/books.txt','r') as file:
+    for line in file:
+
+        line = line.strip()
+        data = line.split(";")
+
+        book_id = int(data[0])
+        book_title = data[1]
+        book_description = data[2]
+        book_filename = bookImagesFolder + data[3]
+        book_favourite = data[4].lower() == "true"
+
+        books.append(BK.Book(book_id, book_title, book_description, book_filename, book_favourite))
+
+with open('res/libraries.txt','r') as file:
+    for line in file:
+
+        line = line.strip()
+        data = line.split(";")
+
+        library_id = int(data[0])
+        library_title = data[1]
+        library_lat = float(data[2])
+        library_lng = float(data[3])
+        library_favourite = data[4].lower() == "true"
+
+        print()
+        print(data[4])
+        print(library_favourite)
+        print()
+
+
+        library_filename = libraryImagesFolder + data[5]
+
+        libraries.append(LB.Library(library_id, library_title, library_lat, library_lng, library_favourite, library_filename))
+
 
 libraries[0].addBook(books[0])
 libraries[0].addBook(books[2])
@@ -250,10 +268,6 @@ def getLibrayExtras():
     lib = get_library(library_id)
     # print(lib)
     return jsonify(lib.getLibraryBooks())
-
-
-
-
 
 
 @app.route('/getBook', methods=['GET'])

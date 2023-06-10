@@ -1,0 +1,4 @@
+0;Lisbon;38.713912;-9.133397;False;libraryImagesFolder;madrid.txt
+1;Madrid;40.416891;-3.703739;False;libraryImagesFolder;madrid.txt
+2;Zaragoza;41.657059;-0.875448;True;libraryImagesFolder;zaragoza.txt
+3;Lagos;6.476754;3.368539;True;libraryImagesFolder;lagos.txt

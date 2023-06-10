@@ -1,0 +1,19 @@
+1234567;Biblia II;palavra de deus;bible.txt;False
+123457;Biblia II;palavra de deus;bible.txt;False
+1234;Harry Spotter;feiticos;harry.txt;False
+1134;Harry Spotter;feiticos;harry.txt;False
+75420;Gains of Thrones;feiticos;gow.txt;False
+7542;Gains of Thrones;feiticos;gow.txt;False
+98;Ben 10;bue fixe;ben.txt;False
+8;Ben 10;bue fixe;ben.txt;False
+43292;Geronimo Stilton;Rolemodel;g_ronimo.txt;False
+4392;Geronimo Stilton;Rolemodel;g_ronimo.txt;False
+592;Geronimo Stilton;Rolemodel;g_ronimo.txt;False
+4352;Geronimo Stilton;Rolemodel;g_ronimo.txt;False
+43592;Geronimo Stilton;Rolemodel;g_ronimo.txt;False
+43592;Geronimo Stilton;Rolemodel;g_ronimo.txt;False
+43592;Geronimo Stilton;Rolemodel;g_ronimo.txt;False
+43592;Geronimo Stilton;Rolemodel;g_ronimo.txt;False
+43592;Geronimo Stilton;Rolemodel;g_ronimo.txt;False
+1232678;Manual de portugues 8ano;Camoes glorioso;manual.txt;False
+125678;Manual de portugues 8ano;Camoes glorioso;manual.txt;False
