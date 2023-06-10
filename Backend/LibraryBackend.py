@@ -12,6 +12,9 @@ from geopy.distance import geodesic
 import library as LB
 import book as BK
 
+booksFile = 'res/books.txt'
+librariesFile = 'res/libraries.txt'
+
 bookImagesFolder = 'res/BookPics/'
 libraryImagesFolder = 'res/LibraryPics/'
 
@@ -23,7 +26,6 @@ libraries = []
 
 with open('res/books.txt','r') as file:
     for line in file:
-
         line = line.strip()
         data = line.split(";")
 
@@ -37,7 +39,6 @@ with open('res/books.txt','r') as file:
 
 with open('res/libraries.txt','r') as file:
     for line in file:
-
         line = line.strip()
         data = line.split(";")
 
@@ -46,13 +47,6 @@ with open('res/libraries.txt','r') as file:
         library_lat = float(data[2])
         library_lng = float(data[3])
         library_favourite = data[4].lower() == "true"
-
-        print()
-        print(data[4])
-        print(library_favourite)
-        print()
-
-
         library_filename = libraryImagesFolder + data[5]
 
         libraries.append(LB.Library(library_id, library_title, library_lat, library_lng, library_favourite, library_filename))
@@ -79,9 +73,16 @@ def websocket_broadcast(message):
             websocket_connections.remove(ws)
 
 
-# def addBookToLibrary(atributos do livro, id da livraria):
-# criar o objecto livro e coloca lo no array dos books
-# dar append desse livro ao array de livro da livraria
+def registerBookPersistently(newBook, encodedImage):
+    with open(booksFile, "a") as file:
+        file.write(newBook.getBookInfoToStore()+'\n')
+        saveImageCoverPersistently(newBook.title, encodedImage)
+
+
+def saveImageCoverPersistently(image_file, encodedImage):
+    with open(bookImagesFolder + image_file + '.txt', "w") as file:
+        file.write(encodedImage)
+
 
 def get_library(library_id):
     global libraries
@@ -102,12 +103,6 @@ def updateFavBook(book_id):
         if book.id == book_id:
             book.fav = not book.fav
 
-
-def createFile(content, book_file_name):
-    f = open(book_file_name, "w")
-    f.write(content)
-    f.close()
-    return book_file_name
 
 app = Flask(__name__)
 sockets = Sock(app)
@@ -140,12 +135,6 @@ def getBookCover(bookId):
     for b in books:
         if b.id == bookId:
             return jsonify(b.getBookImage())
-
-# @app.route('/books', methods=['GET'])
-# def showAllBooks():
-#     global books
-#     print(request.args.get("startId"))
-#     return jsonify([book.getBookInfo() for book in books])
 
 
 @app.route('/bookInLibrary', methods=['GET'])
@@ -217,19 +206,6 @@ def showLibraryBooksWithoutImage():
 
     return jsonify([book.getBookWithoutImage() for book in selected_books])
 
-# @app.route('/libraryBooks/<int:libraryId>', methods=['GET'])
-# def showLibraryBooks(libraryId):
-#     global libraries, toLoad
-#     start_id = int(request.args.get("startId", 0))
-#     library = next((l for l in libraries if l.id == libraryId), None)
-#     return jsonify([book.getBookInfo() for book in library.registered_books])
-
-
-
-
-
-
-
 
 @app.route('/markers', methods=['GET'])
 def get_markers():
@@ -252,21 +228,10 @@ def favBook():
     return "True"
 
 
-
-# @app.route('/libraryExtras/<int:libraryId>', methods=['GET'])
-# def getLibraryImage(libraryId):
-#     global libraries
-#     for l in libraries:
-#         if l.id == libraryId:
-#             return jsonify(l.getLibraryImage())
-
-
 @app.route('/libraryExtras', methods=['GET'])
 def getLibrayExtras():
     library_id = int(request.args.get("libraryId"))
-    # print(library_id)
     lib = get_library(library_id)
-    # print(lib)
     return jsonify(lib.getLibraryBooks())
 
 
@@ -328,10 +293,17 @@ def registerBook(libraryId):
     bookCover = data['cover']
 
     global books, libraries
-    newBook = BK.Book(bookId, bookTitle, bookDescription, createFile(bookCover, "BookPics/"+str(bookId)+".txt"), False)
+    # newBook = BK.Book(bookId, bookTitle, bookDescription, createFile(bookCover, "BookPics/"+str(bookId)+".txt"), False)
+    newBook = BK.Book(bookId, bookTitle, bookDescription, bookTitle +'.txt', False)
+    
+    registerBookPersistently(newBook, bookCover)
+
+    newBook.cover = bookImagesFolder + newBook.cover
 
     libraries[int(libraryId)].addBook(newBook)
     books.append(newBook)
+
+
     return jsonify(True)
 
 
@@ -354,10 +326,6 @@ def filteredBooks():
     # print(str(selected_books))
     
     return jsonify([book.getBookInfo() for book in selected_books])
-
-
-
-
 
 
 
