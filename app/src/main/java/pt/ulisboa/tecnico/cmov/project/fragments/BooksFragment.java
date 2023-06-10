@@ -115,6 +115,7 @@ public class BooksFragment extends Fragment {
             intent.putExtra("bookTitle", displayedBooks.get(position).getTitle());
             intent.putExtra("bookCover", displayedBooks.get(position).getCover());
             intent.putExtra("bookBarcode", displayedBooks.get(position).getId());
+
             startActivity(intent);
         });
 
@@ -212,6 +213,8 @@ public class BooksFragment extends Fragment {
                     break;
                 case UPDATE_BOOK_COVER:
                     String[] objs = ((String) msg.obj).split(":");
+
+                    // NOTE: Aqui vai dar merda prob quando tivermos a usar dados moveis porque a variavel e int e deveria ser long
                     int bookId = Integer.parseInt(objs[0]);
                     String encodedImage = objs[1];
                     displayedBooks.get(bookId).setCover(encodedImage);

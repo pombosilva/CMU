@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -34,7 +35,7 @@ import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
 public class BookInfoActivity extends AppCompatActivity {
 
     private final ArrayList<Library> libraryList = new ArrayList<>();
-    private int bookBarcode;
+    private long bookBarcode;
     private CustomLibraryBaseAdapter libraryListCustomBaseAdapter;
     private WebConnector webConnector;
 
@@ -74,8 +75,7 @@ public class BookInfoActivity extends AppCompatActivity {
                 bookCoverIm.setImageResource(Book.unloadedBookCover);
             }
 
-
-            bookBarcode = intentContents.getInt("bookBarcode");
+            bookBarcode = intentContents.getLong("bookBarcode");
         } else {
             Toast.makeText(getApplicationContext(),
                     "Wasn't able to load book contents", Toast.LENGTH_SHORT).show();
@@ -122,6 +122,9 @@ public class BookInfoActivity extends AppCompatActivity {
                     if (currentLocation != null){
                         Executor executor = Executors.newSingleThreadExecutor();
                         executor.execute(() -> {
+
+
+//                            Log.d("AvailableLibraries","Vou mandar pedido do book com barcode " + bookBarcode);
                             webConnector.getLibrariesThatContainBook(bookBarcode,
                                     currentLocation.getLatitude(), currentLocation.getLongitude());
                         });

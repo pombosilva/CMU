@@ -149,7 +149,7 @@ public class WebConnector {
         return gson.fromJson(book, Book.class);
     }
 
-    public void getLibrariesThatContainBook(int bookBarcode, double latitude, double longitude) {
+    public void getLibrariesThatContainBook(long bookBarcode, double latitude, double longitude) {
         try {
             String query = DomainConstants.BOOK_IN_LIBRARY+"?bookId=" + bookBarcode
                     +"&lat="+latitude+"&lng="+longitude;
@@ -182,7 +182,7 @@ public class WebConnector {
         });
     }
 
-    public static void setFavouriteBook(int bookId) {
+    public static void setFavouriteBook(long bookId) {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
             try {

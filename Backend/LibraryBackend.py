@@ -118,6 +118,7 @@ def showAllBooks():
     global books, toLoad
     start_id = int(request.args.get("startId", 0))
     selected_books = books[start_id:start_id+toLoad]
+
     return jsonify([book.getBookInfo() for book in selected_books])
 
 
