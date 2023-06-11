@@ -3,9 +3,12 @@ package pt.ulisboa.tecnico.cmov.project.activities;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.ContentProvider;
+import android.content.ContextWrapper;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
@@ -17,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Executors;
 
+import pt.ulisboa.tecnico.cmov.project.Constants.DomainConstants;
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.databinding.ActivityMainBinding;
 import pt.ulisboa.tecnico.cmov.project.fragments.BooksFragment;
@@ -24,6 +28,8 @@ import pt.ulisboa.tecnico.cmov.project.fragments.MapFragment;
 import pt.ulisboa.tecnico.cmov.project.fragments.UserFragment;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
+import pt.ulisboa.tecnico.cmov.project.utils.InternalStorage;
+import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
 
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
@@ -45,7 +51,10 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+
         webConnector = new WebConnector(this.getApplicationContext());
+
+        new StoreRadiusLibrariesContent(this).start();
 
         replaceFragment(new MapFragment(webConnector));
 
@@ -80,6 +89,47 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
 //        webConnector.closeWebSocket();
     }
+
+
+    private class StoreRadiusLibrariesContent extends Thread
+    {
+
+        private final ContextWrapper ctxWrp;
+        public StoreRadiusLibrariesContent(ContextWrapper ctxWrp)
+        {
+            this.ctxWrp = ctxWrp;
+        }
+        @Override
+        public void run()
+        {
+            try {
+                Log.d("InternalStorage","Vou fazer download das livrarias");
+                String librariesContents = WebConnector.getContentsWithinRadius(getApplicationContext());
+                InternalStorage.write("contents.json", librariesContents, ctxWrp);
+                Log.d("InternalStorage","Fiz download das livrarias");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private void checkIfFavBookIsAvailable() {
         Executors.newSingleThreadExecutor().execute(() -> {

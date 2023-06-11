@@ -61,6 +61,7 @@ libraries[0].addBook(books[9])
 libraries[0].addBook(books[10])
 libraries[0].addBook(books[11])
 libraries[1].addBook(books[0])
+libraries[1].addBook(books[3])
 
 websocket_connections = []
 
@@ -328,6 +329,35 @@ def filteredBooks():
     
     return jsonify([book.getBookInfo() for book in selected_books])
 
+
+@app.route('/getContentsWithinRadius', methods=['GET'])
+def getContentsWithinRadius():
+    latitude = float(request.args.get("lat", -1))
+    longitude = float(request.args.get("lng", -1))
+    coords = (latitude,longitude)
+    
+    if latitude == -1 or longitude == -1:
+        return jsonify(False)
+
+    radius = 100
+    filteredLibraries = []
+
+    global libraries
+
+
+    for l in libraries:
+        distance = geodesic(coords, (l.lat, l.lng)).kilometers
+        if distance < radius :
+            l.setDistance(distance)
+            filteredLibraries.append(l.toJson())
+
+    return str(filteredBooks)
+
+@app.route('/test', methods=['GET'])
+def test():
+    global libraries
+    print( jsonify(libraries[1].toJson()))
+    return jsonify(libraries[1].toJson())
 
 
 @sockets.route('/ws')

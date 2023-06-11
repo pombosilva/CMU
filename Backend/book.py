@@ -33,4 +33,5 @@ class Book:
 
 
     def getBookInfoToStore(self):
-        return str(self.id)+";"+str(self.title)+";"+str(self.description)+";"+str(self.cover)+";"+str(self.fav)    
+        return str(self.id)+";"+str(self.title)+";"+str(self.description)+";"+str(self.cover)+";"+str(self.fav)
+    

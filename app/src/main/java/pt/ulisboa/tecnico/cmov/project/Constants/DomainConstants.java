@@ -21,4 +21,6 @@ public class DomainConstants {
 
     public static final String FILTERED_BOOKS = "/filteredBooks";
 
+    public static final String CONTENTS_WITHIN_RADIUS= "/getContentsWithinRadius";
+
 }

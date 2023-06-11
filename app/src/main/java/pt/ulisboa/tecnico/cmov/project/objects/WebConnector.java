@@ -1,5 +1,6 @@
 package pt.ulisboa.tecnico.cmov.project.objects;
 
+import android.content.ContentProvider;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
@@ -21,6 +22,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import pt.ulisboa.tecnico.cmov.project.Constants.DomainConstants;
+import pt.ulisboa.tecnico.cmov.project.utils.JSONFileWriter;
 
 public class WebConnector {
 
@@ -255,6 +257,19 @@ public class WebConnector {
             availableFavBooks.add(extractBook(data));
         data.close();
         return availableFavBooks;
+    }
+
+    public static String getContentsWithinRadius(Context ctx) throws IOException
+    {
+        JsonReader jReader = getData("/test");
+//        Gson gson = new Gson();
+//        String j = gson.toJson(data);
+
+        JSONFileWriter jsonFileWriter = new JSONFileWriter();
+        jsonFileWriter.writeJsonToFile(ctx, jReader, "output.json");
+
+        Log.d("InternalStorage","Dados Json = "  );
+        return "";
     }
 
 }
