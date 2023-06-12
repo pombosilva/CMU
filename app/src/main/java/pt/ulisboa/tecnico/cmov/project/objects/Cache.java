@@ -1,12 +1,18 @@
 package pt.ulisboa.tecnico.cmov.project.objects;
 
+import android.os.Handler;
+import android.os.Message;
 import android.util.LruCache;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class Cache {
 
+    private boolean loaded = false;
         private static Cache instance;
         private LruCache<Library, ArrayList<Book>> cache;
 
@@ -33,4 +39,22 @@ public class Cache {
         return cache;
     }
 
+    public void loadMarkers(Handler handler)
+    {
+        Map<Library, ArrayList<Book>> snapshot = cache.snapshot();
+        for (Library library : snapshot.keySet()) {
+            Message msg = new Message();
+            msg.what = 2;
+            msg.obj = library;
+            handler.sendMessage(msg);
+        }
+    }
+
+    public boolean isLoaded() {
+        return loaded;
+    }
+
+    public void setLoaded(boolean loaded) {
+        this.loaded = loaded;
+    }
 }

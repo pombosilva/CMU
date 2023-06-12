@@ -34,6 +34,7 @@ import java.util.concurrent.Executors;
 
 import pt.ulisboa.tecnico.cmov.project.Constants.DomainConstants;
 import pt.ulisboa.tecnico.cmov.project.R;
+import pt.ulisboa.tecnico.cmov.project.Threads.LoadOflineLibraries;
 import pt.ulisboa.tecnico.cmov.project.databinding.ActivityMainBinding;
 import pt.ulisboa.tecnico.cmov.project.fragments.BooksFragment;
 import pt.ulisboa.tecnico.cmov.project.fragments.MapFragment;
@@ -71,13 +72,13 @@ public class MainActivity extends AppCompatActivity {
 
         webConnector = new WebConnector(this.getApplicationContext());
 
-        new StoreRadiusLibrariesContent(this).start();
+        new LoadOflineLibraries(this).start();
 
-        replaceFragment(new MapFragment(webConnector));
+        replaceFragment(new MapFragment(webConnector, this.cache));
 
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.map) {
-                replaceFragment(new MapFragment(webConnector));
+                replaceFragment(new MapFragment(webConnector, this.cache));
             } else if (item.getItemId() == R.id.books) {
                 replaceFragment(new BooksFragment(webConnector));
             } else if (item.getItemId() == R.id.user) {
@@ -108,90 +109,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private class StoreRadiusLibrariesContent extends Thread
-    {
-
-        private final ContextWrapper ctxWrp;
-        public StoreRadiusLibrariesContent(ContextWrapper ctxWrp)
-        {
-            this.ctxWrp = ctxWrp;
-        }
-        @Override
-        public void run()
-        {
-            try {
-                Log.d("InternalStorage","Vou fazer download das livrarias");
-                String librariesContents = WebConnector.getContentsWithinRadius(getApplicationContext());
-//                InternalStorage.write("contents.json", librariesContents, ctxWrp);
-                Log.d("InternalStorage","Fiz download das livrarias");
-
-                Gson gson = new GsonBuilder()
-                        .registerTypeAdapter(Library.class, new LibraryDeserializer())
-                        .create();
-
-
-                String jData = InternalStorage.read("output.json", ctxWrp);
-
-                Log.d("InternalStorage","jData = " + jData);
-
-//                Library library = gson.fromJson(jData, Library.class);
-
-                Type libraryListType = new TypeToken<ArrayList<Library>>() {}.getType();
-//
-//// Parse JSON array into a list of Library objects
-                ArrayList<Library> libraryList = gson.fromJson(jData, libraryListType);
-//
-//// Now you have a list of Library objects
-                for (Library library : libraryList) {
-                    Log.d("InternalStorage","Library = " + library.getName());
-                    Log.d("InternalStorage","Books = " + cache.getCache().get(library).toString());
-                }
-
-
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public class LibraryDeserializer implements JsonDeserializer<Library> {
-
-            @Override
-            public Library deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                JsonObject jsonObject = json.getAsJsonObject();
-
-                int id = jsonObject.get("id").getAsInt();
-                String name = jsonObject.get("name").getAsString();
-                double lat = jsonObject.get("lat").getAsDouble();
-                double lng = jsonObject.get("lng").getAsDouble();
-                boolean fav = jsonObject.get("fav").getAsBoolean();
-                double distance = jsonObject.get("distance").getAsDouble();
-
-                // Create a new Library object with the parsed values
-                Library library = new Library(id, name, lat, lng, fav, distance);
-
-                ArrayList<Book> ab = new ArrayList<Book>();
-                // Parse the registeredBooks array
-                JsonArray registeredBooksArray = jsonObject.getAsJsonArray("registeredBooks");
-                for (JsonElement bookElement : registeredBooksArray) {
-                    Book book = context.deserialize(bookElement, Book.class);
-                    //TODO: Adicionar aqui codigo para adiconar a cache
-                    ab.add(book);
-                }
-
-                cache.getCache().put(library, ab);
-                Log.d("InternalStorage","Entrys: ");
-                Log.d("InternalStorage", cache.getCache().get(library).toString());
-
-
-                return library;
-            }
-        }
-
-
-    }
-
-
 
 
 
@@ -210,32 +127,34 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void checkIfFavBookIsAvailable() {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            try {
-                // get every fav book available
-                availableFavBooks = WebConnector.getAvailableFavBooks();
+        if ( NetworkUtils.hasUnmeteredConnection(getApplicationContext())) {
+            Executors.newSingleThreadExecutor().execute(() -> {
+                try {
+                    // get every fav book available
+                    availableFavBooks = WebConnector.getAvailableFavBooks();
 
-                //check if there is any fav book available
-                if (!availableFavBooks.isEmpty()) {
-                    // create notificationManager
-                    notificationManager = getSystemService(NotificationManager.class);
+                    //check if there is any fav book available
+                    if (!availableFavBooks.isEmpty()) {
+                        // create notificationManager
+                        notificationManager = getSystemService(NotificationManager.class);
 
-                    // create notification channel
-                    createNotificationChannel();
+                        // create notification channel
+                        createNotificationChannel();
 
-                    for(int i = 0; i!= availableFavBooks.size(); i++) {
-                        //check if notification is still active
-                        if(!getActiveNotificationIDs().contains(i)) {
-                            // send notification for each fav book available
-                            sendNotification(i);
+                        for (int i = 0; i != availableFavBooks.size(); i++) {
+                            //check if notification is still active
+                            if (!getActiveNotificationIDs().contains(i)) {
+                                // send notification for each fav book available
+                                sendNotification(i);
+                            }
+
                         }
-
                     }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+            });
+        }
     }
 
     public void createNotificationChannel(){

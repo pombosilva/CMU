@@ -43,8 +43,10 @@ import java.util.concurrent.Executors;
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.activities.LibraryInfoActivity;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomMarkerBaseAdapter;
+import pt.ulisboa.tecnico.cmov.project.objects.Cache;
 import pt.ulisboa.tecnico.cmov.project.objects.Library;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
+import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
 
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
@@ -54,8 +56,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private ArrayList<Marker> markers = new ArrayList<Marker>();
 
-    public MapFragment(WebConnector webConnector) {
+    private Cache cache;
+
+    public MapFragment(WebConnector webConnector, Cache cache) {
         this.webConnector = webConnector;
+        this.cache = cache;
     }
 
     @Override
@@ -124,6 +129,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+
+
     @SuppressLint("PotentialBehaviorOverride")
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -141,18 +148,31 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
         }
 
-        Executors.newSingleThreadExecutor().execute(() -> {
-            try {
-                webConnector.getMarkers();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
+        if ( NetworkUtils.hasInternetConnection(this.getContext()) ) {
+
+            Executors.newSingleThreadExecutor().execute(() -> {
+                try {
+                    webConnector.getMarkers();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+        else
+        {
+            Executors.newSingleThreadExecutor().execute(() -> {
+//                while ( !this.cache.isLoaded() ) {}
+                this.cache.loadMarkers(this.handler);
+            });
+        }
 
         mMap.setInfoWindowAdapter(new CustomMarkerBaseAdapter(getActivity()));
         mMap.setOnInfoWindowClickListener(this::openLibraryInfo);
         openLibraryIfNear();
     }
+
+
+
 
     public void openLibraryInfo(Marker marker){
         Intent intent = new Intent(getActivity(), LibraryInfoActivity.class);

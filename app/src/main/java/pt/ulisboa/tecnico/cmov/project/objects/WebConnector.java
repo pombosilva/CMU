@@ -167,7 +167,7 @@ public class WebConnector {
             }
         }catch(Exception e){
             Message msg = new Message();
-            msg.obj = "No Internet Connection";
+            msg.obj = "Error loading Markers";
             msg.what = 1;
             handler.sendMessage(msg);
         }
