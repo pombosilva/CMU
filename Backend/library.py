@@ -36,7 +36,7 @@ class Library:
     
 
     def toJson(self):
-        return {'id': self.id, 'name': self.name, 'lat': self.lat, 'lng': self.lng, 'fav': self.fav, 'encodedFile':self.image_file, 'registeredBooks' : self.getRegisteredBooksAsJson(),'distance': self.distance}
+        return {"id": self.id, "name": self.name, "lat": self.lat, "lng": self.lng, "fav": self.fav, "encodedFile":self.image_file, "registeredBooks" : self.getRegisteredBooksAsJson(),"distance": self.distance}
 
     def getLibraryImage(self):
         return getEncodedImage(self.image_file)

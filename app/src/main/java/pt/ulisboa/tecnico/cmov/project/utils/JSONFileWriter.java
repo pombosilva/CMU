@@ -31,26 +31,17 @@ public class JSONFileWriter {
     private String readJson(JsonReader jsonReader) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
 
-        jsonReader.beginObject();
+        jsonReader.beginArray();
         while (jsonReader.hasNext()) {
-            String name = jsonReader.nextName();
-            stringBuilder.append("\"").append(name).append("\": ");
-
-            if (jsonReader.peek() == com.google.gson.stream.JsonToken.BEGIN_OBJECT) {
-                stringBuilder.append(readJsonObject(jsonReader));
-            } else if (jsonReader.peek() == com.google.gson.stream.JsonToken.BEGIN_ARRAY) {
-                stringBuilder.append(readJsonArray(jsonReader));
-            } else {
-                stringBuilder.append(readJsonValue(jsonReader));
-            }
+            stringBuilder.append(readJsonObject(jsonReader));
 
             if (jsonReader.hasNext()) {
                 stringBuilder.append(", ");
             }
         }
-        jsonReader.endObject();
+        jsonReader.endArray();
 
-        return "{ " + stringBuilder.toString() + " }";
+        return "[" + stringBuilder.toString() + "]";
     }
 
     private String readJsonObject(JsonReader jsonReader) throws IOException {

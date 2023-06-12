@@ -21,7 +21,7 @@ class Book:
         return {'id': self.id, 'title': self.title, 'description': self.description, 'cover': getEncodedImage(self.cover), 'fav': self.fav}
 
     def getBookWithoutImage(self):
-        return {'id': self.id, 'title': self.title, 'description': self.description, 'cover': None , 'fav': self.fav}
+        return {"id": self.id, "title": self.title, "description": self.description, "cover": None , "fav": self.fav}
 
     def getBookImage(self):
         return getEncodedImage(self.cover)

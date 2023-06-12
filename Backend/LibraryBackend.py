@@ -356,8 +356,15 @@ def getContentsWithinRadius():
 @app.route('/test', methods=['GET'])
 def test():
     global libraries
-    print( jsonify(libraries[1].toJson()))
-    return jsonify(libraries[1].toJson())
+
+    libs = []
+    libs.append(libraries[1].toJson())
+    libs.append(libraries[3].toJson())
+
+    print(libs)
+
+    # print( jsonify(libraries[1].toJson()))
+    return jsonify(libs)
 
 
 @sockets.route('/ws')
