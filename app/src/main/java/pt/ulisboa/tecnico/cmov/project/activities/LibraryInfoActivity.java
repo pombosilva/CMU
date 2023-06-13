@@ -58,6 +58,7 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
 
     private double libraryLat;
     private double libraryLng;
+    private String libraryName;
 
     private ListView bookListView;
 
@@ -126,7 +127,7 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
         if (intentContents != null) {
             libraryId = intentContents.getInt("libraryId");
 
-            String libraryName = intentContents.getString("libraryName");
+            libraryName = intentContents.getString("libraryName");
             TextView libraryNameTv = findViewById(R.id.library_name);
             libraryNameTv.setText(libraryName);
 
@@ -224,8 +225,27 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
         Button navigateButton = findViewById(R.id.navigate_btn);
         navigateButton.setOnClickListener(v -> {
             getDirections();
-            Toast.makeText(getApplicationContext(), "Clicked navigate button", Toast.LENGTH_SHORT).show();
         });
+
+        Button share = findViewById(R.id.share_btn);
+        share.setOnClickListener(v -> {
+            shareLibrary();
+        });
+    }
+
+    public void shareLibrary(){
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+
+        //TODO: mudar para a foto da biblioteca
+        shareIntent.putExtra(Intent.EXTRA_STREAM, R.drawable.unloaded_book);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, libraryName);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, "Latitude: "
+                + libraryLng + ", Longitude: " + libraryLat);
+
+        shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        shareIntent.setType("image/*");
+        startActivity(Intent.createChooser(shareIntent, "Share content via"));
     }
 
     private void getDirections(){

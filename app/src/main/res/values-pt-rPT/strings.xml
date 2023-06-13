@@ -14,4 +14,7 @@
     <string name="save_book">Salvar Livro</string>
     <string name="name">Nome</string>
     <string name="change_theme">Mudar Tema</string>
+    <string name="share">Partilhar</string>
+    <string name="title">Título</string>
+    <string name="description">Descrição</string>
 </resources>

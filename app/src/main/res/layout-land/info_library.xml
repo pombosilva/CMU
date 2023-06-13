@@ -72,6 +72,17 @@
             android:text="@string/navigate"
             android:textAppearance="@style/TextAppearance.AppCompat.Button"
             android:textColor="#8D6E63" />
+
+        <Button
+            android:id="@+id/share_btn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:lines="1"
+            android:text="@string/share"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:textColor="#8D6E63" />
     </LinearLayout>
 
     <LinearLayout

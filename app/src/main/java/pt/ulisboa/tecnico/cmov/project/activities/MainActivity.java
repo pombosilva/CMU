@@ -6,6 +6,7 @@ import android.app.NotificationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
@@ -30,7 +31,6 @@ import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
 
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
-    private WebConnector webConnector;
     private static final String CHANNEL_ID = "1";
 
     private NotificationManager notificationManager;
@@ -46,23 +46,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState==null){
+            replaceFragment(new MapFragment(this.cache));
+        }
 
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         cache = Cache.getInstance();
 
-        webConnector = new WebConnector(this.getApplicationContext());
-
         new LoadOfflineLibraries(this).start();
-
-        replaceFragment(new MapFragment(webConnector, this.cache));
 
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.map) {
-                replaceFragment(new MapFragment(webConnector, this.cache));
+                replaceFragment(new MapFragment(this.cache));
             } else if (item.getItemId() == R.id.books) {
-                replaceFragment(new BooksFragment(webConnector));
+                replaceFragment(new BooksFragment());
             } else if (item.getItemId() == R.id.user) {
                 replaceFragment(new UserFragment());
             }
@@ -81,32 +80,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         checkIfFavBookIsAvailable();
-//        webConnector.startWebSocket();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-//        webConnector.closeWebSocket();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     private void checkIfFavBookIsAvailable() {
         if ( NetworkUtils.hasUnmeteredConnection(getApplicationContext())) {

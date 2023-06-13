@@ -39,23 +39,21 @@ public class BooksFragment extends Fragment {
     private ArrayList<Book> displayedBooks = new ArrayList<>();
     private ListView bookListView;
     private CustomBookBaseAdapter bookListCustomBaseAdapter;
-    private final WebConnector webConnector;
+    private WebConnector webConnector;
 
     private boolean isFiltered = false;
     private int numberOfDisplayedBooks =0;
 
     private Cache cache = Cache.getInstance();
 
-
-
-    public BooksFragment(WebConnector webConnector) {
-        this.webConnector = webConnector;
+    public BooksFragment() {
+        this.webConnector = new WebConnector(getContext());
         webConnector.setHandler(this.handler);
     }
 
     @SuppressWarnings("unused")
     public static BooksFragment newInstance(WebConnector webConnector, int columnCount) {
-        BooksFragment fragment = new BooksFragment(webConnector);
+        BooksFragment fragment = new BooksFragment();
         Bundle args = new Bundle();
         args.putInt("column-count", columnCount);
         fragment.setArguments(args);

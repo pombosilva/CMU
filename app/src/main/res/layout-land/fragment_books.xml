@@ -17,24 +17,19 @@
 
         <EditText
             android:id="@+id/searchBookText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:autofillHints=""
-            android:hint="@string/search_for_a_book"
+            android:layout_width="504dp"
+            android:layout_height="40dp"
             android:inputType="text"
-            android:padding="20dp"
             android:textColorHint="#8D6E63"
-            android:textSize="17sp" />
+            android:textSize="17sp"
+            android:hint="@string/search_for_a_book" />
 
         <Button
             android:id="@+id/searchBookButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
             android:layout_weight="1"
-            android:layout_marginStart="8dp"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
+            android:layout_height="40dp"
+            android:layout_marginStart="20dp"
             android:text="@string/search"
             android:textAppearance="@style/TextAppearance.AppCompat.Button"
             android:textColor="#FFFFFF" />
