@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import pt.ulisboa.tecnico.cmov.project.activities.BookInfoActivity;
 import pt.ulisboa.tecnico.cmov.project.activities.LibraryInfoActivity;
 import pt.ulisboa.tecnico.cmov.project.fragments.BooksFragment;
 import pt.ulisboa.tecnico.cmov.project.fragments.MapFragment;
@@ -86,6 +87,30 @@ public class Cache {
             displayedBooks++;
         }
         return displayedBooks;
+    }
+
+
+    public void getBookLibraries(Handler handler, long bookId)
+    {
+        Map<Library, ArrayList<Book>> snapshot = this.cache.snapshot();
+        for ( Library l : snapshot.keySet() )
+        {
+            if (bookInLibrary(snapshot.get(l), bookId))
+            {
+                sendMessageToHandler(handler, l, BookInfoActivity.ADD_LIBRARY_TO_LIST);
+            }
+        }
+    }
+
+
+    private boolean bookInLibrary(ArrayList<Book> bookList, long bookId)
+    {
+        for ( Book b : bookList )
+        {
+            if ( b.getId() == bookId)
+                return true;
+        }
+        return false;
     }
 
     public boolean isLoaded() {

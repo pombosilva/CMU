@@ -28,9 +28,11 @@ import java.util.concurrent.Executors;
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomLibraryBaseAdapter;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
+import pt.ulisboa.tecnico.cmov.project.objects.Cache;
 import pt.ulisboa.tecnico.cmov.project.objects.Library;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
+import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
 
 public class BookInfoActivity extends AppCompatActivity {
 
@@ -38,6 +40,8 @@ public class BookInfoActivity extends AppCompatActivity {
     private long bookBarcode;
     private CustomLibraryBaseAdapter libraryListCustomBaseAdapter;
     private WebConnector webConnector;
+
+    private Cache cache = Cache.getInstance();
 
     public BookInfoActivity() {
         // empty constructor
@@ -90,17 +94,23 @@ public class BookInfoActivity extends AppCompatActivity {
                 libraryList);
         listView.setAdapter(libraryListCustomBaseAdapter);
 
-        Executors.newSingleThreadExecutor().
-                execute(this::getLibrariesDistances);
+        if ( NetworkUtils.hasInternetConnection(getApplicationContext()) ) {
+            Executors.newSingleThreadExecutor().
+                    execute(this::getLibrariesDistances);
 
-        listView.setOnItemClickListener((parent, view, position, id) -> {
-            Intent intent = new Intent(BookInfoActivity.this, LibraryInfoActivity.class);
-            intent.putExtra("libraryName", libraryList.get(position).getName());
-            intent.putExtra("libraryId", libraryList.get(position).getId());
-            intent.putExtra("libraryLat", libraryList.get(position).getLat());
-            intent.putExtra("libraryLng", libraryList.get(position).getLng());
-            startActivity(intent);
-        });
+            listView.setOnItemClickListener((parent, view, position, id) -> {
+                Intent intent = new Intent(BookInfoActivity.this, LibraryInfoActivity.class);
+                intent.putExtra("libraryName", libraryList.get(position).getName());
+                intent.putExtra("libraryId", libraryList.get(position).getId());
+                intent.putExtra("libraryLat", libraryList.get(position).getLat());
+                intent.putExtra("libraryLng", libraryList.get(position).getLng());
+                startActivity(intent);
+            });
+        }
+        else
+        {
+            cache.getBookLibraries(handler, bookBarcode);
+        }
     }
 
     private void configureButtons() {
@@ -117,6 +127,8 @@ public class BookInfoActivity extends AppCompatActivity {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+
+
         locationProvider.getLastLocation().
                 addOnSuccessListener(this, currentLocation -> {
                     if (currentLocation != null){
@@ -133,7 +145,7 @@ public class BookInfoActivity extends AppCompatActivity {
     }
 
     private static final int NO_INTERNET = 1;
-    private static final int ADD_LIBRARY_TO_LIST = 2;
+    public static final int ADD_LIBRARY_TO_LIST = 2;
     private static final int NOTIFY_CHANGES = 3;
 
     private final Handler handler = new Handler(Looper.getMainLooper()){
