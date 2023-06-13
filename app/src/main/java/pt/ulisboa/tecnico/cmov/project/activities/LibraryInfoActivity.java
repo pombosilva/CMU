@@ -38,7 +38,9 @@ import java.util.concurrent.Executors;
 import pt.ulisboa.tecnico.cmov.project.Constants.DomainConstants;
 import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomBookBaseAdapter;
+import pt.ulisboa.tecnico.cmov.project.fragments.BooksFragment;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
+import pt.ulisboa.tecnico.cmov.project.objects.Cache;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
 
@@ -165,13 +167,22 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
             try {
                 isLoading = true;
                 handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
-                if (NetworkUtils.hasUnmeteredConnection(getApplicationContext())){
-                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.LIBRARY_BOOKS,this.libraryId, 0, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
+                // ----------------------
+                // Este bloco pode ser todo substituido por new ThreadGetMoreBooks().start();
+                if (NetworkUtils.hasInternetConnection(this) ) {
+                    if (NetworkUtils.hasUnmeteredConnection(getApplicationContext())) {
+                        currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.LIBRARY_BOOKS, this.libraryId, 0, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
+                    } else {
+                        currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.LIBRARY_BOOKS_WITHOUT_IMAGE, this.libraryId, 0, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
+                    }
+
                 }
                 else
-                {
-                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.LIBRARY_BOOKS_WITHOUT_IMAGE,this.libraryId, 0, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
-                }
+                    {
+//                    numberOfDisplayedBooks += cache.getBooks(handler, numberOfDisplayedBooks);
+                        new ThreadGetMoreBooks().start();
+                    }
+                // ----------------------
                 handler.sendEmptyMessage(DISABLE_LOADING_FOOTER);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -333,7 +344,7 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
     private static final int  UPDATE_UI_MSG= 0;
     private static final int TOAST_MSG = 1;
 
-    private static final int ADD_UPDATE_BOOK_LIST = 2;
+    public static final int ADD_UPDATE_BOOK_LIST = 2;
     private static final int REMOVE_UPDATE_BOOK_LIST = 3;
 
     public static final int UPDATE_BOOK_COVER = 5;
@@ -389,16 +400,23 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
         public void run()
         {
             handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
-            try {
-                if (NetworkUtils.hasUnmeteredConnection(getApplicationContext())){
-                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.LIBRARY_BOOKS,libraryId, currentlyDisplayedBooks, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
+            if ( NetworkUtils.hasInternetConnection(getApplicationContext()) ) {
+                try {
+                    if (NetworkUtils.hasUnmeteredConnection(getApplicationContext())){
+                        currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.LIBRARY_BOOKS,libraryId, currentlyDisplayedBooks, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
+                    }
+                    else
+                    {
+                        currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.LIBRARY_BOOKS_WITHOUT_IMAGE,libraryId, currentlyDisplayedBooks, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-                else
-                {
-                    currentlyDisplayedBooks += webConnector.getBooks(DomainConstants.LIBRARY_BOOKS_WITHOUT_IMAGE,libraryId, currentlyDisplayedBooks, "", ADD_UPDATE_BOOK_LIST, TOAST_MSG);
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            }
+            else
+            {
+                Cache cache = Cache.getInstance();
+                currentlyDisplayedBooks += cache.getLibraryBooks(handler, libraryId, currentlyDisplayedBooks);
             }
             handler.sendEmptyMessage(DISABLE_LOADING_FOOTER);
         }

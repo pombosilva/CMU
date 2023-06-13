@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import pt.ulisboa.tecnico.cmov.project.activities.LibraryInfoActivity;
 import pt.ulisboa.tecnico.cmov.project.fragments.BooksFragment;
 import pt.ulisboa.tecnico.cmov.project.fragments.MapFragment;
 
@@ -66,6 +68,23 @@ public class Cache {
             displayedBooks++;
         }
 
+        return displayedBooks;
+    }
+
+
+    public int getLibraryBooks(Handler handler, int libraryId, int displayedBooks)
+    {
+        Map<Library, ArrayList<Book>> snapshot = this.cache.snapshot();
+        List<Book> libraryBooks = snapshot.entrySet().stream()
+                .filter(entry -> entry.getKey().getId() == libraryId)
+                .flatMap(entry -> entry.getValue().stream())
+                .collect(Collectors.toList());
+
+        for ( int i = displayedBooks ; i< displayedBooks + NUMBER_BOOKS_TO_DISPLAY && i < libraryBooks.size(); i ++ )
+        {
+            sendMessageToHandler(handler, libraryBooks.get(i), LibraryInfoActivity.ADD_UPDATE_BOOK_LIST);
+            displayedBooks++;
+        }
         return displayedBooks;
     }
 
