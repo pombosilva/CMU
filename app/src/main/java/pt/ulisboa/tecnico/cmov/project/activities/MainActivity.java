@@ -6,7 +6,6 @@ import android.app.NotificationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
@@ -30,12 +29,9 @@ import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
 
 public class MainActivity extends AppCompatActivity {
-    ActivityMainBinding binding;
     private static final String CHANNEL_ID = "1";
-
     private NotificationManager notificationManager;
     private ArrayList<Book> availableFavBooks;
-
     private Cache cache;
 
     public MainActivity(){
@@ -50,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
             replaceFragment(new MapFragment(this.cache));
         }
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         cache = Cache.getInstance();

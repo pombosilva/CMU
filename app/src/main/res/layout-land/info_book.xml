@@ -53,6 +53,19 @@
             android:layout_marginTop="13sp"
             android:textAppearance="@style/TextAppearance.AppCompat.Button"
             android:textColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/share_book"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="22sp"
+                android:text="@string/share"
+                android:layout_marginStart="8dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:layout_marginTop="13sp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Button"
+                android:textColor="#FFFFFF" />
         </LinearLayout>
 
         <ListView

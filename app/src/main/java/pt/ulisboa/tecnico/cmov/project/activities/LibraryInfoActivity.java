@@ -30,6 +30,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
@@ -238,12 +239,16 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
         shareIntent.setAction(Intent.ACTION_SEND);
 
         //TODO: mudar para a foto da biblioteca
-        shareIntent.putExtra(Intent.EXTRA_STREAM, R.drawable.unloaded_book);
+        // shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(MediaStore.Images.Media.
+        //                insertImage(getContentResolver(), bitmap, bookTitle, null)));
+
+        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("android.resource://" +
+                getResources().getResourceName(R.drawable.unloaded_book).replace(":", "/")));
+
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, libraryName);
         shareIntent.putExtra(Intent.EXTRA_TEXT, "Latitude: "
                 + libraryLng + ", Longitude: " + libraryLat);
 
-        shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         shareIntent.setType("image/*");
         startActivity(Intent.createChooser(shareIntent, "Share content via"));
     }
