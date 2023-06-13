@@ -96,7 +96,9 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
             throw new RuntimeException(e);
         }
 
-        configureButtons();
+        if ( NetworkUtils.hasInternetConnection(getApplicationContext())) {
+            configureButtons();
+        }
     }
 
     @Override
