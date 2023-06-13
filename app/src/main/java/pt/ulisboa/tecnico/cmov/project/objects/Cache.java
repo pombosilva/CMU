@@ -10,7 +10,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import pt.ulisboa.tecnico.cmov.project.fragments.BooksFragment;
+import pt.ulisboa.tecnico.cmov.project.fragments.MapFragment;
+
 public class Cache {
+
+    private final static int NUMBER_BOOKS_TO_DISPLAY = 5;
 
     private boolean loaded = false;
         private static Cache instance;
@@ -43,11 +48,25 @@ public class Cache {
     {
         Map<Library, ArrayList<Book>> snapshot = cache.snapshot();
         for (Library library : snapshot.keySet()) {
-            Message msg = new Message();
-            msg.what = 2;
-            msg.obj = library;
-            handler.sendMessage(msg);
+            sendMessageToHandler(handler, library, MapFragment.NEW_MARKER);
         }
+    }
+
+
+    public int getBooks( Handler handler, int displayedBooks)
+    {
+        Map<Library, ArrayList<Book>> snapshot = this.cache.snapshot();
+        List<Book> allBooks = new ArrayList<>();
+        //NOTE: Podiamos ter um field extra para saber quantos livros cada livraria tem e assim evitavamos fazer todo este processamento desnecessario
+        snapshot.values().forEach(allBooks::addAll);
+
+        for ( int i = displayedBooks ; i < displayedBooks + NUMBER_BOOKS_TO_DISPLAY && i < allBooks.size(); i++ )
+        {
+            sendMessageToHandler(handler, allBooks.get(i), BooksFragment.UPDATE_BOOK_LIST);
+            displayedBooks++;
+        }
+
+        return displayedBooks;
     }
 
     public boolean isLoaded() {
@@ -57,4 +76,14 @@ public class Cache {
     public void setLoaded(boolean loaded) {
         this.loaded = loaded;
     }
+
+
+    private void sendMessageToHandler(Handler handler, Object obj, int what)
+    {
+        Message m = new Message();
+        m.obj = obj;
+        m.what = what;
+        handler.sendMessage(m);
+    }
+
 }

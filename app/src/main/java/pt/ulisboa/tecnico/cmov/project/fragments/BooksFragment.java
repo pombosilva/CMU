@@ -29,6 +29,7 @@ import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.activities.BookInfoActivity;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomBookBaseAdapter;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
+import pt.ulisboa.tecnico.cmov.project.objects.Cache;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
 
@@ -42,6 +43,10 @@ public class BooksFragment extends Fragment {
 
     private boolean isFiltered = false;
     private int numberOfDisplayedBooks =0;
+
+    private Cache cache = Cache.getInstance();
+
+
 
     public BooksFragment(WebConnector webConnector) {
         this.webConnector = webConnector;
@@ -97,13 +102,23 @@ public class BooksFragment extends Fragment {
             try {
                 isLoading = true;
                 handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
-                if (NetworkUtils.hasUnmeteredConnection(this.getContext())){
-                    numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS,-1, 0, "", UPDATE_BOOK_LIST, NO_INTERNET);
+
+                // ----------------------
+                // Este bloco pode ser todo substituido por new ThreadGetMoreBooks().start();
+                if (NetworkUtils.hasInternetConnection(this.getContext()) ) {
+                    if (NetworkUtils.hasUnmeteredConnection(this.getContext())) {
+                        numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS, -1, 0, "", UPDATE_BOOK_LIST, NO_INTERNET);
+                    } else {
+                        numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE, -1, 0, "", UPDATE_BOOK_LIST, NO_INTERNET);
+                    }
                 }
+
                 else
                 {
-                    numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE,-1, 0, "", UPDATE_BOOK_LIST, NO_INTERNET);
+//                    numberOfDisplayedBooks += cache.getBooks(handler, numberOfDisplayedBooks);
+                    new ThreadGetMoreBooks().start();
                 }
+                // ----------------------
                 handler.sendEmptyMessage(DISABLE_LOADING_FOOTER);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -180,7 +195,7 @@ public class BooksFragment extends Fragment {
     private boolean isLoading = false;
 
     private static final int NO_INTERNET = 1;
-    private static final int UPDATE_BOOK_LIST = 2;
+    public static final int UPDATE_BOOK_LIST = 2;
 
     private static final int ENABLE_LOADING_FOOTER = 3;
 
@@ -196,6 +211,7 @@ public class BooksFragment extends Fragment {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case UPDATE_BOOK_LIST:
+                    Log.d("InternalStorage", "Recebi um livro pa dar display");
                     displayedBooks.add((Book) msg.obj);
                     allBooks.add((Book) msg.obj);
                     bookListCustomBaseAdapter.notifyDataSetChanged();
@@ -235,12 +251,21 @@ public class BooksFragment extends Fragment {
         {
             handler.sendEmptyMessage(ENABLE_LOADING_FOOTER);
             try {
-                if (!isFiltered) {
-                    if (NetworkUtils.hasUnmeteredConnection(getContext())) {
-                        numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS, -1, numberOfDisplayedBooks, "", UPDATE_BOOK_LIST, NO_INTERNET);
-                    } else {
-                        numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE, -1, numberOfDisplayedBooks, "", UPDATE_BOOK_LIST, NO_INTERNET);
+                if ( NetworkUtils.hasInternetConnection(getContext()) ) {
+                    if (!isFiltered) {
+                        if (NetworkUtils.hasUnmeteredConnection(getContext())) {
+                            numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS, -1, numberOfDisplayedBooks, "", UPDATE_BOOK_LIST, NO_INTERNET);
+                        } else {
+                            numberOfDisplayedBooks += webConnector.getBooks(DomainConstants.BOOKS_WITHOUT_IMAGE, -1, numberOfDisplayedBooks, "", UPDATE_BOOK_LIST, NO_INTERNET);
+                        }
                     }
+                }
+                else
+                {
+                    Cache cache = Cache.getInstance();
+                    numberOfDisplayedBooks += cache.getBooks(handler, numberOfDisplayedBooks);
+
+
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);

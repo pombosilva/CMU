@@ -259,7 +259,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private static final int MARKER_MSG = 0;
     private static final int NO_INTERNET = 1;
-    private static final int NEW_MARKER = 2;
+    public static final int NEW_MARKER = 2;
 
     private final Handler handler = new Handler(Looper.getMainLooper()){
         @Override

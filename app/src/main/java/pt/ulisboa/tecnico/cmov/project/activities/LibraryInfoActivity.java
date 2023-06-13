@@ -250,15 +250,12 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
             Executor executor = Executors.newSingleThreadExecutor();
             executor.execute(() -> {
                 boolean bookExists = WebConnector.bookExists(bookBarcode);
-                Log.d("MensagensDebug", "Existe? " + bookExists);
+//                Log.d("MensagensDebug", "Existe? " + bookExists);
                 if ( bookExists )
                 {
                     WebConnector.checkInBook(this.libraryId, bookBarcode);
-                    Log.d("CheckBook", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  " );
                     Book newBook = WebConnector.getBook(bookBarcode);
-                    Log.d("CheckBook", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  " );
                     sendMessageToHandler(ADD_UPDATE_BOOK_LIST, newBook);
-                    Log.d("CheckBook", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA  " );
                 }
                 else {
                     // TODO: Esta a dar aquele erro do context e tal

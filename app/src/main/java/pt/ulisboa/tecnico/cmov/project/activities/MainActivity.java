@@ -3,12 +3,9 @@ package pt.ulisboa.tecnico.cmov.project.activities;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.content.ContentProvider;
-import android.content.ContextWrapper;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
@@ -16,34 +13,19 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.reflect.TypeToken;
-
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Executors;
 
-import pt.ulisboa.tecnico.cmov.project.Constants.DomainConstants;
 import pt.ulisboa.tecnico.cmov.project.R;
-import pt.ulisboa.tecnico.cmov.project.Threads.LoadOflineLibraries;
+import pt.ulisboa.tecnico.cmov.project.Threads.LoadOfflineLibraries;
 import pt.ulisboa.tecnico.cmov.project.databinding.ActivityMainBinding;
 import pt.ulisboa.tecnico.cmov.project.fragments.BooksFragment;
 import pt.ulisboa.tecnico.cmov.project.fragments.MapFragment;
 import pt.ulisboa.tecnico.cmov.project.fragments.UserFragment;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.Cache;
-import pt.ulisboa.tecnico.cmov.project.objects.Library;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
-import pt.ulisboa.tecnico.cmov.project.utils.InternalStorage;
 import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
 
 public class MainActivity extends AppCompatActivity {
@@ -72,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
         webConnector = new WebConnector(this.getApplicationContext());
 
-        new LoadOflineLibraries(this).start();
+        new LoadOfflineLibraries(this).start();
 
         replaceFragment(new MapFragment(webConnector, this.cache));
 
