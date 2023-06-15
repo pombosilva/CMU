@@ -7,13 +7,13 @@ def getEncodedImage(image_file):
 
 
 class Library:
-    def __init__(self, id, name, lat, lng, fav, image_file):
+    def __init__(self, id, name, lat, lng, fav, cover):
         self.id = id
         self.name = name
         self.lat = lat
         self.lng = lng
         self.fav = fav
-        self.image_file = image_file
+        self.cover = cover
         self.registered_books = []
         self.distance = -1
 
@@ -29,17 +29,17 @@ class Library:
 
 
     def getMarkerInfo(self):
-        return {'id': self.id, 'name': self.name, 'lat': self.lat, 'lng': self.lng, 'fav': self.fav}
+        return {'id': self.id, 'name': self.name, 'lat': self.lat, 'lng': self.lng, 'fav': self.fav, 'cover': getEncodedImage(self.cover)}
 
     def getMarkerInfoWithDistance(self):
-        return {'id': self.id, 'name': self.name, 'lat': self.lat, 'lng': self.lng, 'fav': self.fav, 'distance': self.distance}
+        return {'id': self.id, 'name': self.name, 'lat': self.lat, 'lng': self.lng, 'fav': self.fav, 'distance': self.distance, 'cover': getEncodedImage(self.cover)}
     
 
     def toJson(self):
-        return {"id": self.id, "name": self.name, "lat": self.lat, "lng": self.lng, "fav": self.fav, "encodedFile":self.image_file, "registeredBooks" : self.getRegisteredBooksAsJson(),"distance": self.distance}
+        return {"id": self.id, "name": self.name, "lat": self.lat, "lng": self.lng, "fav": self.fav, "cover":self.cover, "registeredBooks" : self.getRegisteredBooksAsJson(), "distance": self.distance}
 
     def getLibraryImage(self):
-        return getEncodedImage(self.image_file)
+        return getEncodedImage(self.cover)
 
     def isBookPresent(self, barcode):
         for book in self.registered_books:
@@ -66,4 +66,7 @@ class Library:
 
     def __str__(self):
         return f"Library(id={self.id}, name={self.name}, " \
-               f"latitude={self.lat}, longitude={self.lng}, favorite={self.fav}, file={self.image_file})"
+               f"latitude={self.lat}, longitude={self.lng}, favorite={self.fav}, file={self.cover})"
+
+    def getLibInfoToStore(self):
+        return str(self.id)+";"+str(self.name)+";"+str(self.lat)+";"+str(self.lng)+";"+str(self.fav)+";"+str(self.cover)

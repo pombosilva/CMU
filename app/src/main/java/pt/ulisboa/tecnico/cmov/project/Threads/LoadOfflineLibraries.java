@@ -68,9 +68,10 @@ public class LoadOfflineLibraries extends Thread{
             double lat = jsonObject.get("lat").getAsDouble();
             double lng = jsonObject.get("lng").getAsDouble();
             boolean fav = jsonObject.get("fav").getAsBoolean();
+            String cover = jsonObject.get("cover").getAsString();
             double distance = jsonObject.get("distance").getAsDouble();
 
-            Library library = new Library(id, name, lat, lng, fav, distance);
+            Library library = new Library(id, name, lat, lng, fav, distance, cover);
 
             ArrayList<Book> ab = new ArrayList<Book>();
             JsonArray registeredBooksArray = jsonObject.getAsJsonArray("registeredBooks");

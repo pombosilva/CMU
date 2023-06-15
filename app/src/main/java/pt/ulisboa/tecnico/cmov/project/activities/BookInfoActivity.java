@@ -110,6 +110,7 @@ public class BookInfoActivity extends AppCompatActivity {
                 intent.putExtra("libraryId", libraryList.get(position).getId());
                 intent.putExtra("libraryLat", libraryList.get(position).getLat());
                 intent.putExtra("libraryLng", libraryList.get(position).getLng());
+                intent.putExtra("libraryCover", libraryList.get(position).getCover());
                 startActivity(intent);
             });
         }

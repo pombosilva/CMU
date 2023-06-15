@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmov.project.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,6 +44,7 @@ import pt.ulisboa.tecnico.cmov.project.fragments.BooksFragment;
 import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.Cache;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
+import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
 import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
 
 public class LibraryInfoActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -131,6 +133,16 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
             libraryName = intentContents.getString("libraryName");
             TextView libraryNameTv = findViewById(R.id.library_name);
             libraryNameTv.setText(libraryName);
+
+            ImageView imageCoverIm = findViewById(R.id.library_image);
+
+            try {
+                String libraryCover = intentContents.getString("libraryCover");
+                Bitmap bitmap = ImageUtils.decodeBase64ToBitmap(libraryCover);
+                imageCoverIm.setImageBitmap(bitmap);
+            } catch (Exception e) {
+                imageCoverIm.setImageResource(Book.unloadedBookCover);
+            }
 
         }
         else {

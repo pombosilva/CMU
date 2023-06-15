@@ -11,27 +11,17 @@ public class Library {
     private final double lat;
     private final double lng;
     private final boolean fav;
+    private String cover;
     private final double distance;
-    private final String image;
 
-    public Library(int id, String name, double lat, double lng, boolean fav, String image) {
+    public Library(int id, String name, double lat, double lng, boolean fav, String cover) {
         this.id = id;
         this.name = name;
         this.lat = lat;
         this.lng = lng;
         this.fav = fav;
+        this.cover = cover;
         this.distance = -1;
-        this.image = image;
-    }
-
-    public Library(int id, String name, double lat, double lng, boolean fav, double distance, String image) {
-        this.id = id;
-        this.name = name;
-        this.lat = lat;
-        this.lng = lng;
-        this.fav = fav;
-        this.distance = distance;
-        this.image = image;
     }
 
     public Library(int id, String name, double lat, double lng, boolean fav, double distance) {
@@ -41,7 +31,17 @@ public class Library {
         this.lng = lng;
         this.fav = fav;
         this.distance = distance;
-        this.image = null;
+        this.cover = null;
+    }
+
+    public Library(int id, String name, double lat, double lng, boolean fav, double distance, String cover) {
+        this.id = id;
+        this.name = name;
+        this.lat = lat;
+        this.lng = lng;
+        this.fav = fav;
+        this.cover = cover;
+        this.distance = distance;
     }
 
     public int getId() {
@@ -64,6 +64,14 @@ public class Library {
         return fav;
     }
 
+    public String getCover() {
+        return cover;
+    }
+
+    public void setCover(String cover) {
+        this.cover = cover;
+    }
+
     public double getDistance(){return Double.parseDouble(
             String.format(Locale.UK,"%.2f", distance));}
 
@@ -76,14 +84,14 @@ public class Library {
                 ", lat=" + lat +
                 ", lng=" + lng +
                 ", fav=" + fav +
+                //", cover=" + cover +
                 ", distance='" + distance + '\'' +
-                ", image='" + image + '\'' +
                 '}';
     }
 
     public String toJson() {
         Gson gson = new Gson();
-        Log.d("RegisterLib", "Lib Jsonificado = " + gson.toJson(this));
+        //Log.d("RegisterLib", "Lib Jsonificado = " + gson.toJson(this));
         return gson.toJson(this);
 
     }

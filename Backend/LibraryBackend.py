@@ -78,17 +78,21 @@ def websocket_broadcast(message):
 def registerBookPersistently(newBook, encodedImage):
     with open(booksFile, "a") as file:
         file.write(newBook.getBookInfoToStore()+'\n')
-        saveImageCoverPersistently(newBook.title, encodedImage)
+        saveBookImageCoverPersistently(newBook.title, encodedImage)
 
 
-def saveImageCoverPersistently(image_file, encodedImage):
+def saveBookImageCoverPersistently(image_file, encodedImage):
     with open(bookImagesFolder + image_file + '.txt', "w") as file:
+        file.write(encodedImage)
+
+def saveLibImageCoverPersistently(image_file, encodedImage):
+    with open(libraryImagesFolder + image_file + '.txt', "w") as file:
         file.write(encodedImage)
 
 def registerLibPersistently(newLib, encodedImage):
     with open(librariesFile, "a") as file:
-        file.write(newLib.getBookInfoToStore()+'\n')
-        saveImageCoverPersistently(newLib.name, encodedImage)
+        file.write(newLib.getLibInfoToStore()+'\n')
+        saveLibImageCoverPersistently(newLib.name, encodedImage)
 
 def saveLibImagePersistently(image_file, encodedImage):
     with open(libraryImagesFolder + image_file + '.txt', "w") as file:
@@ -209,6 +213,10 @@ def get_markers():
     global libraries
     return jsonify([library.getMarkerInfo() for library in libraries])
 
+@app.route('/nextLibId', methods=['GET'])
+def nextLibId():
+    return jsonify(len(libraries))
+
 
 @app.route('/favMarker', methods=['PUT'])
 def favMarker():
@@ -303,7 +311,7 @@ def registerBook(libraryId):
 
     return jsonify(True)
 
-@app.route('/registerLib/', methods=['PUT'])
+@app.route('/registerLib', methods=['PUT'])
 def registerLib():
 
     data = json.loads(request.data)
@@ -311,15 +319,17 @@ def registerLib():
     libName = data['name']
     libLat = data['lat']
     libLng = data['lng']
-    libImage = data['image']
+    libImage = data['cover']
 
     global libraries
 
-    newLib = LB.Library(libId, libName, libLat, libLng, False, libImage)
+    print(libId, libName, libLat, libLng, False, libImage)
+
+    newLib = LB.Library(libId, libName, libLat, libLng, False, libName +'.txt')
 
     registerLibPersistently(newLib, libImage)
 
-    newLib.image = libraryImagesFolder + newLib.image
+    newLib.cover = libraryImagesFolder + newLib.cover
 
     libraries.append(newLib)
 
@@ -377,7 +387,7 @@ def test():
     libs.append(libraries[1].toJson())
     libs.append(libraries[3].toJson())
 
-    print(libs)
+    # print(libs)
 
     # print( jsonify(libraries[1].toJson()))
     return jsonify(libs)

@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -206,7 +207,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         intent.putExtra("libraryName",marker.getTitle());
         intent.putExtra("libraryLat", marker.getPosition().latitude);
         intent.putExtra("libraryLng", marker.getPosition().longitude);
-        intent.putExtra("libraryEncodedImage", markerSnippet.split(":")[1]);
+        intent.putExtra("libraryCover", markerSnippet.split(":")[1]);
 
         marker.hideInfoWindow();
         startActivity(intent);
@@ -263,7 +264,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private void loadNormalMarker(Library marker) {
         LatLng markerLocation = new LatLng(marker.getLat(), marker.getLng());
         MarkerOptions mkOpt = new MarkerOptions().position(markerLocation).
-                title(marker.getName()).snippet(marker.getId() + ":a");
+                title(marker.getName()).snippet(marker.getId() + ":" + marker.getCover());
 
         // set favourite markers blue
         if (marker.isFav())

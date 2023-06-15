@@ -108,11 +108,6 @@ public class AddLibraryActivity extends AppCompatActivity {
 
             LatLng coordinates = getCoordinatesFromLocation(searchLocation);
 
-
-            // TODO obter coordenadas do texto
-            double lat = 41.1;
-            double lng = -8.6;
-
             if (isEmpty(libName) || isEmpty(searchLocation)) {
                 Toast.makeText(AddLibraryActivity.this, "Please fill all fields", Toast.LENGTH_LONG).show();
             } else if(coordinates==null) {
@@ -121,11 +116,9 @@ public class AddLibraryActivity extends AppCompatActivity {
             else {
                 if (isEmpty(base64Picture)){ Toast.makeText(AddLibraryActivity.this, "Please take a picture of the library", Toast.LENGTH_LONG).show(); }
                 else {
-
-                    int libraryId = Integer.parseInt(getIntent().getExtras().getString("libraryId"));
-
                     Executor executor = Executors.newSingleThreadExecutor();
                     executor.execute(() -> {
+                                int libraryId = WebConnector.getNextLibID();
                                 registerLibToCloud(libraryId, libName, coordinates.latitude, coordinates.longitude, base64Picture);
                                 finish();
                             }

@@ -154,6 +154,18 @@ public class WebConnector {
         }
     }
 
+    public static int getNextLibID(){
+        try {
+            String query = DomainConstants.NEXT_LIB_ID;
+            Log.i("AJUDA", getData(query).toString());
+            return getData(query).nextInt();
+        }catch(Exception e){
+            Log.i("NEM ENTREI LOL", "-1");
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     public static void setFavouriteLibrary(int libraryId) {
         Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(() -> {
@@ -245,7 +257,6 @@ public class WebConnector {
 
     public static void registerLib(Library newLib) {
         try {
-            Log.d("RegisterLib", "Vou registar uma livraria.");
             putData(DomainConstants.REGISTER_LIB, newLib.toJson());
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -10,6 +10,7 @@ public class DomainConstants {
     public static final String LIBRARY_BOOKS_WITHOUT_IMAGE = "/libraryBooksWithoutImage";
 
     public static final String GET_BOOK = "/getBook";
+    public static final String NEXT_LIB_ID = "/nextLibId";
     public static final String GET_BOOK_COVER = "/bookCover";
     public static final String BOOKS = "/books";
     public static final String BOOKS_WITHOUT_IMAGE = "/booksWithoutImage";

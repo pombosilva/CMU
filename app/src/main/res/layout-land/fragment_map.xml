@@ -41,6 +41,12 @@
             android:textColor="#FFFFFF" />
     </LinearLayout>
 
+        <Button
+            android:id="@+id/addLibraryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add Library" />
+
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/libraries_map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
