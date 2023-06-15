@@ -36,8 +36,10 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.nio.file.WatchEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executors;
 
 import pt.ulisboa.tecnico.cmov.project.R;
@@ -51,22 +53,26 @@ import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private final WebConnector webConnector;
+    private WebConnector webConnector;
     private Marker searchMarker;
 
     private ArrayList<Marker> markers = new ArrayList<Marker>();
 
     private Cache cache;
 
-    public MapFragment(WebConnector webConnector, Cache cache) {
-        this.webConnector = webConnector;
+    public MapFragment() {
+        // empty constructor
+        this.webConnector = new WebConnector(getContext());
+    }
+
+    public MapFragment(Cache cache) {
+        this.webConnector = new WebConnector(getContext());
         this.cache = cache;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.webConnector.setHandler(this.handler);
     }
 
     @Override
@@ -90,6 +96,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 findFragmentById(R.id.libraries_map);
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
+
+        webConnector.setHandler(this.handler);
 
         Button searchButton = rootView.findViewById(R.id.searchButton);
         searchButton.setOnClickListener(this::searchLocation);

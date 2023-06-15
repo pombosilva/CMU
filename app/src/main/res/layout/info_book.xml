@@ -27,16 +27,28 @@
 
     <Button
         android:id="@+id/buttonFav"
+        style="?android:attr/buttonBarButtonStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="22sp"
+        android:layout_gravity="center"
+        android:lines="1"
+        android:layout_marginTop="20dp"
         android:text="@string/add_to_favourites"
-        android:layout_marginStart="8dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:layout_marginVertical="13sp"
         android:textAppearance="@style/TextAppearance.AppCompat.Button"
-        android:textColor="#FFFFFF" />
+        android:textColor="#8D6E63"/>
+
+    <Button
+        android:id="@+id/share_book"
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:lines="1"
+        android:layout_marginTop="13dp"
+        android:layout_marginBottom="20dp"
+        android:text="@string/share"
+        android:textAppearance="@style/TextAppearance.AppCompat.Button"
+        android:textColor="#8D6E63"/>
 
     <ListView
         android:id="@+id/bookAvailableLibraries"

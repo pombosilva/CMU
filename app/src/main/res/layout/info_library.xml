@@ -70,16 +70,37 @@
             android:textColor="#8D6E63" />
     </LinearLayout>
 
-    <Button
-        android:id="@+id/navigate_btn"
-        style="?android:attr/buttonBarButtonStyle"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/library_buttonsLayout1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:lines="1"
-        android:text="@string/navigate"
-        android:textAppearance="@style/TextAppearance.AppCompat.Button"
-        android:textColor="#8D6E63" />
+        android:gravity="center_horizontal"
+        android:layout_marginHorizontal="20sp"
+        android:layout_marginBottom="13sp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/navigate_btn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:lines="1"
+            android:text="@string/navigate"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:textColor="#8D6E63" />
+
+        <Button
+            android:id="@+id/share_btn"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:lines="1"
+            android:text="@string/share"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:textColor="#8D6E63" />
+    </LinearLayout>
 
     <ListView
         android:id="@+id/library_bookListView"

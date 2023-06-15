@@ -4,10 +4,12 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -43,6 +45,10 @@ public class BookInfoActivity extends AppCompatActivity {
 
     private Cache cache = Cache.getInstance();
 
+    private Bitmap bitmap;
+    private String bookTitle;
+
+
     public BookInfoActivity() {
         // empty constructor
     }
@@ -64,7 +70,7 @@ public class BookInfoActivity extends AppCompatActivity {
         Bundle intentContents = intent.getExtras();
 
         if (intentContents != null) {
-            String bookTitle = intentContents.getString("bookTitle");
+            bookTitle = intentContents.getString("bookTitle");
             TextView bookTitleTv = findViewById(R.id.bookTitle);
             bookTitleTv.setText(bookTitle);
 
@@ -73,7 +79,7 @@ public class BookInfoActivity extends AppCompatActivity {
 
             try {
                 String bookCover = intentContents.getString("bookCover");
-                Bitmap bitmap = ImageUtils.decodeBase64ToBitmap(bookCover);
+                bitmap = ImageUtils.decodeBase64ToBitmap(bookCover);
                 bookCoverIm.setImageBitmap(bitmap);
             } catch (Exception e) {
                 bookCoverIm.setImageResource(Book.unloadedBookCover);
@@ -119,6 +125,24 @@ public class BookInfoActivity extends AppCompatActivity {
             WebConnector.setFavouriteBook(bookBarcode);
             Toast.makeText(getApplicationContext(), "Added to favourites", Toast.LENGTH_LONG).show();
         });
+
+        Button share = findViewById(R.id.share_book);
+        share.setOnClickListener(v -> {
+            shareLibrary();
+        });
+    }
+
+    public void shareLibrary(){
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+
+        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(MediaStore.Images.Media.
+                insertImage(getContentResolver(), bitmap, bookTitle, null)));
+
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, bookTitle);
+
+        shareIntent.setType("image/*");
+        startActivity(Intent.createChooser(shareIntent, "Share content via"));
     }
 
     public void getLibrariesDistances() {
