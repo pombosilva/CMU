@@ -19,6 +19,8 @@ public class DomainConstants {
     public static final String CHECK_BOOK_OUT = "/checkBookOut";
     public static final String REGISTER_BOOK = "/registerBook";
 
+    public static final String REGISTER_LIB = "/registerLib";
+
     public static final String FILTERED_BOOKS = "/filteredBooks";
 
     public static final String CONTENTS_WITHIN_RADIUS= "/getContentsWithinRadius";

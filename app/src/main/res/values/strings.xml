@@ -24,4 +24,6 @@
     <string name="share">Share</string>
     <string name="title">Title</string>
     <string name="description">Description</string>
+    <string name="add_location">Location</string>
+    <string name="add_lib">Add Library</string>
 </resources>

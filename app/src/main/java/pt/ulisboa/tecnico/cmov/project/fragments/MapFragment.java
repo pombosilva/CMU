@@ -50,6 +50,8 @@ import pt.ulisboa.tecnico.cmov.project.objects.Library;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
 
+import pt.ulisboa.tecnico.cmov.project.activities.AddLibraryActivity;
+
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -102,7 +104,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         Button searchButton = rootView.findViewById(R.id.searchButton);
         searchButton.setOnClickListener(this::searchLocation);
 
+        Button addLibraryButton = rootView.findViewById(R.id.addLibraryButton);
+        addLibraryButton.setOnClickListener(this::addLibrary);
+
         return rootView;
+    }
+
+    public void addLibrary(View view) {
+        Intent intent  = new Intent(getActivity(), AddLibraryActivity.class);
+        startActivity(intent);
     }
 
     public void searchLocation(View view) {

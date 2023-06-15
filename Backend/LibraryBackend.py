@@ -84,6 +84,14 @@ def saveImageCoverPersistently(image_file, encodedImage):
     with open(bookImagesFolder + image_file + '.txt', "w") as file:
         file.write(encodedImage)
 
+def registerLibPersistently(newLib, encodedImage):
+    with open(librariesFile, "a") as file:
+        file.write(newLib.getBookInfoToStore()+'\n')
+        saveImageCoverPersistently(newLib.name, encodedImage)
+
+def saveLibImagePersistently(image_file, encodedImage):
+    with open(libraryImagesFolder + image_file + '.txt', "w") as file:
+        file.write(encodedImage)
 
 def get_library(library_id):
     global libraries
@@ -308,6 +316,27 @@ def registerBook(libraryId):
 
     return jsonify(True)
 
+@app.route('/registerLib/', methods=['PUT'])
+def registerLib():
+
+    data = json.loads(request.data)
+    libId = data['id']
+    libName = data['name']
+    libLat = data['lat']
+    libLng = data['lng']
+    libImage = data['image']
+
+    global libraries
+
+    newLib = LB.Library(libId, libName, libLat, libLng, False, libImage)
+
+    registerLibPersistently(newLib, libImage)
+
+    newLib.image = libraryImagesFolder + newLib.image
+
+    libraries.append(newLib)
+
+    return jsonify(True)
 
 @app.route('/filteredBooks', methods=['GET'])
 def filteredBooks():

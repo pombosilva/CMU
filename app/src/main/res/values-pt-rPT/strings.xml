@@ -17,4 +17,6 @@
     <string name="share">Partilhar</string>
     <string name="title">Título</string>
     <string name="description">Descrição</string>
+    <string name="add_location">Localização</string>
+    <string name="add_lib">Adicionar</string>
 </resources>

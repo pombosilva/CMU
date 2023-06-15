@@ -272,4 +272,13 @@ public class WebConnector {
         return "";
     }
 
+    public static void registerLib(Library newLib) {
+        try {
+            Log.d("RegisterLib", "Vou registar uma livraria.");
+            putData(DomainConstants.REGISTER_LIB, newLib.toJson());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
