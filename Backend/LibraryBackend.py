@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import threading
 from email.mime import image
 from mimetypes import init
 from flask import Flask, render_template, jsonify, json, request
@@ -11,6 +11,7 @@ from gevent.pywsgi import WSGIServer
 from geopy.distance import geodesic
 import library as LB
 import book as BK
+import time
 
 booksFile = 'res/books.txt'
 librariesFile = 'res/libraries.txt'
@@ -161,20 +162,6 @@ def getLibrariesThatContainBook():
     final = sorted(result2, key=lambda x: x["distance"])
 
     return jsonify(final)
-
-@app.route('/availableFavBooks', methods=['GET'])
-def getAvailableFavBooks():
-    global libraries
-    result = []
-    books = []
-    for l in libraries:
-        if l.fav is True:
-            result.append(l.getMarkerInfo())
-    for l in libraries:
-        for b in l.registered_books:
-            if b.fav is True:
-                books.append(b.getBookInfo())
-    return jsonify(books)
 
 
 @app.route('/libraryBooks', methods=['GET'])
@@ -366,15 +353,33 @@ def test():
     # print( jsonify(libraries[1].toJson()))
     return jsonify(libs)
 
-
 @sockets.route('/ws')
 def ws(ws):
     global websocket_connections, libraries
     websocket_connections.append(ws)
 
+    threading.Thread(target=sendAvailableFavBooks, args=(ws,)).start()
+
     while True:
         ws.receive()
 
+def sendAvailableFavBooks(ws):
+    global libraries
+
+    while True:
+        global libraries
+        result = []
+        result2 = []
+        for l in libraries:
+            if l.fav is True:
+                result.append(l.getMarkerInfo())
+        for l in libraries:
+            for b in l.registered_books:
+                if b.fav is True:
+                    result2.append(b.title + " is available at " + l.name)
+
+        ws.send(result2)
+        time.sleep(300)
 
 monkey.patch_all()
 WSGIServer(('0.0.0.0', 5000), app).serve_forever()

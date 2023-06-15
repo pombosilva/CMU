@@ -27,8 +27,6 @@ import pt.ulisboa.tecnico.cmov.project.utils.JSONFileWriter;
 public class WebConnector {
 
     private static final String endpoint = "http://192.92.147.96:5000";
-    private static final String wsEndpoint = "ws://192.92.147.96:5000/ws";
-    private WebSocketClient webSocketClient = null;
 
     private Handler handler;
 
@@ -39,23 +37,6 @@ public class WebConnector {
     public void setHandler(Handler handler) {
         this.handler = handler;
     }
-
-//    public void startWebSocket() {
-//        if (webSocketClient != null) {
-//            webSocketClient.close();
-//        }
-//
-//        try {
-//            webSocketClient = new WSClient(new URI(wsEndpoint), new HashMap<>());
-//            webSocketClient.connect();
-//        } catch (URISyntaxException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-//
-//    public void closeWebSocket() {
-//        webSocketClient.close();
-//    }
 
 
 
@@ -247,16 +228,6 @@ public class WebConnector {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static ArrayList<Book> getAvailableFavBooks() throws IOException {
-        ArrayList<Book> availableFavBooks = new ArrayList<>();
-        JsonReader data = getData(DomainConstants.AVAILABLE_FAV_BOOKS);
-        data.beginArray();
-        while (data.hasNext())
-            availableFavBooks.add(extractBook(data));
-        data.close();
-        return availableFavBooks;
     }
 
     public static String getContentsWithinRadius(Context ctx) throws IOException
