@@ -23,7 +23,7 @@ class Library:
         booksAsJson = []
 
         for rb in self.registered_books:
-            booksAsJson.append(rb.getBookWithoutImage())
+            booksAsJson.append(rb.getBookInfo())
 
         return booksAsJson
 

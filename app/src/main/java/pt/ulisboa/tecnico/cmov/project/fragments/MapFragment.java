@@ -180,7 +180,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         {
             Executors.newSingleThreadExecutor().execute(() -> {
 //                while ( !this.cache.isLoaded() ) {}
-                this.cache.loadMarkers(this.handler);
+                try{
+                    this.cache.loadMarkers(this.handler);
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
             });
         }
 
