@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
@@ -69,6 +70,7 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
 
     private View ftView;
     private boolean isLoading = false;
+    private Bitmap bitmap;
 
     public LibraryInfoActivity() {
         // empty constructor
@@ -138,7 +140,7 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
 
             try {
                 String libraryCover = intentContents.getString("libraryCover");
-                Bitmap bitmap = ImageUtils.decodeBase64ToBitmap(libraryCover);
+                bitmap = ImageUtils.decodeBase64ToBitmap(libraryCover);
                 imageCoverIm.setImageBitmap(bitmap);
             } catch (Exception e) {
                 imageCoverIm.setImageResource(Book.unloadedBookCover);
@@ -250,12 +252,8 @@ public class LibraryInfoActivity extends AppCompatActivity implements OnMapReady
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
 
-        //TODO: mudar para a foto da biblioteca
-        // shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(MediaStore.Images.Media.
-        //                insertImage(getContentResolver(), bitmap, bookTitle, null)));
-
-        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("android.resource://" +
-                getResources().getResourceName(R.drawable.unloaded_book).replace(":", "/")));
+        shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse(MediaStore.Images.Media.
+                        insertImage(getContentResolver(), bitmap, libraryName, null)));
 
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, libraryName);
         shareIntent.putExtra(Intent.EXTRA_TEXT, "Latitude: "
