@@ -40,7 +40,7 @@ public class LoadOfflineLibraries extends Thread{
     public void run()
     {
             if (NetworkUtils.hasInternetConnection(ctxWrp)) {
-                //WebConnector.getContentsWithinRadius(ctxWrp);
+                WebConnector.getContentsWithinRadius(ctxWrp);
             }else {
 
 
