@@ -12,6 +12,7 @@ from geopy.distance import geodesic
 import library as LB
 import book as BK
 import time
+import ssl
 
 booksFile = 'res/books.txt'
 librariesFile = 'res/libraries.txt'
@@ -183,12 +184,12 @@ def showLibraryBooks():
     start_id = int(request.args.get("startId", 0))
     print(start_id)
     library = next((l for l in libraries if l.id == libraryId), None)
-    
+
     if library is None:
         return jsonify({"error": "Library not found"})
-    
+
     selected_books = library.registered_books[start_id : start_id + 5]
-    
+
     return jsonify([book.getBookInfo() for book in selected_books])
 
 
@@ -199,7 +200,7 @@ def showLibraryBooksWithoutImage():
     start_id = int(request.args.get("startId", 0))
 
     library = next((l for l in libraries if l.id == libraryId), None)
-    
+
     if library is None:
         return jsonify({"error": "Library not found"})
 
@@ -300,7 +301,7 @@ def registerBook(libraryId):
     global books, libraries
     # newBook = BK.Book(bookId, bookTitle, bookDescription, createFile(bookCover, "BookPics/"+str(bookId)+".txt"), False)
     newBook = BK.Book(bookId, bookTitle, bookDescription, bookTitle +'.txt', False)
-    
+
     registerBookPersistently(newBook, bookCover)
 
     newBook.cover = bookImagesFolder + newBook.cover
@@ -343,7 +344,7 @@ def filteredBooks():
     global books
 
     selected_books = [b for b in books if filtr.lower() in b.title.lower()]
-    
+
     # for b in selected_books:
     #     print(b.getBookWithoutImage())
     # print(str(selected_books))
@@ -352,7 +353,7 @@ def filteredBooks():
     # for b in selected_books:
     #     print(b.getBookWithoutImage())
     # print(str(selected_books))
-    
+
     return jsonify([book.getBookInfo() for book in selected_books])
 
 
@@ -361,7 +362,7 @@ def getContentsWithinRadius():
     latitude = float(request.args.get("lat", -1))
     longitude = float(request.args.get("lng", -1))
     coords = (latitude,longitude)
-    
+
     if latitude == -1 or longitude == -1:
         return jsonify(False)
 
@@ -421,4 +422,12 @@ def sendAvailableFavBooks(ws):
         time.sleep(300)
 
 monkey.patch_all()
-WSGIServer(('0.0.0.0', 5000), app).serve_forever()
+#WSGIServer(('0.0.0.0', 5000), app).serve_forever()
+
+# Configure SSL context
+ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+ssl_context.load_cert_chain(certfile='/etc/ssl/certs/cert.crt', keyfile='/etc/ssl/private/key.key')
+
+# Create and run the server with SSL
+http_server = WSGIServer(('0.0.0.0', 5000), app, ssl_context=ssl_context)
+http_server.serve_forever()

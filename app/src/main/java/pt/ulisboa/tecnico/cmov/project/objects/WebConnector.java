@@ -2,6 +2,7 @@ package pt.ulisboa.tecnico.cmov.project.objects;
 
 import android.content.ContentProvider;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
@@ -9,70 +10,165 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
 
+
+
 import org.java_websocket.client.WebSocketClient;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertPathValidatorException;
 import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import java.security.KeyStore;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
+
 import pt.ulisboa.tecnico.cmov.project.Constants.DomainConstants;
+import pt.ulisboa.tecnico.cmov.project.R;
 import pt.ulisboa.tecnico.cmov.project.utils.JSONFileWriter;
+
+
 
 public class WebConnector {
 
-    private static final String endpoint = "http://192.92.147.96:5000";
+    private static final String endpoint = "https://192.92.147.96:5000";
+
+
 
     private Handler handler;
 
+    private static Context context;
+
     public WebConnector(Context applicationContext) {
         // empty constructor
+        this.context = applicationContext;
     }
 
     public void setHandler(Handler handler) {
         this.handler = handler;
     }
 
+    /*
+    public static void createSSLSocketFactory() {
+            try {
+                InputStream inputStream = context.getResources().openRawResource(R.raw.cert);
+
+                CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+                X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(inputStream);
+
+                KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                keyStore.load(null, null);
+                keyStore.setCertificateEntry("cert", certificate);
+
+                TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                trustManagerFactory.init(keyStore);
+
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
+
+                sslSocketFactory = sslContext.getSocketFactory();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+    }*/
 
 
     private static JsonReader getData(String path) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + path).openConnection();
+        //try {
+            HttpsURLConnection connection = (HttpsURLConnection) new URL(endpoint + path).openConnection();
+            //SSLContext sslContext = SSLContext.getInstance("TLS");
+            //connection.setSSLSocketFactory(sslContext.getSocketFactory());
+
+            connection.setSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
+            connection.setHostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                // Implement your custom hostname verification logic here
+                // You can use the 'hostname' parameter and the 'session' parameter to validate the certificate
+                return true; // Return 'true' if the certificate is valid
+            }
+            });
+
+            int respCode = connection.getResponseCode();
+
+            if (respCode == 200) {
+                JsonReader jsonReader = new JsonReader(new InputStreamReader(connection.getInputStream()));
+                jsonReader.setLenient(true);
+                return jsonReader;
+            }
+            throw new RuntimeException("Unexpected response: " + connection.getResponseMessage());
+        //} catch (NoSuchAlgorithmException e) {
+          //  throw new RuntimeException();
+        //}
+        //HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + path).openConnection();
 //        Log.d("ImageDownloads", "Passei o teste");
-        int respCode = connection.getResponseCode();
+       // int respCode = connection.getResponseCode();
 
 //        Log.d("ImageDownloads", "Passei o teste");
 
 
-        if (respCode == 200) {
+       /* if (respCode == 200) {
             JsonReader jsonReader = new JsonReader(new InputStreamReader(connection.getInputStream()));
             jsonReader.setLenient(true);
             return jsonReader;
-        }
-        throw new RuntimeException("Unexpected response: " + connection.getResponseMessage());
+        }*/
+        //throw new RuntimeException("Unexpected response: " + connection.getResponseMessage());
     }
 
     private static void putData(String path, Object data) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + path).openConnection();
-        connection.setRequestMethod("PUT");
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setDoOutput(true);
 
-        if (data instanceof Boolean || data instanceof Integer) {
-            new DataOutputStream(connection.getOutputStream())
-                    .write((data.toString()).getBytes(StandardCharsets.UTF_8));
-        } else {
-            new DataOutputStream(connection.getOutputStream())
-                    .write(("" + data.toString() + "").getBytes(StandardCharsets.UTF_8));
-        }
+        //try {
+            HttpsURLConnection connection = (HttpsURLConnection) new URL(endpoint + path).openConnection();
+            //SSLContext sslContext = SSLContext.getInstance("TLS");
+            //connection.setSSLSocketFactory(sslContext.getSocketFactory());
+            connection.setSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
 
-        if (connection.getResponseCode() != 200) {
-            throw new RuntimeException("Unexpected response: " + connection.getResponseMessage());
-        }
+        connection.setHostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                // Implement your custom hostname verification logic here
+                // You can use the 'hostname' parameter and the 'session' parameter to validate the certificate
+                return true; // Return 'true' if the certificate is valid
+            }
+        });
+
+            connection.setRequestMethod("PUT");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            if (data instanceof Boolean || data instanceof Integer) {
+                new DataOutputStream(connection.getOutputStream())
+                        .write((data.toString()).getBytes(StandardCharsets.UTF_8));
+            } else {
+                new DataOutputStream(connection.getOutputStream())
+                        .write(("" + data.toString() + "").getBytes(StandardCharsets.UTF_8));
+            }
+
+            if (connection.getResponseCode() != 200) {
+                throw new RuntimeException("Unexpected response: " + connection.getResponseMessage());
+            }
+
+        //} catch (NoSuchAlgorithmException e) {
+          //  throw new RuntimeException();
+        //}
+
     }
 
     public void getMarkers() throws IOException {
