@@ -21,6 +21,7 @@ import com.google.gson.stream.JsonReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.Principal;
@@ -40,7 +41,8 @@ import pt.ulisboa.tecnico.cmov.project.Threads.LoadOfflineLibraries;
 import pt.ulisboa.tecnico.cmov.project.utils.JSONFileWriter;
 
 public class WebConnector {
-    private static final String endpoint = "https://192.92.147.96:5000";
+    //private static final String endpoint = "https://192.92.147.96:5000";
+    private static final String endpoint = "http://192.92.147.96:5000";
     private Handler handler;
     private static Context context;
 
@@ -53,14 +55,16 @@ public class WebConnector {
     }
 
     private static JsonReader getData(String path) throws IOException {
-        HttpsURLConnection connection = (HttpsURLConnection) new URL(endpoint + path).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + path).openConnection();
+
+        /**HttpsURLConnection connection = (HttpsURLConnection) new URL(endpoint + path).openConnection();
         connection.setSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
         connection.setHostnameVerifier(new HostnameVerifier() {
             @Override
             public boolean verify(String hostname, SSLSession session) {
                 return true;
             }
-        });
+        });*/
 
         int respCode = connection.getResponseCode();
 
@@ -73,7 +77,9 @@ public class WebConnector {
     }
 
     private static void putData(String path, Object data) throws IOException {
-        HttpsURLConnection connection = (HttpsURLConnection) new URL(endpoint + path).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URL(endpoint + path).openConnection();
+
+        /**HttpsURLConnection connection = (HttpsURLConnection) new URL(endpoint + path).openConnection();
         connection.setSSLSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
         connection.setHostnameVerifier(new HostnameVerifier() {
             @Override
@@ -92,7 +98,7 @@ public class WebConnector {
                     throw new RuntimeException(e);
                 }
             }
-        });
+        });*/
 
         connection.setRequestMethod("PUT");
         connection.setRequestProperty("Content-Type", "application/json");

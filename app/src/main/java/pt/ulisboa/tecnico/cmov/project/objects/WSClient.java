@@ -40,6 +40,7 @@ public class WSClient extends WebSocketClient {
     @Override
     public void onMessage(String message) {
         if (message != null) {
+            //Log.i("MESSAGE: ", message);
 
             String cleanedString = message.
                     replace("[", "").replace("]", "").
@@ -94,13 +95,16 @@ public class WSClient extends WebSocketClient {
     public ArrayList<Integer> getActiveNotificationIDs(){
         ArrayList<Integer> activeIds = new ArrayList<>();
         StatusBarNotification[] activeNotifications = notificationManager.getActiveNotifications();
-        for(StatusBarNotification notification: activeNotifications)
+        for(StatusBarNotification notification: activeNotifications) {
             activeIds.add(notification.getId());
+            //Log.i("NOTIF ACTIVE", String.valueOf(notification.getId()));
+        }
         return activeIds;
     }
 
     public void sendNotification(Integer i){
         String notif = availableFavBooks[i];
+        //Log.i("SENDING NOTIF", notif);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.unloaded_book)
                 .setContentText(notif)

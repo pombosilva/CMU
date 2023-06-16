@@ -427,15 +427,15 @@ def sendAvailableFavBooks(ws):
                     result2.append(b.title + " is available at " + l.name)
 
         ws.send(result2)
-        time.sleep(300)
+        time.sleep(5)
 
 monkey.patch_all()
-#WSGIServer(('0.0.0.0', 5000), app).serve_forever()
+WSGIServer(('0.0.0.0', 5000), app).serve_forever()
 
 # Configure SSL context
-ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
-ssl_context.load_cert_chain(certfile='/etc/ssl/certs/cert.crt', keyfile='/etc/ssl/private/key.key')
+#ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+#ssl_context.load_cert_chain(certfile='/etc/ssl/certs/cert.crt', keyfile='/etc/ssl/private/key.key')
 
 # Create and run the server with SSL
-http_server = WSGIServer(('0.0.0.0', 5000), app, ssl_context=ssl_context)
-http_server.serve_forever()
+#http_server = WSGIServer(('0.0.0.0', 5000), app, ssl_context=ssl_context)
+#http_server.serve_forever()
