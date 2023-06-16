@@ -56,14 +56,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Cache cache;
     private FusedLocationProviderClient fusedLocationClient;
 
-    public MapFragment() {
-        // empty constructor
-        this.webConnector = new WebConnector(getContext());
-    }
+//    public MapFragment() {
+//        // empty constructor
+//        this.webConnector = new WebConnector(getContext());
+//    }
 
-    public MapFragment(Cache cache) {
+    public MapFragment() {
         this.webConnector = new WebConnector(getContext());
-        this.cache = cache;
+        this.cache = Cache.getInstance();
     }
 
     @Override
@@ -129,7 +129,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         else {
             Executors.newSingleThreadExecutor().execute(() -> {
-//                while ( !this.cache.isLoaded() ) {}
+                while ( !this.cache.isLoaded() ) {}
                 try{
                     this.cache.loadMarkers(this.handler);
                 }catch (Exception e){

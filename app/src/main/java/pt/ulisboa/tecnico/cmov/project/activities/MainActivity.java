@@ -40,7 +40,8 @@ public class MainActivity extends AppCompatActivity{
         startWebSocket();
 
         if(savedInstanceState==null){
-            replaceFragment(new MapFragment(this.cache));
+//            replaceFragment(new MapFragment(this.cache));
+            replaceFragment(new MapFragment());
         }
 
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
@@ -52,7 +53,8 @@ public class MainActivity extends AppCompatActivity{
 
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.map) {
-                replaceFragment(new MapFragment(this.cache));
+//                replaceFragment(new MapFragment(this.cache));
+                replaceFragment(new MapFragment());
             } else if (item.getItemId() == R.id.books) {
                 replaceFragment(new BooksFragment());
             } else if (item.getItemId() == R.id.user) {

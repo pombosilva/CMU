@@ -359,26 +359,34 @@ def filteredBooks():
 
 @app.route('/getContentsWithinRadius', methods=['GET'])
 def getContentsWithinRadius():
+    global libraries
+
+
     latitude = float(request.args.get("lat", -1))
     longitude = float(request.args.get("lng", -1))
     coords = (latitude,longitude)
 
+    print()
+    print("lat " + str(latitude))
+    print("lng " + str(longitude))
+    print()
+
+
     if latitude == -1 or longitude == -1:
         return jsonify(False)
 
-    radius = 100
+    radius = 10
     filteredLibraries = []
-
-    global libraries
-
 
     for l in libraries:
         distance = geodesic(coords, (l.lat, l.lng)).kilometers
         if distance < radius :
+            print("Vou adicionar uma library")
             l.setDistance(distance)
             filteredLibraries.append(l.toJson())
 
-    return str(filteredBooks)
+    
+    return jsonify(filteredLibraries)
 
 @app.route('/test', methods=['GET'])
 def test():

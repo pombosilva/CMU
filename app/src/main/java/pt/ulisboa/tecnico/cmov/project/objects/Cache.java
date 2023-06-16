@@ -49,6 +49,7 @@ public class Cache {
 
     public void loadMarkers(Handler handler)
     {
+
         Map<Library, ArrayList<Book>> snapshot = cache.snapshot();
         for (Library library : snapshot.keySet()) {
             sendMessageToHandler(handler, library, MapFragment.NEW_MARKER);

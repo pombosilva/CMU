@@ -26,4 +26,6 @@ public class DomainConstants {
 
     public static final String CONTENTS_WITHIN_RADIUS= "/getContentsWithinRadius";
 
+    public static final String TEST= "/test";
+
 }

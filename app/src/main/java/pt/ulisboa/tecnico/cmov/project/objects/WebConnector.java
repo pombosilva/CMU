@@ -1,11 +1,21 @@
 package pt.ulisboa.tecnico.cmov.project.objects;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import androidx.core.app.ActivityCompat;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 
 import java.io.DataOutputStream;
@@ -22,6 +32,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 
 import pt.ulisboa.tecnico.cmov.project.Constants.DomainConstants;
+import pt.ulisboa.tecnico.cmov.project.Threads.LoadOfflineLibraries;
 import pt.ulisboa.tecnico.cmov.project.utils.JSONFileWriter;
 
 public class WebConnector {
@@ -251,16 +262,45 @@ public class WebConnector {
         }
     }
 
-    public static String getContentsWithinRadius(Context ctx) throws IOException {
-        JsonReader jReader = getData("/test");
+    public static void getContentsWithinRadius(Context ctx) {
+
+        FusedLocationProviderClient fusedLocationClient =
+                LocationServices.getFusedLocationProviderClient(ctx);
+
+        if (ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(ctx, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+           return;
+        }
+        LocationManager locationManager;
+
+        // Inside your method or constructor
+//        locationManager = (LocationManager) getSystemService(ctx, ctx.LOCATION_SERVICE);
+//        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+
+//        JsonReader jReader = getData("/test");
+            Executors.newSingleThreadExecutor().execute(() -> {
+                String query = DomainConstants.CONTENTS_WITHIN_RADIUS + "?lat=" + location.getLatitude() + "&lng=" + location.getLongitude();
+                JsonReader jReader = null;
+                try {
+                    jReader = getData(query);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
 //        Gson gson = new Gson();
 //        String j = gson.toJson(data);
+//                if (jReader != null) {
+                    JSONFileWriter jsonFileWriter = new JSONFileWriter();
+                    jsonFileWriter.writeJsonToFile(ctx, jReader, "output.json");
+//                }
 
-        JSONFileWriter jsonFileWriter = new JSONFileWriter();
-        jsonFileWriter.writeJsonToFile(ctx, jReader, "output.json");
+                Log.d("InternalStorage", "Dados Json = ");
 
-        Log.d("InternalStorage", "Dados Json = ");
-        return "";
+//                Gson gson = new GsonBuilder()
+//                        .registerTypeAdapter(Library.class, new LoadOfflineLibraries.LibraryDeserializer())
+//                        .create();
+
+            });
+        });
     }
 
     public static void registerLib(Library newLib) {
