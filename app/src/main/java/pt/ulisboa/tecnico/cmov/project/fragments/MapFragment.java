@@ -1,7 +1,6 @@
 package pt.ulisboa.tecnico.cmov.project.fragments;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,7 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,13 +35,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
-import java.nio.file.WatchEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 
 import pt.ulisboa.tecnico.cmov.project.R;
+import pt.ulisboa.tecnico.cmov.project.activities.AddLibraryActivity;
 import pt.ulisboa.tecnico.cmov.project.activities.LibraryInfoActivity;
 import pt.ulisboa.tecnico.cmov.project.adapters.CustomMarkerBaseAdapter;
 import pt.ulisboa.tecnico.cmov.project.objects.Cache;
@@ -51,17 +48,13 @@ import pt.ulisboa.tecnico.cmov.project.objects.Library;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 import pt.ulisboa.tecnico.cmov.project.utils.NetworkUtils;
 
-import pt.ulisboa.tecnico.cmov.project.activities.AddLibraryActivity;
-
 public class MapFragment extends Fragment implements OnMapReadyCallback {
-
     private GoogleMap mMap;
-    private WebConnector webConnector;
+    private final WebConnector webConnector;
     private Marker searchMarker;
-
-    private ArrayList<Marker> markers = new ArrayList<Marker>();
-
+    private final ArrayList<Marker> markers = new ArrayList<>();
     private Cache cache;
+    private FusedLocationProviderClient fusedLocationClient;
 
     public MapFragment() {
         // empty constructor
@@ -105,52 +98,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         Button searchButton = rootView.findViewById(R.id.searchButton);
         searchButton.setOnClickListener(this::searchLocation);
 
-        Button addLibraryButton = rootView.findViewById(R.id.addLibraryButton);
-        addLibraryButton.setOnClickListener(this::addLibrary);
-
         return rootView;
     }
 
-    public void addLibrary(View view) {
-        Intent intent  = new Intent(getActivity(), AddLibraryActivity.class);
-        startActivity(intent);
-    }
-
-    public void searchLocation(View view) {
-        if (searchMarker != null)
-            searchMarker.remove();
-
-        EditText searchText = requireView().findViewById(R.id.searchText);
-        Geocoder geocoder = new Geocoder(getActivity());
-
-        try {
-            List<Address> addresses = geocoder.getFromLocationName(searchText.getText().
-                    toString(), 1);
-            if (addresses != null && !addresses.isEmpty()) {
-                closeKeyboard(view);
-                Address address = addresses.get(0);
-                LatLng searchedLatLng = new LatLng(address.getLatitude(), address.getLongitude());
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(searchedLatLng, 20));
-                searchMarker = mMap.addMarker(new MarkerOptions().position(searchedLatLng).
-                        title("Add new Library"));
-                //TODO: Add description field to each library
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void closeKeyboard(View view) {
-        InputMethodManager inputMethodManager = (InputMethodManager) requireActivity().
-                getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (inputMethodManager != null) {
-            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-    }
-
-
-
-    @SuppressLint("PotentialBehaviorOverride")
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
@@ -167,8 +117,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             mMap.getUiSettings().setMyLocationButtonEnabled(true);
         }
 
-        if ( NetworkUtils.hasInternetConnection(this.getContext()) ) {
-
+        if (NetworkUtils.hasInternetConnection(this.requireContext())) {
             Executors.newSingleThreadExecutor().execute(() -> {
                 try {
                     webConnector.getMarkers();
@@ -177,8 +126,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
             });
         }
-        else
-        {
+
+        else {
             Executors.newSingleThreadExecutor().execute(() -> {
 //                while ( !this.cache.isLoaded() ) {}
                 try{
@@ -189,35 +138,80 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             });
         }
 
+        mMap.setOnMapClickListener(this::searchMarker);
         mMap.setInfoWindowAdapter(new CustomMarkerBaseAdapter(getActivity()));
         mMap.setOnInfoWindowClickListener(this::openLibraryInfo);
+
+        fusedLocationClient =
+                LocationServices.getFusedLocationProviderClient(requireContext());
+
         openLibraryIfNear();
     }
 
+    public void addLibrary() {
+        Intent intent  = new Intent(getActivity(), AddLibraryActivity.class);
+        intent.putExtra("libraryLat", searchMarker.getPosition().latitude);
+        intent.putExtra("libraryLng", searchMarker.getPosition().longitude);
+        startActivity(intent);
+    }
 
+    public void searchLocation(View view) {
+        EditText searchText = requireView().findViewById(R.id.searchText);
+        Geocoder geocoder = new Geocoder(getActivity());
 
+        try {
+            List<Address> addresses = geocoder.getFromLocationName(searchText.getText().
+                    toString(), 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                closeKeyboard(view);
+                Address address = addresses.get(0);
+                LatLng searchedLatLng = new LatLng(address.getLatitude(), address.getLongitude());
+                searchMarker(searchedLatLng);
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(searchedLatLng, 20));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void closeKeyboard(View view) {
+        InputMethodManager inputMethodManager = (InputMethodManager) requireActivity().
+                getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (inputMethodManager != null) {
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    public void searchMarker(LatLng latLng){
+        if (searchMarker != null)
+            searchMarker.remove();
+
+        searchMarker = mMap.addMarker(new MarkerOptions().position(latLng).
+                title("Add new Library"));
+    }
 
     public void openLibraryInfo(Marker marker){
         Intent intent = new Intent(getActivity(), LibraryInfoActivity.class);
         String markerSnippet = marker.getSnippet();
-        assert markerSnippet != null;
-        int markerId = Integer.parseInt(markerSnippet.split(":")[0]);
+        if(markerSnippet == null){
+            addLibrary();
+        }
+        else {
+            int markerId = Integer.parseInt(markerSnippet.split(":")[0]);
 
-        intent.putExtra("libraryId", markerId);
-        intent.putExtra("libraryName",marker.getTitle());
-        intent.putExtra("libraryLat", marker.getPosition().latitude);
-        intent.putExtra("libraryLng", marker.getPosition().longitude);
-        intent.putExtra("libraryCover", markerSnippet.split(":")[1]);
+            intent.putExtra("libraryId", markerId);
+            intent.putExtra("libraryName", marker.getTitle());
+            intent.putExtra("libraryLat", marker.getPosition().latitude);
+            intent.putExtra("libraryLng", marker.getPosition().longitude);
+            intent.putExtra("libraryCover", markerSnippet.split(":")[1]);
 
-        marker.hideInfoWindow();
-        startActivity(intent);
+            marker.hideInfoWindow();
+            startActivity(intent);
+        }
     }
 
     public void openLibraryIfNear() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            FusedLocationProviderClient fusedLocationClient =
-                    LocationServices.getFusedLocationProviderClient(requireContext());
-
             if (ActivityCompat.checkSelfPermission(requireContext(),
                     Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(requireContext(),

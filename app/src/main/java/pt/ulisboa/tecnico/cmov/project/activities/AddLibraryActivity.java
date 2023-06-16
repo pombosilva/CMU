@@ -4,13 +4,9 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,44 +16,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import pt.ulisboa.tecnico.cmov.project.R;
-import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.Library;
-import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
-import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
-
-
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
-import pt.ulisboa.tecnico.cmov.project.R;
-import pt.ulisboa.tecnico.cmov.project.objects.Book;
 import pt.ulisboa.tecnico.cmov.project.objects.WebConnector;
 import pt.ulisboa.tecnico.cmov.project.utils.ImageUtils;
 
@@ -72,7 +35,7 @@ public class AddLibraryActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_library);
+        setContentView(R.layout.activity_create_library);
 
         imageView = findViewById(R.id.imageView);
         takePictureBtn = findViewById(R.id.takePictureBtn);
@@ -103,15 +66,8 @@ public class AddLibraryActivity extends AppCompatActivity {
             TextView libNameTv = findViewById(R.id.libName);
             String libName = libNameTv.getText().toString();
 
-            TextView searchLocationTv = findViewById(R.id.searchLocation);
-            String searchLocation = searchLocationTv.getText().toString();
-
-            LatLng coordinates = getCoordinatesFromLocation(searchLocation);
-
-            if (isEmpty(libName) || isEmpty(searchLocation)) {
+            if (isEmpty(libName)) {
                 Toast.makeText(AddLibraryActivity.this, "Please fill all fields", Toast.LENGTH_LONG).show();
-            } else if(coordinates==null) {
-                Toast.makeText(AddLibraryActivity.this, "Please enter a valid location", Toast.LENGTH_LONG).show();
             }
             else {
                 if (isEmpty(base64Picture)){ Toast.makeText(AddLibraryActivity.this, "Please take a picture of the library", Toast.LENGTH_LONG).show(); }
@@ -119,29 +75,15 @@ public class AddLibraryActivity extends AppCompatActivity {
                     Executor executor = Executors.newSingleThreadExecutor();
                     executor.execute(() -> {
                                 int libraryId = WebConnector.getNextLibID();
-                                registerLibToCloud(libraryId, libName, coordinates.latitude, coordinates.longitude, base64Picture);
+                                double libraryLat = getIntent().getDoubleExtra("libraryLat",49.621271);
+                                double libraryLng = getIntent().getDoubleExtra("libraryLng", -86.942096);
+                                registerLibToCloud(libraryId, libName, libraryLat, libraryLng, base64Picture);
                                 finish();
                             }
                     );
                 }
             }
         });
-    }
-
-    public LatLng getCoordinatesFromLocation(String location) {
-        LatLng searchedLatLng = null;
-        Geocoder geocoder = new Geocoder(this);
-
-        try {
-            List<Address> addresses = geocoder.getFromLocationName(location, 1);
-            if (addresses != null && !addresses.isEmpty()) {
-                Address address = addresses.get(0);
-                searchedLatLng = new LatLng(address.getLatitude(), address.getLongitude());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return searchedLatLng;
     }
 
 
