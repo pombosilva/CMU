@@ -13,11 +13,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.security.Principal;
+import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -63,7 +67,19 @@ public class WebConnector {
         connection.setHostnameVerifier(new HostnameVerifier() {
             @Override
             public boolean verify(String hostname, SSLSession session) {
-                return true;
+                try {
+                    X509Certificate certificate = (X509Certificate) session.getPeerCertificates()[0];
+                    Date currentDate = new Date();
+                    if (currentDate.before(certificate.getNotBefore()) || currentDate.after(certificate.getNotAfter())) {
+                        return false; // Certificate is expired or not yet valid
+                    }
+                    Principal principal = certificate.getSubjectDN();
+                    String subjectDn = principal.getName();
+                    if (subjectDn.contains("CMU")) return true;
+                    else return false;
+                } catch (SSLPeerUnverifiedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
 
